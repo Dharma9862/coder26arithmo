@@ -164,6 +164,33 @@ class SoundService {
     }
   }
 
+  public playStreakSound(streak: number = 1) {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      
+      const pitch = Math.min(440 + (streak * 40), 1200);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, now);
+      osc.frequency.exponentialRampToValueAtTime(pitch * 1.5, now + 0.1);
+      
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } catch {
+      // Audio fallback
+    }
+  }
+
   public playFanfare() {
     if (this.isMuted) return;
     try {

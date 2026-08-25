@@ -40,6 +40,18 @@ const DEFAULT_PROFILE: UserProfile = {
 };
 
 export class StorageService {
+  private static notifyLocalUpdate(key: string, data?: any) {
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new CustomEvent('numbersprint_local_update', {
+          detail: { key, data, timestamp: Date.now() }
+        }));
+      } catch {
+        // Fallback
+      }
+    }
+  }
+
   public static getProfile(): UserProfile {
     try {
       const data = localStorage.getItem(PROFILE_KEY);
@@ -55,6 +67,7 @@ export class StorageService {
   public static saveProfile(profile: UserProfile): void {
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      this.notifyLocalUpdate(PROFILE_KEY, profile);
     } catch {
       // LocalStorage error fallback
     }
@@ -150,6 +163,7 @@ export class StorageService {
 
       this.saveProfile(profile);
       this.evaluateAchievements(session);
+      this.notifyLocalUpdate(SESSIONS_KEY, session);
     } catch {
       // Storage error
     }
@@ -170,6 +184,7 @@ export class StorageService {
   public static saveAchievements(achievements: Achievement[]): void {
     try {
       localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
+      this.notifyLocalUpdate(ACHIEVEMENTS_KEY, achievements);
     } catch {
       // Fallback
     }
@@ -258,6 +273,7 @@ export class StorageService {
     }
     try {
       localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(list));
+      this.notifyLocalUpdate(BOOKMARKS_KEY, list);
     } catch {
       // Storage error
     }
@@ -292,6 +308,7 @@ export class StorageService {
     const combined = [...existing, ...questions];
     try {
       localStorage.setItem(CUSTOM_QUESTIONS_KEY, JSON.stringify(combined));
+      this.notifyLocalUpdate(CUSTOM_QUESTIONS_KEY, combined);
     } catch {
       // Storage error
     }
@@ -334,6 +351,7 @@ export class StorageService {
       }
       try {
         localStorage.setItem(DAILY_CHALLENGE_KEY, JSON.stringify(challenge));
+        this.notifyLocalUpdate(DAILY_CHALLENGE_KEY, challenge);
       } catch {
         // Fallback
       }

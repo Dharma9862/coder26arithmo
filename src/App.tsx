@@ -17,12 +17,9 @@ import { RateAppModal } from './components/RateAppModal';
 import { MoreAppsModal } from './components/MoreAppsModal';
 import { AuthModal } from './components/AuthModal';
 import { FlutterCodeViewer } from './components/FlutterCodeViewer';
-import { DeviceViewportController } from './components/DeviceViewportController';
 
 import { 
   AptitudeQuestion, 
-  DeviceConfig,
-  DeviceMode,
   DifficultyLevel, 
   GameDuration, 
   GameSessionResult, 
@@ -32,20 +29,13 @@ import {
 import { StorageService } from './services/storageService';
 import { APTITUDE_CATEGORIES } from './data/aptitudeQuestions';
 import { soundService } from './services/soundService';
+import { syncService, SyncMessage } from './services/syncService';
 
 export default function App() {
   // Navigation & Screen States
   const [currentTab, setCurrentTab] = useState<TabType>('sprint');
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState<boolean>(false);
-  
-  // Mobile & Tablet Device Capabilities & Viewport Simulation State
-  const [deviceConfig, setDeviceConfig] = useState<DeviceConfig>({
-    mode: 'desktop',
-    orientation: 'portrait',
-    scale: 1.0,
-    showBezel: true,
-    preset: 'responsive',
-  });
+  const [syncToast, setSyncToast] = useState<string | null>(null);
   
   // Game Flow State
   const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
@@ -93,6 +83,36 @@ export default function App() {
   useEffect(() => {
     soundService.setMuted(!profile.soundEnabled);
   }, [profile.soundEnabled]);
+
+  // Live Synchronization & Multi-Tab Broadcast Subscriber
+  useEffect(() => {
+    const unsubscribe = syncService.subscribe((msg: SyncMessage) => {
+      // Reload updated states from storage
+      setProfile(StorageService.getProfile());
+      setSessions(StorageService.getSessions());
+      setAchievements(StorageService.getAchievements());
+      setQuestions(StorageService.getAllAptitudeQuestions());
+      setDailyChallenge(StorageService.getDailyChallenge());
+
+      if (msg.senderId !== 'storage_event') {
+        setSyncToast('⚡ State live synced across open tabs');
+        setTimeout(() => setSyncToast(null), 3000);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLiveReload = () => {
+    const synced = syncService.triggerSync();
+    setProfile(synced.profile);
+    setSessions(synced.sessions);
+    setAchievements(synced.achievements);
+    setQuestions(synced.questions);
+    setDailyChallenge(synced.dailyChallenge);
+    setSyncToast('⚡ Instant Live Reload completed');
+    setTimeout(() => setSyncToast(null), 3000);
+  };
 
   const handleToggleSound = () => {
     const next = !profile.soundEnabled;
@@ -274,12 +294,19 @@ export default function App() {
   };
 
   return (
-    <DeviceViewportController
-      config={deviceConfig}
-      onChangeConfig={setDeviceConfig}
-    >
-      <div className="min-h-full bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+    <div className="w-full min-h-screen bg-slate-950 flex justify-center selection:bg-amber-500 selection:text-slate-950">
+      <div className="w-full max-w-md min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between relative shadow-2xl sm:border-x sm:border-slate-800">
         
+        {/* Floating Real-Time Sync Toast */}
+        {syncToast && (
+          <aside aria-label="Sync Notification" className="fixed top-14 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-none">
+            <div className="px-4 py-2 rounded-2xl bg-slate-900/95 border border-sky-500/50 shadow-xl shadow-sky-500/20 text-sky-300 text-xs font-black uppercase tracking-wider backdrop-blur-md flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>{syncToast}</span>
+            </div>
+          </aside>
+        )}
+
         {/* Top Navigation - shown on other tabs, while Home Sprint tab has the Cyan header */}
         {!activeGameParams && currentTab !== 'sprint' && (
           <Navbar
@@ -289,8 +316,6 @@ export default function App() {
             onOpenAdmin={() => setIsAdminModalOpen(true)}
             onOpenCodeViewer={() => setIsCodeViewerOpen(true)}
             onOpenAuth={() => handleOpenAuthModal('signin')}
-            deviceMode={deviceConfig.mode}
-            onSelectDeviceMode={(mode) => setDeviceConfig((prev) => ({ ...prev, mode }))}
             onToggleSound={handleToggleSound}
             onBack={() => setCurrentTab('sprint')}
             onToggleMenu={() => setIsSideDrawerOpen(true)}
@@ -381,6 +406,6 @@ export default function App() {
         />
 
       </div>
-    </DeviceViewportController>
+    </div>
   );
 }

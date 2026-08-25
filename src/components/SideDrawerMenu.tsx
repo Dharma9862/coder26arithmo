@@ -18,10 +18,12 @@ import {
   ExternalLink,
   Ban,
   Star,
-  Grid
+  Grid,
+  RefreshCw
 } from 'lucide-react';
 import { MathOperation, UserProfile } from '../types';
 import { soundService } from '../services/soundService';
+import { syncService } from '../services/syncService';
 
 interface SideDrawerMenuProps {
   isOpen: boolean;
@@ -352,6 +354,20 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
               {!isSoundMuted ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
           </div>
+
+          <button
+            id="drawer-live-sync-btn"
+            onClick={() => {
+              soundService.triggerHaptic('medium');
+              soundService.playStreakSound(2);
+              syncService.triggerSync();
+              onClose();
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-xs font-black uppercase tracking-wider transition-colors shadow-xs"
+          >
+            <RefreshCw className="w-4 h-4 text-sky-600" />
+            <span>Live Sync & Reload</span>
+          </button>
 
           <button
             id="drawer-settings-btn"

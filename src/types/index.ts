@@ -64,6 +64,8 @@ export interface AptitudeCategory {
   };
 }
 
+export type ExamLevel = 'Prelims' | 'Mains';
+
 export interface AptitudeQuestion {
   id: string;
   categoryId: string;
@@ -73,6 +75,8 @@ export interface AptitudeQuestion {
   correctAnswerIndex: number;
   explanation: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  examLevel?: ExamLevel;
+  subtopic?: string;
   examTags: string[];
   formulaShortcut?: string;
   imageUrl?: string;
@@ -81,6 +85,29 @@ export interface AptitudeQuestion {
     selectedOption: number;
     isCorrect: boolean;
     timestamp: number;
+  };
+}
+
+export interface TopicConceptGuide {
+  categoryId: string;
+  topicName: string;
+  overview: string;
+  keyFormulas: Array<{
+    name: string;
+    formula: string;
+    description: string;
+    example?: string;
+  }>;
+  vedicShortcuts: Array<{
+    title: string;
+    technique: string;
+    speedAdvantage: string;
+  }>;
+  commonTraps: string[];
+  examTrends: {
+    prelimsWeightage: string;
+    mainsWeightage: string;
+    recommendedTimePerQuestion: string;
   };
 }
 
@@ -183,9 +210,9 @@ export interface AdStatus {
   rewardedAvailable: boolean;
 }
 
-export type DeviceMode = 'desktop' | 'tablet' | 'mobile';
+export type DeviceMode = 'desktop' | 'tablet' | 'mobile' | 'auto';
 export type DeviceOrientation = 'portrait' | 'landscape';
-export type DevicePreset = 'iphone' | 'ipad' | 'pixel' | 'responsive';
+export type DevicePreset = 'iphone' | 'galaxy' | 'pixel' | 'ipad' | 'ipad_mini' | 'laptop' | 'responsive';
 
 export interface DeviceConfig {
   mode: DeviceMode;
@@ -193,4 +220,5 @@ export interface DeviceConfig {
   scale: number;
   showBezel: boolean;
   preset: DevicePreset;
+  autoDetected?: boolean;
 }
