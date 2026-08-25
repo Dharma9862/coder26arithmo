@@ -125,6 +125,7 @@ export interface UserProfile {
   level: number;
   isPremium: boolean;
   subscriptionPlan?: 'monthly' | 'yearly';
+  purchasedProductId?: string;
   subscriptionExpiresAt?: string;
   leaderboardRank: number;
   totalSprintsPlayed: number;

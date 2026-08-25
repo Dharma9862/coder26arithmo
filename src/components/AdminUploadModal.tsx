@@ -217,7 +217,7 @@ export const AdminUploadModal: React.FC<AdminUploadModalProps> = ({
                 Admin Question Upload Center
               </h2>
               <p className="text-xs text-slate-400 font-medium">
-                Bulk import aptitude & reasoning questions via Excel (.xlsx, .csv) with schema validation
+                Bulk import quantitative aptitude & competitive exam questions via Excel (.xlsx, .csv) with schema validation
               </p>
             </div>
           </div>

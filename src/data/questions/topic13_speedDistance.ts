@@ -3,7 +3,7 @@ import { AptitudeQuestion } from '../../types';
 export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'std_01',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A train 240 m long crosses a pole in 24 seconds. How long will it take to cross a platform 650 m long?',
     options: ['89 seconds', '85 seconds', '90 seconds', '75 seconds'],
@@ -17,7 +17,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_02',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A man can row downstream at 14 km/h and upstream at 8 km/h. Find the speed of the man in still water and the speed of the current.',
     options: ['11 km/h and 3 km/h', '10 km/h and 4 km/h', '12 km/h and 2 km/h', '9 km/h and 5 km/h'],
@@ -31,7 +31,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_03',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'If a person walks at 14 km/h instead of 10 km/h, he would have walked 20 km more. The actual distance travelled by him was:',
     options: ['50 km', '60 km', '40 km', '70 km'],
@@ -45,7 +45,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_04',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'Two trains 140 m and 160 m long run at the speeds of 60 km/h and 40 km/h respectively in opposite directions on parallel tracks. What is the time (in seconds) they will take to cross each other?',
     options: ['10.8 seconds', '12.0 seconds', '9.6 seconds', '11.5 seconds'],
@@ -59,7 +59,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_05',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A thief is spotted by a policeman from a distance of 100 meters. When the policeman starts the chase, the thief also starts running. If the speed of the thief be 8 km/h and that of the policeman 10 km/h, how far the thief will have run before he is overtaken?',
     options: ['400 meters', '500 meters', '300 meters', '450 meters'],
@@ -73,7 +73,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_06',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A boat takes 90 minutes less to travel 36 miles downstream than to travel the same distance upstream. If the speed of the boat in still water is 10 mph, find the speed of the stream.',
     options: ['2 mph', '3 mph', '1.5 mph', '2.5 mph'],
@@ -87,7 +87,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_07',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'In a 1000 m race, A beats B by 100 m or 10 seconds. What is A\'s time to complete the 1000 m race?',
     options: ['90 seconds', '100 seconds', '80 seconds', '95 seconds'],
@@ -101,7 +101,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_08',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'Walking at 3/4 of his normal speed, a man reaches his office 20 minutes late. What is his usual time to reach the office?',
     options: ['60 minutes (1 hour)', '45 minutes', '80 minutes', '50 minutes'],
@@ -115,7 +115,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_09',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'Two cities A and B are 330 km apart. A train starts from A at 8 a.m. and travels towards B at 60 km/h. Another train starts from B at 9 a.m. and travels towards A at 75 km/h. At what time do they meet?',
     options: ['11:00 a.m.', '10:30 a.m.', '11:30 a.m.', '12:00 noon'],
@@ -129,7 +129,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_10',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A motorboat whose speed is 15 km/h in still water goes 30 km downstream and comes back in a total of 4 hours 30 minutes. What is the speed of the stream?',
     options: ['5 km/h', '4 km/h', '6 km/h', '3 km/h'],
@@ -143,7 +143,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_11',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'Two trains start at the same time from Aligarh and Delhi and proceed towards each other at 16 km/h and 21 km/h respectively. When they meet, it is found that one train has traveled 60 km more than the other. Find the distance between the two stations.',
     options: ['444 km', '420 km', '450 km', '480 km'],
@@ -157,7 +157,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_12',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A train running at 54 km/h takes 20 seconds to pass a platform. Next, it takes 12 seconds to pass a man walking at 6 km/h in the same direction. Find the length of the train and the platform.',
     options: ['Train: 160 m, Platform: 140 m', 'Train: 150 m, Platform: 150 m', 'Train: 180 m, Platform: 120 m', 'Train: 140 m, Platform: 160 m'],
@@ -171,7 +171,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_13',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'In a circular race of 1200 m, A and B start from the same point at the same time in the same direction with speeds of 18 km/h and 27 km/h. After how much time will they meet for the first time at the starting point?',
     options: ['8 minutes (480 s)', '6 minutes (360 s)', '10 minutes (600 s)', '12 minutes (720 s)'],
@@ -185,7 +185,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_14',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A man travels 600 km by train at 80 km/h, 800 km by ship at 40 km/h, 500 km by aeroplane at 400 km/h, and 100 km by car at 50 km/h. What is the average speed for the entire distance?',
     options: ['65.57 km/h (2000/30.55)', '60 km/h', '70 km/h', '62.5 km/h'],
@@ -199,7 +199,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_15',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A train passes two persons walking in the same direction at 3 km/h and 5 km/h in 10 seconds and 11 seconds respectively. What is the speed of the train?',
     options: ['25 km/h', '24 km/h', '27 km/h', '30 km/h'],
@@ -213,7 +213,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_16',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'If a train runs at 40 km/h, it reaches its destination late by 11 minutes, but if it runs at 50 km/h, it is late by 5 minutes only. The correct time for the train to complete its journey is:',
     options: ['19 minutes', '20 minutes', '24 minutes', '15 minutes'],
@@ -227,7 +227,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_17',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A and B run a 1 km race. A gives B a start of 50 m and still beats him by 15 seconds. If A\'s speed is 8 km/h, what is B\'s speed?',
     options: ['7.36 km/h (4.6 km in ...)', '7.2 km/h', '7.5 km/h', '7.0 km/h'],
@@ -241,7 +241,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_18',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A boat moves downstream at the rate of 1 km in 7 1/2 minutes and upstream at 5 km/h. What is the speed of the boat in still water?',
     options: ['6.5 km/h', '6.0 km/h', '7.0 km/h', '5.5 km/h'],
@@ -255,7 +255,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_19',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'Excluding stoppages, the speed of a bus is 54 km/h and including stoppages, it is 45 km/h. For how many minutes does the bus stop per hour?',
     options: ['10 minutes', '12 minutes', '9 minutes', '8 minutes'],
@@ -269,7 +269,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_20',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A 150-meter long train crosses a 250-meter long bridge in 20 seconds. What is the speed of the train in km/h?',
     options: ['72 km/h', '60 km/h', '80 km/h', '64 km/h'],
@@ -283,7 +283,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_21',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'Two runners start together from the same point on a circular track of length 400 m. If their speeds are 5 m/s and 3 m/s in opposite directions, after how many seconds will they meet for the first time?',
     options: ['50 seconds', '40 seconds', '60 seconds', '80 seconds'],
@@ -297,7 +297,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_22',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A man goes from Delhi to Noida at a uniform speed of 30 km/h and returns at a uniform speed of 20 km/h. What is his average speed for the round trip?',
     options: ['24 km/h', '25 km/h', '22.5 km/h', '26 km/h'],
@@ -311,7 +311,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_23',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A boat goes 24 km upstream and 28 km downstream in 6 hours. It also goes 30 km upstream and 21 km downstream in 6 hours 30 minutes. What is the speed of the boat in still water?',
     options: ['10 km/h', '9 km/h', '12 km/h', '8 km/h'],
@@ -325,7 +325,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_24',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'In a 100 m race, A can give B 10 m and C 28 m. In the same race, how much start can B give to C?',
     options: ['20 m', '18 m', '22 m', '25 m'],
@@ -339,7 +339,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_25',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A train 110 meters long is running with a speed of 60 km/h. In what time will it pass a man who is running at 6 km/h in the direction opposite to that in which the train is going?',
     options: ['6 seconds', '5 seconds', '7 seconds', '8 seconds'],
@@ -353,7 +353,7 @@ export const TOPIC13_SPEED_DISTANCE_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'std_26',
-    categoryId: 'speed-time-distance',
+    categoryId: 'speed-distance-trains-boats',
     categoryName: 'Speed, Time, Distance, Trains & Boats',
     questionText: 'A man travelled a distance of 61 km in 9 hours. He travelled partly on foot at 4 km/h and partly on bicycle at 9 km/h. What is the distance travelled on foot?',
     options: ['16 km', '12 km', '20 km', '15 km'],

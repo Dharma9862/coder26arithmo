@@ -3,7 +3,7 @@ import { AptitudeQuestion } from '../../types';
 export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'prb_01',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many different ways can the letters of the word "LEADING" be arranged in such a way that the vowels always come together?',
     options: ['720', '360', '5040', '120'],
@@ -17,7 +17,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_02',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'Two dice are thrown simultaneously. What is the probability of getting two numbers whose product is even?',
     options: ['3/4', '1/2', '1/4', '5/8'],
@@ -31,7 +31,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_03',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'A committee of 5 members is to be formed out of 6 men and 4 women. In how many ways can this be done so that at least 3 men are included?',
     options: ['186', '120', '196', '180'],
@@ -45,7 +45,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_04',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'From a pack of 52 cards, two cards are drawn together at random. What is the probability of both the cards being kings?',
     options: ['1/221', '1/169', '1/26', '2/221'],
@@ -59,7 +59,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_05',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many ways can 6 persons sit around a circular table?',
     options: ['120', '720', '24', '360'],
@@ -73,7 +73,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_06',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many different ways can the letters of the word "MATHEMATICS" be arranged?',
     options: ['4,989,600', '1,247,400', '9,979,200', '2,494,800'],
@@ -87,7 +87,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_07',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'A bag contains 6 black and 8 white balls. One ball is drawn at random. What is the probability that the ball drawn is white?',
     options: ['4/7', '3/7', '1/2', '5/7'],
@@ -101,7 +101,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_08',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'Three unbiased coins are tossed. What is the probability of getting at least 2 heads?',
     options: ['1/2', '3/8', '5/8', '1/4'],
@@ -115,7 +115,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_09',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'A problem in mathematics is given to three students A, B, and C whose chances of solving it are 1/2, 1/3, and 1/4 respectively. What is the probability that the problem will be solved?',
     options: ['3/4', '2/3', '1/2', '5/6'],
@@ -129,7 +129,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_10',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many ways can a cricket eleven be chosen out of a batch of 15 players if a particular player is always to be included and 2 particular players are always to be excluded?',
     options: ['210', '330', '120', '252'],
@@ -143,7 +143,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_11',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'Out of 7 consonants and 4 vowels, how many words of 3 consonants and 2 vowels can be formed?',
     options: ['25,200', '210', '120', '24,000'],
@@ -157,7 +157,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_12',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'An urn contains 2 red, 3 green, and 2 blue balls. Two balls are drawn at random. What is the probability that none of the balls drawn is blue?',
     options: ['10/21', '11/21', '5/7', '4/7'],
@@ -171,7 +171,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_13',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'How many 3-digit numbers can be formed from the digits 2, 3, 5, 6, 7, and 9 which are divisible by 5 and none of the digits is repeated?',
     options: ['20', '15', '25', '30'],
@@ -185,7 +185,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_14',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'A box contains 8 red, 7 blue, and 6 green balls. One ball is picked up randomly. What is the probability that it is neither red nor green?',
     options: ['1/3', '7/21 (1/3)', '8/21', '6/21'],
@@ -199,7 +199,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_15',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'How many diagonals are there in a decagon (10-sided polygon)?',
     options: ['35', '45', '40', '30'],
@@ -213,7 +213,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_16',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In a lottery, there are 10 prizes and 25 blanks. A lottery is drawn at random. What is the probability of getting a prize?',
     options: ['2/7', '5/7', '2/5', '1/3'],
@@ -227,7 +227,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_17',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many ways can 5 boys and 4 girls sit in a row so that no two girls are together?',
     options: ['43,200', '28,800', '14,400', '57,600'],
@@ -241,7 +241,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_18',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'A card is drawn from a well-shuffled pack of 52 playing cards. What is the probability that the card drawn is either a Queen or a Diamond?',
     options: ['4/13', '1/4', '17/52', '7/26'],
@@ -255,7 +255,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_19',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'How many different 4-digit numbers can be formed with the digits 0, 1, 2, 3, 4, 5 without repetition?',
     options: ['300', '360', '240', '180'],
@@ -269,7 +269,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_20',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'If 7 coins are tossed simultaneously, what is the probability of obtaining exactly 3 heads?',
     options: ['35/128', '21/128', '35/64', '1/4'],
@@ -283,7 +283,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_21',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many ways can 4 prizes be distributed among 5 students when no student receives more than one prize?',
     options: ['120', '60', '24', '625'],
@@ -297,7 +297,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_22',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'Two dice are rolled. What is the probability that the sum of points on the two dice is at least 10?',
     options: ['1/6 (6/36)', '1/9', '5/36', '1/4'],
@@ -311,7 +311,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_23',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'A committee of 3 persons is to be chosen from a group of 5 men and 4 women. What is the probability that the committee contains at least one woman?',
     options: ['37/42', '5/42', '35/42', '41/42'],
@@ -325,7 +325,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_24',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'In how many ways can 5 keys be arranged on a circular key ring?',
     options: ['12', '24', '120', '60'],
@@ -339,7 +339,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_25',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'If P(A) = 0.4, P(B) = 0.8, and P(B|A) = 0.6, find P(A ∪ B).',
     options: ['0.96', '0.92', '0.88', '0.90'],
@@ -353,7 +353,7 @@ export const TOPIC18_PROBABILITY_PERMUTATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'prb_26',
-    categoryId: 'probability-permutation',
+    categoryId: 'probability-permutation-combination',
     categoryName: 'Probability, Permutation & Combination',
     questionText: 'There are 10 points in a plane, of which 4 are collinear. How many distinct straight lines can be formed by joining these points?',
     options: ['40', '45', '39', '42'],

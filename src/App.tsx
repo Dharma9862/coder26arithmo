@@ -178,6 +178,7 @@ export default function App() {
     const updated: UserProfile = {
       ...profile,
       isPremium: true,
+      purchasedProductId: productId || profile.purchasedProductId || 'pro_supporter',
       subscriptionPlan: 'yearly',
       subscriptionExpiresAt: new Date(Date.now() + 3650 * 86400000).toISOString(),
     };
@@ -382,6 +383,7 @@ export default function App() {
 
         <PremiumModal
           isOpen={isPremiumModalOpen}
+          profile={profile}
           onClose={() => setIsPremiumModalOpen(false)}
           onUpgradeSuccess={handleUpgradeSuccess}
         />

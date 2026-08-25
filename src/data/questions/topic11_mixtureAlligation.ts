@@ -3,7 +3,7 @@ import { AptitudeQuestion } from '../../types';
 export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'mix_01',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'In what ratio must tea at ₹62 per kg be mixed with tea at ₹72 per kg so that the mixture must be worth ₹64.50 per kg?',
     options: ['3 : 1', '3 : 2', '2 : 3', '4 : 1'],
@@ -17,7 +17,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_02',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A vessel contains 60 liters of milk. 12 liters of milk is taken out and replaced with water. This process is repeated one more time. How much milk is now left in the vessel?',
     options: ['38.4 liters', '36.0 liters', '40.0 liters', '35.2 liters'],
@@ -31,7 +31,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_03',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'In a 70-liter mixture of milk and water, the ratio of milk to water is 5 : 2. How much water should be added to make the ratio 5 : 3?',
     options: ['10 liters', '8 liters', '12 liters', '15 liters'],
@@ -45,7 +45,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_04',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'Two vessels A and B contain milk and water in the ratio 4 : 3 and 2 : 3 respectively. In what ratio should the mixtures be taken from both vessels to form a new mixture with equal parts milk and water?',
     options: ['7 : 5', '5 : 7', '4 : 3', '3 : 4'],
@@ -59,7 +59,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_05',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A merchant has 1000 kg of sugar, part of which he sells at 8% profit and the rest at 18% profit. He gains 14% on the whole. The quantity sold at 18% profit is:',
     options: ['600 kg', '400 kg', '500 kg', '650 kg'],
@@ -73,7 +73,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_06',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A container has 40 liters of milk. From this container 4 liters of milk was taken out and replaced by water. This process was repeated further two times. How much milk is now contained by the container?',
     options: ['29.16 liters', '30.24 liters', '28.50 liters', '32.00 liters'],
@@ -87,7 +87,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_07',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A jar contains a mixture of two liquids A and B in the ratio 4 : 1. When 10 liters of the mixture was taken out and 10 liters of liquid B was poured into the jar, the ratio became 2 : 3. What was the original quantity of liquid A in the jar?',
     options: ['16 liters', '20 liters', '12 liters', '24 liters'],
@@ -101,7 +101,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_08',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'How many kg of rice at ₹42 per kg must be mixed with 30 kg of rice at ₹50 per kg so that by selling the mixture at ₹52.80 per kg, there is a profit of 10%?',
     options: ['20 kg', '25 kg', '15 kg', '18 kg'],
@@ -115,7 +115,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_09',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'Three equal glasses are filled with a mixture of spirit and water. The ratio of spirit to water in each glass is 2 : 3, 3 : 4, and 4 : 5. The contents of the three glasses are emptied into a single large vessel. What is the ratio of spirit to water in the large vessel?',
     options: ['401 : 544', '420 : 530', '390 : 510', '415 : 560'],
@@ -129,7 +129,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_10',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A butler stole wine from a butt of sherry which contained 32% spirit and he replaced what he had stolen by wine containing only 18% spirit. The butt was then found to contain 24% spirit. What fraction of the wine did the butler steal?',
     options: ['4/7', '3/7', '1/3', '2/5'],
@@ -143,7 +143,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_11',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A vessel is filled with liquid, 3 parts of which are water and 5 parts syrup. How much of the mixture must be drawn off and replaced with water so that the mixture may be half water and half syrup?',
     options: ['1/5', '1/4', '1/3', '1/6'],
@@ -157,7 +157,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_12',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'Gold is 19 times as heavy as water and copper is 9 times as heavy as water. In what ratio should these metals be mixed so that the mixture may be 15 times as heavy as water?',
     options: ['3 : 2', '2 : 3', '1 : 2', '3 : 1'],
@@ -171,7 +171,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_13',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A mixture contains alcohol and water in the ratio 4 : 3. If 5 liters of water is added to the mixture, the ratio becomes 4 : 5. Find the quantity of alcohol in the given mixture.',
     options: ['10 liters', '8 liters', '12 liters', '15 liters'],
@@ -185,7 +185,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_14',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: '8 liters are drawn from a cask full of wine and is then filled with water. This operation is performed three more times. The ratio of the quantity of wine now left in cask to that of water is 16 : 65. How much wine did the cask hold originally?',
     options: ['24 liters', '32 liters', '18 liters', '40 liters'],
@@ -199,7 +199,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_15',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'In what ratio must water be mixed with milk to gain 20% by selling the mixture at cost price?',
     options: ['1 : 5', '1 : 4', '1 : 6', '2 : 5'],
@@ -213,7 +213,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_16',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A mixture of 40 liters of milk and water contains 10% water. How much water must be added to make 20% water in the new mixture?',
     options: ['5 liters', '4 liters', '6 liters', '8 liters'],
@@ -227,7 +227,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_17',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'Two alloys A and B are made of copper and zinc in the ratio 7 : 2 and 7 : 11 respectively. If equal weights of both alloys are melted together to form a third alloy C, the ratio of copper and zinc in C will be:',
     options: ['7 : 5', '5 : 7', '14 : 13', '9 : 8'],
@@ -241,7 +241,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_18',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A trader has 50 kg of pulses, part of which he sells at 14% profit and the rest at 6% loss. On the whole he gains 10%. How much pulses did he sell at 14% profit?',
     options: ['40 kg', '35 kg', '30 kg', '45 kg'],
@@ -255,7 +255,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_19',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A container is full of 64 liters of milk. 16 liters of milk is taken out and replaced with water. This process is repeated one more time. Find the ratio of milk to water in the container now.',
     options: ['9 : 7', '3 : 1', '7 : 9', '4 : 3'],
@@ -269,7 +269,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_20',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'In what ratio should water be added to a liquid costing ₹12 per liter so as to make the mixture worth ₹10 per liter?',
     options: ['1 : 5', '1 : 6', '2 : 5', '1 : 4'],
@@ -283,7 +283,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_21',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A mixture contains 80% acid and rest water. How much water should be added to 50 liters of this mixture to reduce the acid strength to 50%?',
     options: ['30 liters', '25 liters', '20 liters', '35 liters'],
@@ -297,7 +297,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_22',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A 20-liter mixture contains milk and water in the ratio 3 : 1. How many liters of milk must be added to make the ratio 4 : 1?',
     options: ['5 liters', '4 liters', '6 liters', '3 liters'],
@@ -311,7 +311,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_23',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A sum of ₹41 was divided among 50 boys and girls. Each boy gets 90 paise and each girl gets 65 paise. Find the number of boys.',
     options: ['34', '16', '30', '20'],
@@ -325,7 +325,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_24',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'A vessel is full of refined oil. 1/4th of the oil is taken out and replaced by water. This process is repeated 3 times. What percentage of refined oil is left in the vessel?',
     options: ['42.19%', '40.50%', '45.00%', '37.50%'],
@@ -339,7 +339,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_25',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'In an alloy, the ratio of copper to zinc is 5 : 2. If 1.25 kg of zinc is added to 17.5 kg of the alloy, then the ratio of copper to zinc in the new alloy will be:',
     options: ['2 : 1', '5 : 3', '3 : 1', '5 : 4'],
@@ -353,7 +353,7 @@ export const TOPIC11_MIXTURE_ALLIGATION_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'mix_26',
-    categoryId: 'mixture-allegation',
+    categoryId: 'mixture-alligation',
     categoryName: 'Mixture and Alligation',
     questionText: 'Tea worth ₹126 per kg and ₹135 per kg are mixed with a third variety in the ratio 1 : 1 : 2. If the mixture is worth ₹153 per kg, the price of the third variety per kg will be:',
     options: ['₹175.50', '₹180.00', '₹170.00', '₹165.50'],

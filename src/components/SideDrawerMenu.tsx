@@ -24,6 +24,7 @@ import {
 import { MathOperation, UserProfile } from '../types';
 import { soundService } from '../services/soundService';
 import { syncService } from '../services/syncService';
+import { getPlanTier, getProductById } from '../services/razorpayService';
 
 interface SideDrawerMenuProps {
   isOpen: boolean;
@@ -127,7 +128,8 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
           </div>
 
           {/* Quick Support & Remove Ads Banner */}
-          {!profile.isPremium && (
+          {/* Support & Remove Ads OR Current Plan & Upgrade Options */}
+          {!profile.isPremium ? (
             <div 
               id="drawer-support-ads-banner"
               onClick={() => {
@@ -145,7 +147,46 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
               </div>
               <ChevronRight className="w-4 h-4 text-amber-200 shrink-0" />
             </div>
-          )}
+          ) : (() => {
+            const currentPlanTier = getPlanTier(profile.purchasedProductId || 'pro_supporter');
+            const currentProduct = getProductById(profile.purchasedProductId || 'pro_supporter');
+            const canUpgrade = currentPlanTier < 4;
+
+            return (
+              <div 
+                id="drawer-current-plan-banner"
+                onClick={() => {
+                  onOpenPremium();
+                  onClose();
+                }}
+                className={`mx-4 mt-4 p-3 rounded-2xl text-white shadow-md cursor-pointer hover:shadow-lg transition-all flex items-center justify-between border ${
+                  canUpgrade 
+                    ? 'bg-gradient-to-r from-emerald-600/95 via-sky-700 to-slate-800 border-emerald-400/40' 
+                    : 'bg-gradient-to-r from-amber-600 to-amber-700 border-amber-400/40'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Crown className={`w-5 h-5 ${canUpgrade ? 'fill-amber-300 text-amber-300' : 'fill-amber-200 text-amber-200'}`} />
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="text-xs font-black uppercase tracking-wider">
+                        {currentProduct?.name.split(' & ')[0] || 'Active Plan'}
+                      </h4>
+                      <span className="px-1.5 py-0.2 rounded-full bg-emerald-400/30 text-emerald-100 text-[9px] font-black uppercase tracking-wider">
+                        Current Plan
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-200 font-medium">
+                      {canUpgrade 
+                        ? '⚡ Tap to upgrade to a bigger plan' 
+                        : '👑 Highest tier unlocked (VIP Patron)'}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-200 shrink-0" />
+              </div>
+            );
+          })()}
 
           {/* Guest User Sign In / Register Prompt */}
           {profile.isGuest && onOpenAuth && (

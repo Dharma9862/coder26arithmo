@@ -75,7 +75,7 @@ export const TOPIC17_DATA_INTERPRETATION_QUESTIONS: AptitudeQuestion[] = [
     id: 'di_06',
     categoryId: 'data-interpretation',
     categoryName: 'Data Interpretation',
-    questionText: 'Directions: A radar chart shows performance scores (out of 100) of Candidate A across 5 domains: Verbal (85), Quant (90), Reasoning (75), GK (60), IT (90). What is the candidate\'s overall average percentage?',
+    questionText: 'Directions: A radar chart shows performance scores (out of 100) of Candidate A across 5 domains: Verbal (85), Quant (90), Data Analytics (75), GK (60), IT (90). What is the candidate\'s overall average percentage?',
     options: ['80%', '82%', '78%', '85%'],
     correctAnswerIndex: 0,
     difficulty: 'Easy',

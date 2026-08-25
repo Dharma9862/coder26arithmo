@@ -186,8 +186,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <h2 className="text-base font-black uppercase tracking-tight text-white flex items-center gap-2">
                 {profile.name}
                 {profile.isPremium && (
-                  <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 rounded-full shadow-sm">
-                    PRO
+                  <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-500 text-white rounded-full shadow-xs flex items-center gap-1 border border-emerald-400">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    <span>Current Plan: PRO</span>
                   </span>
                 )}
               </h2>

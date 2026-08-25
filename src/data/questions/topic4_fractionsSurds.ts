@@ -3,7 +3,7 @@ import { AptitudeQuestion } from '../../types';
 export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'fs_01',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Convert the recurring decimal 0.4777... (0.47̅) into a vulgar fraction in simplest form.',
     options: ['43/90', '47/99', '47/90', '43/99'],
@@ -17,7 +17,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_02',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Which of the following fractions is the largest: 3/4, 5/6, 7/9, 11/13?',
     options: ['11/13', '5/6', '3/4', '7/9'],
@@ -31,7 +31,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_03',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Rationalize the denominator of 7 / (3 + √2).',
     options: ['(21 - 7√2) / 7 = 3 - √2', '3 + √2', '(21 + 7√2) / 7', '7(3 - √2) / 11'],
@@ -45,7 +45,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_04',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Arrange the surds in ascending order: ∛4, √2, ⁶√3.',
     options: ['⁶√3 < √2 < ∛4', '√2 < ⁶√3 < ∛4', '∛4 < √2 < ⁶√3', '⁶√3 < ∛4 < √2'],
@@ -59,7 +59,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_05',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Convert 0.12333... (0.123̅) into a vulgar fraction.',
     options: ['37/300', '123/999', '123/900', '111/900'],
@@ -73,7 +73,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_06',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'If (25)^(x - 1) = (5)^(2x - 1) - 100, find the value of x.',
     options: ['2', '3', '1', '4'],
@@ -87,7 +87,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_07',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the value of: [ √(20 + √(20 + √(20 + ... ∞))) ].',
     options: ['5', '4', '10', '2'],
@@ -101,7 +101,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_08',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the square root of (7 + 4√3).',
     options: ['2 + √3', '2 - √3', '√3 + 1', '√7 + 2'],
@@ -115,7 +115,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_09',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'If 3^(x + 3) + 7 × 3^x = 306, find the value of x.',
     options: ['2', '1', '3', '4'],
@@ -129,7 +129,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_10',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Evaluate: [ (2.3)³ - 0.027 ] / [ (2.3)² + 0.69 + 0.09 ].',
     options: ['2.0', '2.6', '2.3', '1.8'],
@@ -143,7 +143,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_11',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Which is larger: 2^300 or 3^200?',
     options: ['3^200', '2^300', 'Both are equal', 'Cannot be determined'],
@@ -157,7 +157,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_12',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Simplify the infinite product: √(6 √(6 √(6 ... ∞))).',
     options: ['6', '√6', '36', '1'],
@@ -171,7 +171,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_13',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the finite value of √(5 √(5 √(5 √(5)))) (4 nested roots).',
     options: ['5^(15/16)', '5^(7/8)', '5^(31/32)', '5^(1/16)'],
@@ -185,7 +185,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_14',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Sum of the recurring decimals: 0.34666... (0.346̅) + 0.1333... (0.13̅) in fraction form is:',
     options: ['432/900 = 12/25', '48/100', '412/900', '47/90'],
@@ -199,7 +199,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_15',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the value of x if (√3)^5 × 9^2 = 3^x × 3√3.',
     options: ['5', '4', '6', '3'],
@@ -213,7 +213,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_16',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'If 2^x = 4^y = 8^z and xyz = 288, find the value of (1/(2x) + 1/(4y) + 1/(6z)).',
     options: ['11/96', '1/8', '7/48', '5/32'],
@@ -227,7 +227,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_17',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Simplify: 1 / [ √(11 - 2√30) ] - 1 / [ √(7 - 2√10) ] - 2 / [ √(8 + 4√3) ].',
     options: ['0', '1', '√6', '2√5'],
@@ -241,7 +241,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_18',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the value of: [ 1 / (1 + x^(b - a) + x^(c - a)) ] + [ 1 / (1 + x^(a - b) + x^(c - b)) ] + [ 1 / (1 + x^(a - c) + x^(b - c)) ].',
     options: ['1', '0', 'x^(a+b+c)', '3'],
@@ -255,7 +255,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_19',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Which of the following is true for A = √7 - √5 and B = √5 - √3?',
     options: ['A < B', 'A > B', 'A = B', 'A = 2B'],
@@ -269,7 +269,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_20',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Evaluate: (0.333...) × (0.666...) ÷ (0.222...).',
     options: ['1', '0.5', '0.999...', '2'],
@@ -283,7 +283,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_21',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Simplify: (x^(a+b))^(a-b) × (x^(b+c))^(b-c) × (x^(c+a))^(c-a).',
     options: ['1', '0', 'x^(a²+b²+c²)', 'x'],
@@ -297,7 +297,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_22',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'If 2^a = 3^b = 6^c, express c in terms of a and b.',
     options: ['ab / (a + b)', '(a + b) / ab', '2ab / (a + b)', 'ab / (a - b)'],
@@ -311,7 +311,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_23',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the sum: S = 1/(√1 + √2) + 1/(√2 + √3) + 1/(√3 + √4) + ... + 1/(√99 + √100).',
     options: ['9', '10', '8', '11'],
@@ -325,7 +325,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_24',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'What is the value of ∛(54) / ∛(2)?',
     options: ['3', '27', '9', '√3'],
@@ -339,7 +339,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_25',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'If x = 3 + 2√2, find the value of (√x - 1/√x).',
     options: ['2', '2√2', '4', '√2'],
@@ -353,7 +353,7 @@ export const TOPIC4_FRACTIONS_SURDS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'fs_26',
-    categoryId: 'fractions-decimals-surds',
+    categoryId: 'fractions-surds-indices',
     categoryName: 'Fractions, Decimals, Surds & Indices',
     questionText: 'Find the largest among: ∛6, ⁴√8, ⁶√12.',
     options: ['∛6', '⁴√8', '⁶√12', 'All are equal'],

@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievements';
 import { INITIAL_APTITUDE_QUESTIONS } from '../data/aptitudeQuestions';
+import { QuestionBankService } from './questionBankGenerator';
 
 const PROFILE_KEY = 'numbersprint_user_profile';
 const SESSIONS_KEY = 'numbersprint_game_sessions';
@@ -281,7 +282,7 @@ export class StorageService {
   }
 
   public static getAllAptitudeQuestions(): AptitudeQuestion[] {
-    const initial = [...INITIAL_APTITUDE_QUESTIONS];
+    const initial = QuestionBankService.getFullQuestionBank();
     const custom = this.getCustomQuestions();
     const bookmarks = this.getBookmarks();
 

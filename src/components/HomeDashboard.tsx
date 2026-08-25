@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Zap, 
   Flame, 
-  Settings, 
   Sparkles, 
   Percent, 
   GraduationCap, 
@@ -12,11 +11,22 @@ import {
   BookOpen,
   Trophy,
   Activity,
-  CheckCircle2
+  CheckCircle2,
+  Crown,
+  User,
+  Plus,
+  Minus,
+  Divide,
+  X as MulIcon,
+  HelpCircle,
+  RotateCw,
+  Award
 } from 'lucide-react';
 import { DailyChallenge, MathOperation, UserProfile } from '../types';
 import { soundService } from '../services/soundService';
 import { SideDrawerMenu } from './SideDrawerMenu';
+import { AIDailyService, AIDailyTask } from '../services/aiDailyService';
+import { getPlanTier, getProductById } from '../services/razorpayService';
 
 interface HomeDashboardProps {
   profile: UserProfile;
@@ -40,7 +50,7 @@ interface PracticeCardItem {
   subtitle: string;
   operation?: MathOperation;
   badge?: string;
-  iconType: 'parentheses' | 'sequence' | 'right_wrong' | 'grid' | 'zap' | 'cross' | 'exam' | 'percent' | 'trophy' | 'formula';
+  iconType: 'parentheses' | 'sequence' | 'right_wrong' | 'grid' | 'zap' | 'cross' | 'exam' | 'percent' | 'trophy' | 'formula' | 'plus' | 'minus' | 'divide';
   action: 'sprint' | 'examprep' | 'analytics';
 }
 
@@ -61,19 +71,202 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('advance');
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [aiTasks, setAiTasks] = useState<AIDailyTask[]>([]);
+  const [isLoadingAiTasks, setIsLoadingAiTasks] = useState<boolean>(false);
+  const [claimedTasks, setClaimedTasks] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    AIDailyService.getTodayTasks().then((tasks) => {
+      setAiTasks(tasks);
+    });
+  }, []);
+
+  const handleRefreshAiTasks = async () => {
+    soundService.triggerHaptic('medium');
+    soundService.playClick();
+    setIsLoadingAiTasks(true);
+    const today = new Date().toISOString().split('T')[0];
+    const tasks = await AIDailyService.fetchOrGenerateTasks(today, true);
+    setAiTasks(tasks);
+    setIsLoadingAiTasks(false);
+  };
 
   const categories = [
     { id: 'advance', label: 'Advance calculation Practice' },
+    { id: 'multiplication', label: 'Multiplication (1,000+ Qs)' },
+    { id: 'addition', label: 'Addition (1,000+ Qs)' },
+    { id: 'subtraction', label: 'Subtraction (1,000+ Qs)' },
+    { id: 'division', label: 'Division (1,000+ Qs)' },
+    { id: 'puzzle', label: 'Math Puzzles (1,000+ Qs)' },
     { id: 'linear', label: 'Linear Sequence' },
     { id: 'right_wrong', label: 'Right or Wrong' },
-    { id: 'puzzle', label: 'Math puzzle' },
     { id: 'sprints', label: 'Speed Sprints' },
-    { id: 'exam', label: 'Aptitude Exam Prep' },
+    { id: 'exam', label: 'Aptitude Exam Prep (2,000+ Qs)' },
   ];
 
   // Dynamic practice cards mapped to selected category
   const getCardsForCategory = (catId: string): PracticeCardItem[] => {
     switch (catId) {
+      case 'multiplication':
+        return [
+          {
+            id: 'mul-vedic-crisscross',
+            title: 'Vedic 2-Digit Criss-Cross',
+            subtitle: 'Urdhva Tiryagbhyam: 2x2 & 3x2 multiplication in <5s',
+            operation: 'multiplication',
+            iconType: 'cross',
+            action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'mul-base-100',
+            title: 'Base 100 & 1000 Vedic Multiplication',
+            subtitle: 'Near-base speed technique for numbers like 96×94 & 104×108',
+            operation: 'multiplication',
+            iconType: 'cross',
+            action: 'sprint',
+            badge: 'Vedic',
+          },
+          {
+            id: 'mul-squares-5',
+            title: 'Squares of Numbers Ending in 5',
+            subtitle: 'Ekadhikena Purvena: Instant squares in 2 seconds',
+            operation: 'multiplication',
+            iconType: 'percent',
+            action: 'sprint',
+            badge: 'Speed',
+          },
+          {
+            id: 'mul-table-sprint',
+            title: 'Tables 12-99 Rapid Fire',
+            subtitle: 'Randomized 1,000+ procedural speed multiplication drills',
+            operation: 'multiplication',
+            iconType: 'zap',
+            action: 'sprint',
+            badge: 'Drill',
+          },
+        ];
+
+      case 'addition':
+        return [
+          {
+            id: 'add-carryover-surge',
+            title: 'Carryover Sprint Addition',
+            subtitle: 'Multi-digit mental addition from left to right',
+            operation: 'addition',
+            iconType: 'plus',
+            action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'add-3-term-chain',
+            title: '3-Term Rapid Addition',
+            subtitle: 'Continuous addition chains for instant reflexes',
+            operation: 'addition',
+            iconType: 'plus',
+            action: 'sprint',
+            badge: 'Chain',
+          },
+          {
+            id: 'add-decimal-sprint',
+            title: 'Decimal Addition Drills',
+            subtitle: 'Rapid fractional and decimal estimations',
+            operation: 'addition',
+            iconType: 'plus',
+            action: 'sprint',
+            badge: 'Decimals',
+          },
+          {
+            id: 'add-nikhilam-base',
+            title: 'Vedic Nikhilam Addition',
+            subtitle: 'Adding numbers close to base 100, 200, 500',
+            operation: 'addition',
+            iconType: 'zap',
+            action: 'sprint',
+            badge: 'Vedic',
+          },
+        ];
+
+      case 'subtraction':
+        return [
+          {
+            id: 'sub-allfrom9',
+            title: 'All from 9 and Last from 10',
+            subtitle: 'Vedic subtraction from 1000, 10000 with zero borrows',
+            operation: 'subtraction',
+            iconType: 'minus',
+            action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'sub-borrowing-speed',
+            title: 'Multi-Digit Speed Subtraction',
+            subtitle: 'High-speed borrow visualization under 2s',
+            operation: 'subtraction',
+            iconType: 'minus',
+            action: 'sprint',
+            badge: 'Speed',
+          },
+          {
+            id: 'sub-3-term-chain',
+            title: '3-Term Subtraction Chain',
+            subtitle: 'Consecutive deductions and budget simulations',
+            operation: 'subtraction',
+            iconType: 'minus',
+            action: 'sprint',
+            badge: 'Chain',
+          },
+          {
+            id: 'sub-complement-blitz',
+            title: 'Tens Complement Blitz',
+            subtitle: 'Subtractions using base complements',
+            operation: 'subtraction',
+            iconType: 'zap',
+            action: 'sprint',
+            badge: 'Complement',
+          },
+        ];
+
+      case 'division':
+        return [
+          {
+            id: 'div-clean-sprint',
+            title: 'Clean Speed Division',
+            subtitle: '1,000+ rapid quotient recognition problems',
+            operation: 'division',
+            iconType: 'divide',
+            action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'div-remainder-challenge',
+            title: 'Modulo & Remainder Challenge',
+            subtitle: 'Instant mental remainder determination',
+            operation: 'division',
+            iconType: 'divide',
+            action: 'sprint',
+            badge: 'Remainder',
+          },
+          {
+            id: 'div-shortcut-25',
+            title: 'Division by 5, 25 & 125',
+            subtitle: 'Multiply by reciprocal powers of 2 & shift decimals',
+            operation: 'division',
+            iconType: 'divide',
+            action: 'sprint',
+            badge: 'Shortcut',
+          },
+          {
+            id: 'div-simplification-drill',
+            title: 'Fractional Simplification',
+            subtitle: 'Canceling common factors in high-yield fractions',
+            operation: 'division',
+            iconType: 'zap',
+            action: 'sprint',
+            badge: 'Fraction',
+          },
+        ];
+
       case 'linear':
         return [
           {
@@ -83,7 +276,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'linear_sequence',
             iconType: 'sequence',
             action: 'sprint',
-            badge: 'Pattern',
+            badge: '1,000+ Qs',
           },
           {
             id: 'linear-seq-delta',
@@ -121,7 +314,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'right_or_wrong',
             iconType: 'right_wrong',
             action: 'sprint',
-            badge: 'Fast',
+            badge: '1,000+ Qs',
           },
           {
             id: 'rw-inequality',
@@ -153,12 +346,21 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         return [
           {
             id: 'puzzle-matrix',
-            title: 'Math puzzle Grid',
+            title: 'Math Puzzle Grid & Matrix',
             subtitle: 'Missing operator and grid arithmetic',
             operation: 'math_puzzle',
             iconType: 'grid',
             action: 'sprint',
-            badge: 'Brain',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'puzzle-missing-div',
+            title: 'Missing Divisor & Factor Puzzle',
+            subtitle: 'Solve (? ÷ B) + C = Total under pressure',
+            operation: 'math_puzzle',
+            iconType: 'grid',
+            action: 'sprint',
+            badge: 'Puzzle',
           },
           {
             id: 'puzzle-bracket',
@@ -169,20 +371,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             action: 'sprint',
           },
           {
-            id: 'puzzle-pattern',
-            title: 'Sequence Matrix Riddle',
-            subtitle: 'Solve 2x2 grid patterns & series',
-            operation: 'linear_sequence',
-            iconType: 'sequence',
-            action: 'sprint',
-          },
-          {
             id: 'puzzle-exam-di',
             title: 'Data Interpretation Puzzles',
-            subtitle: 'Charts, tables & numerical riddles',
+            subtitle: 'Charts, tables & numerical riddles for Mains',
             iconType: 'exam',
             action: 'examprep',
-            badge: 'High Yield',
+            badge: 'Mains',
           },
         ];
 
@@ -226,9 +420,25 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       case 'exam':
         return [
           {
+            id: 'exam-prelims-bank',
+            title: 'Prelims Question Bank (1,000+ Qs)',
+            subtitle: 'Speed-focused 30-45s solving shortcuts across 20 topics',
+            iconType: 'exam',
+            action: 'examprep',
+            badge: '1,000 Prelims',
+          },
+          {
+            id: 'exam-mains-bank',
+            title: 'Mains Question Bank (1,000+ Qs)',
+            subtitle: 'Multi-step caselets, DI, and advanced quantitative problems',
+            iconType: 'exam',
+            action: 'examprep',
+            badge: '1,000 Mains',
+          },
+          {
             id: 'exam-20-topics',
-            title: '20 Quantitative Exam Topics',
-            subtitle: 'CAT, SBI PO, SSC CGL & Placement Modules',
+            title: 'All 20 Quantitative Syllabus Topics',
+            subtitle: 'CAT, SBI PO, SSC CGL & Placement Modules (2,000+ Total)',
             iconType: 'exam',
             action: 'examprep',
             badge: 'Complete',
@@ -240,22 +450,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             iconType: 'formula',
             action: 'examprep',
           },
-          {
-            id: 'exam-speed-math',
-            title: 'Exam Mental Speed Sprint',
-            subtitle: 'Rapid arithmetic estimation for Mains',
-            operation: 'advance_calc',
-            iconType: 'parentheses',
-            action: 'sprint',
-          },
-          {
-            id: 'exam-series',
-            title: 'Number Series & Inequalities',
-            subtitle: 'Bank PO prelims patterns & shortcuts',
-            operation: 'linear_sequence',
-            iconType: 'sequence',
-            action: 'sprint',
-          },
         ];
 
       case 'advance':
@@ -264,64 +458,71 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           {
             id: 'card-advance-calculation',
             title: 'Advance Calculation',
-            subtitle: "You haven't tried this",
+            subtitle: 'Nested brackets, exponents & multi-tier math',
             operation: 'advance_calc',
             iconType: 'parentheses',
             action: 'sprint',
-          },
-          {
-            id: 'card-linear-sequence',
-            title: 'Linear Sequence',
-            subtitle: "You haven't tried this",
-            operation: 'linear_sequence',
-            iconType: 'sequence',
-            action: 'sprint',
-          },
-          {
-            id: 'card-right-or-wrong',
-            title: 'Right or Wrong',
-            subtitle: "You haven't tried this",
-            operation: 'right_or_wrong',
-            iconType: 'right_wrong',
-            action: 'sprint',
+            badge: '1,000+ Qs',
           },
           {
             id: 'card-math-puzzle',
             title: 'Math puzzle',
-            subtitle: "You haven't tried this",
+            subtitle: '1,000+ Procedural missing number & matrix riddles',
             operation: 'math_puzzle',
             iconType: 'grid',
             action: 'sprint',
-          },
-          {
-            id: 'card-speed-sprint-mixed',
-            title: 'Speed Sprint (Mixed Blitz)',
-            subtitle: '60-Second adaptive speed math challenge',
-            operation: 'mixed',
-            iconType: 'zap',
-            action: 'sprint',
+            badge: '1,000+ Qs',
           },
           {
             id: 'card-multiplication',
-            title: 'Multiplication Masters',
-            subtitle: 'Tables 12-99 & Vedic shortcuts',
+            title: 'Multiplication (1,000+ Qs)',
+            subtitle: 'Vedic criss-cross, near-base & rapid tables',
             operation: 'multiplication',
             iconType: 'cross',
             action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'card-addition',
+            title: 'Addition (1,000+ Qs)',
+            subtitle: 'Carryover surges, 3-term chains & decimal drills',
+            operation: 'addition',
+            iconType: 'plus',
+            action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'card-subtraction',
+            title: 'Subtraction (1,000+ Qs)',
+            subtitle: 'All from 9 last from 10 & borrow sprints',
+            operation: 'subtraction',
+            iconType: 'minus',
+            action: 'sprint',
+            badge: '1,000+ Qs',
+          },
+          {
+            id: 'card-division',
+            title: 'Division (1,000+ Qs)',
+            subtitle: 'Clean division, remainders & fraction shortcuts',
+            operation: 'division',
+            iconType: 'divide',
+            action: 'sprint',
+            badge: '1,000+ Qs',
           },
           {
             id: 'card-exam-prep',
-            title: 'Quantitative Exam Prep',
-            subtitle: '20 High-Yield Packs for CAT, SBI PO, SSC CGL',
+            title: 'Quantitative Exam Prep (2,000+ Qs)',
+            subtitle: '1,000 Prelims + 1,000 Mains across 20 high-yield topics',
             iconType: 'exam',
             action: 'examprep',
+            badge: '2,000+ Total',
           },
           {
-            id: 'card-squares-percentages',
-            title: 'Squares & Percentages',
-            subtitle: 'Rapid roots, ratios & quick estimation',
-            operation: 'percentages',
-            iconType: 'percent',
+            id: 'card-linear-sequence',
+            title: 'Linear Sequence',
+            subtitle: 'AP, GP, squared and delta progression patterns',
+            operation: 'linear_sequence',
+            iconType: 'sequence',
             action: 'sprint',
           },
         ];
@@ -346,8 +547,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       onLaunchSprint(card.operation);
     } else if (card.action === 'examprep') {
       onOpenExamPrep();
-    } else if (card.action === 'analytics' && onSelectTab) {
-      onSelectTab('analytics');
+    } else if (card.action === 'analytics') {
+      if (onSelectTab) onSelectTab('analytics');
     }
   };
 
@@ -361,19 +562,19 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
     }
   };
 
-  const renderCardIcon = (type: PracticeCardItem['iconType']) => {
-    switch (type) {
+  const renderCardIcon = (iconType: PracticeCardItem['iconType']) => {
+    switch (iconType) {
       case 'parentheses':
         return (
-          <span className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-widest select-none">
-            ( )
-          </span>
+          <div className="flex items-center justify-center font-mono text-2xl sm:text-3xl font-extrabold text-white select-none">
+            <span className="opacity-90">(</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-white mx-0.5" />
+            <span className="opacity-90">)</span>
+          </div>
         );
       case 'sequence':
         return (
-          <div className="flex items-center gap-1 text-white">
-            <div className="w-3 sm:w-3.5 h-3 sm:h-3.5 border-2 border-white rounded-[2px]" />
-            <div className="w-1 h-[2px] bg-white" />
+          <div className="flex items-center justify-center gap-1 text-white select-none">
             <div className="w-3 sm:w-3.5 h-3 sm:h-3.5 border-2 border-white rounded-[2px]" />
             <div className="w-1 h-[2px] bg-white" />
             <div className="w-3 sm:w-3.5 h-3 sm:h-3.5 border-2 border-white rounded-[2px]" />
@@ -395,6 +596,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             <div className="border border-white/80 rounded-[1px]" />
           </div>
         );
+      case 'plus':
+        return <Plus className="w-6 sm:w-7 h-6 sm:h-7 text-white stroke-[3]" />;
+      case 'minus':
+        return <Minus className="w-6 sm:w-7 h-6 sm:h-7 text-white stroke-[3]" />;
+      case 'divide':
+        return <Divide className="w-6 sm:w-7 h-6 sm:h-7 text-white stroke-[3]" />;
       case 'zap':
         return <Zap className="w-6 sm:w-7 h-6 sm:h-7 text-white fill-white" />;
       case 'cross':
@@ -440,12 +647,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       {/* Top Cyan Header Area */}
       <header className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 pb-6 space-y-4">
         
-        {/* Top Control Bar: Back Button, Streak, Ads, Settings, 3-Line Menu */}
+        {/* Top Control Bar */}
         <div className="flex items-center justify-between gap-2">
           
           {/* Left Side: Back Button & Streak Badge */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Back Button */}
             <button
               id="header-back-btn"
               onClick={handleBackClick}
@@ -455,66 +661,70 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
             </button>
 
-            {/* Active Streak Badge */}
             <div className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 bg-white/20 backdrop-blur-md rounded-full text-[#113876] font-extrabold text-xs sm:text-sm shadow-xs">
               <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#ea580c] text-[#ea580c]" />
               <span>{profile.streakDays} Day Streak</span>
             </div>
-            {profile.isPremium && (
-              <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-[#1e40af] text-white text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-xs">
-                PRO
-              </span>
-            )}
           </div>
 
-          {/* Right Side: Ads Button, Settings Gear, and 3-Line Toggle Menu */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Remove Ads Button */}
-            <button
-              id="header-remove-ads-btn"
-              onClick={() => {
-                soundService.triggerHaptic('medium');
-                soundService.playClick();
-                onOpenPremium();
-              }}
-              className="relative group flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 border-2 border-[#ef4444] text-[#ef4444] shadow-md hover:scale-105 active:scale-95 transition-transform"
-              title="Remove Ads (PRO)"
-            >
-              <span className="text-[10px] sm:text-[11px] font-black tracking-tighter uppercase leading-none">
-                Ads
-              </span>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[120%] h-[2px] bg-[#ef4444] -rotate-45" />
+          {/* Right Side: Upgrade Badge Button & User Toggle Button */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {!profile.isPremium ? (
+              <button
+                id="header-upgrade-btn"
+                onClick={() => {
+                  soundService.triggerHaptic('medium');
+                  soundService.playClick();
+                  onOpenPremium();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                title="Upgrade to PRO"
+              >
+                <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
+                <span>Upgrade</span>
+              </button>
+            ) : getPlanTier(profile.purchasedProductId || 'pro_supporter') < 4 ? (
+              <button
+                id="header-upgrade-plan-btn"
+                onClick={() => {
+                  soundService.triggerHaptic('medium');
+                  soundService.playClick();
+                  onOpenPremium();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                title="Upgrade to Bigger Plan"
+              >
+                <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
+                <span>Upgrade Plan</span>
+              </button>
+            ) : (
+              <div 
+                onClick={() => {
+                  soundService.playClick();
+                  onOpenPremium();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-[#113876] backdrop-blur-md text-xs font-black uppercase tracking-wider shadow-xs cursor-pointer active:scale-95 transition-all"
+                title="View VIP Super Patron Status"
+              >
+                <Crown className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                <span>Super Patron</span>
               </div>
-            </button>
+            )}
 
-            {/* Settings Gear Icon */}
             <button
-              id="header-settings-gear-btn"
-              onClick={() => {
-                soundService.triggerHaptic('light');
-                soundService.playClick();
-                if (onOpenProfile) onOpenProfile();
-                else onOpenPremium();
-              }}
-              className="text-white hover:text-white/80 active:scale-95 transition-transform p-1.5 rounded-full hover:bg-white/10"
-              title="Settings & Profile"
-            >
-              <Settings className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-white fill-transparent" />
-            </button>
-
-            {/* 3-Line Toggle Menu (Hamburger Icon on Right Hand Side) */}
-            <button
-              id="header-menu-toggle-btn"
+              id="header-user-toggle-btn"
               onClick={() => {
                 soundService.triggerHaptic('medium');
                 soundService.playClick();
                 setIsDrawerOpen(true);
               }}
-              className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 text-white backdrop-blur-md transition-all shadow-xs"
-              title="Open Navigation Menu"
+              className="flex items-center gap-1.5 p-1 sm:p-1.5 pl-2 pr-2.5 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 text-white backdrop-blur-md transition-all shadow-xs cursor-pointer"
+              title="Toggle Profile, Settings & Menu"
             >
-              <Menu className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
+              <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-bold text-[#113876]">
+                {profile.avatar || <User className="w-3.5 h-3.5 text-[#113876]" />}
+              </div>
+              <Menu className="w-4 h-4 stroke-[2.5] text-white" />
             </button>
           </div>
         </div>
@@ -525,7 +735,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             Hi {profile.name || 'Lala'}
           </h1>
           <p className="text-sm sm:text-base md:text-lg font-semibold text-[#184d9f]/90">
-            Welcome back to Mind calculation
+            Welcome back to Mind calculation • 1,000+ Daily Unique AI Quests & Drills
           </p>
         </div>
 
@@ -621,32 +831,110 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             ))}
           </div>
 
-          {/* Daily Sprint Challenge Mini Card */}
-          <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
-                <Flame className="w-5 h-5 fill-slate-950 text-slate-950" />
+          {/* AI-Powered Unique Daily Tasks & Challenges Section */}
+          <div className="mt-6 p-4 sm:p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-4">
+            
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-white">
+                      AI Daily Unique Quests
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase tracking-wider border border-emerald-500/30">
+                      Updated Daily
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-medium">
+                    AI-curated quantitative targets with Vedic shortcuts & bonus XP
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-black text-amber-900 uppercase tracking-wider">
-                  Daily Challenge • {dailyChallenge.title}
-                </h4>
-                <p className="text-xs sm:text-sm text-amber-800 font-medium">
-                  {dailyChallenge.currentCount}/{dailyChallenge.targetCount} solved (+{dailyChallenge.rewardXp} XP)
-                </p>
-              </div>
+
+              <button
+                id="refresh-ai-tasks-btn"
+                onClick={handleRefreshAiTasks}
+                disabled={isLoadingAiTasks}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-400 text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 cursor-pointer disabled:opacity-50"
+              >
+                <RotateCw className={`w-3.5 h-3.5 ${isLoadingAiTasks ? 'animate-spin' : ''}`} />
+                <span>{isLoadingAiTasks ? 'Generating...' : 'Regenerate Quests'}</span>
+              </button>
             </div>
 
-            <button
-              onClick={() => {
-                soundService.triggerHaptic('medium');
-                soundService.playClick();
-                onLaunchSprint(dailyChallenge.operation);
-              }}
-              className="px-4 py-2 sm:py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shrink-0 transition-colors shadow-sm self-start sm:self-center cursor-pointer active:scale-95"
-            >
-              Play Challenge
-            </button>
+            {/* Task Items */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {aiTasks.map((task) => {
+                const progressPct = Math.min(100, Math.round((task.currentCount / task.targetCount) * 100));
+                return (
+                  <div
+                    key={task.id}
+                    className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between space-y-3 hover:border-slate-600 transition-colors"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[10px] font-black uppercase tracking-wider text-sky-400 border border-slate-700">
+                          {task.category || 'Speed Math'}
+                        </span>
+                        <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
+                          <Award className="w-3 h-3" /> +{task.rewardXp} XP
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs sm:text-sm font-bold text-white leading-tight">
+                        {task.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-300 line-clamp-2">
+                        {task.description}
+                      </p>
+
+                      {task.vedicTip && (
+                        <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800 text-[10px] text-amber-300/90 font-mono-math">
+                          💡 {task.vedicTip}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 pt-1 border-t border-slate-700/60">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                        <span>Progress: {task.currentCount}/{task.targetCount}</span>
+                        <span>{progressPct}%</span>
+                      </div>
+
+                      <div className="w-full h-1.5 rounded-full bg-slate-700 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-sky-400 to-emerald-400 rounded-full transition-all duration-300"
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          soundService.triggerHaptic('medium');
+                          soundService.playClick();
+                          if (task.category === 'Exam Prelims' || task.category === 'Exam Mains') {
+                            onOpenExamPrep();
+                          } else {
+                            onLaunchSprint(task.operation || 'multiplication');
+                          }
+                        }}
+                        className={`w-full py-1.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                          task.isCompleted
+                            ? 'bg-emerald-500 text-slate-950'
+                            : 'bg-sky-500 hover:bg-sky-400 text-slate-950'
+                        }`}
+                      >
+                        {task.isCompleted ? '✓ Completed' : 'Start Task'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
           </div>
 
         </div>

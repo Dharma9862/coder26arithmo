@@ -3,7 +3,7 @@ import { AptitudeQuestion } from '../../types';
 export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'cc_01',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'What is the angle between the hour hand and the minute hand of a clock at 3:40?',
     options: ['130°', '125°', '135°', '140°'],
@@ -17,7 +17,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_02',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'It was Sunday on Jan 1, 2006. What was the day of the week on Jan 1, 2010?',
     options: ['Friday', 'Thursday', 'Saturday', 'Sunday'],
@@ -31,7 +31,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_03',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'At what time between 4 and 5 o\'clock will the hands of a clock be together (coincide)?',
     options: ['21 9/11 minutes past 4', '20 minutes past 4', '22 2/11 minutes past 4', '21 5/11 minutes past 4'],
@@ -45,7 +45,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_04',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'Which of the following year has the same calendar as the year 2007?',
     options: ['2018', '2014', '2016', '2017'],
@@ -59,7 +59,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_05',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'A clock is set right at 5 a.m. The clock loses 16 minutes in 24 hours. What will be the true time when the clock indicates 10 p.m. on the 4th day?',
     options: ['11 p.m.', '10:45 p.m.', '11:15 p.m.', '10:30 p.m.'],
@@ -73,7 +73,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_06',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'What day of the week was 15th August 1947?',
     options: ['Friday', 'Thursday', 'Saturday', 'Wednesday'],
@@ -87,7 +87,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_07',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'How many times do the hands of a clock coincide in a day (24 hours)?',
     options: ['22 times', '24 times', '44 times', '48 times'],
@@ -101,7 +101,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_08',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'How many times in a day (24 hours) are the hands of a clock at right angles (90°)?',
     options: ['44 times', '48 times', '22 times', '24 times'],
@@ -115,7 +115,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_09',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'At what time between 7 and 8 o\'clock will the hands of a clock be in the same straight line but, not together?',
     options: ['5 5/11 minutes past 7', '5 4/11 minutes past 7', '6 minutes past 7', '5 2/11 minutes past 7'],
@@ -129,7 +129,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_10',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'What day of the week was 26th January 1950 (Republic Day)?',
     options: ['Thursday', 'Friday', 'Wednesday', 'Tuesday'],
@@ -143,7 +143,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_11',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'A watch gains 5 seconds in 3 minutes and was set right at 7 a.m. In the afternoon of the same day, when the watch indicated quarter past 4 o\'clock (4:15 p.m.), the true time is:',
     options: ['4 p.m.', '3:45 p.m.', '4:05 p.m.', '3:55 p.m.'],
@@ -157,7 +157,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_12',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'The last day of a century cannot be:',
     options: ['Tuesday, Thursday, Saturday', 'Monday, Wednesday, Friday', 'Sunday, Tuesday, Thursday', 'Wednesday, Friday, Sunday'],
@@ -171,7 +171,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_13',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'At what time between 8 and 9 o\'clock will the hands of a clock be in a straight line but not together?',
     options: ['10 10/11 minutes past 8', '11 minutes past 8', '10 5/11 minutes past 8', '12 minutes past 8'],
@@ -185,7 +185,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_14',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'If 6th March 2005 is Monday, what was the day of the week on 6th March 2004?',
     options: ['Saturday', 'Sunday', 'Friday', 'Tuesday'],
@@ -199,7 +199,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_15',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'Find the reflex angle between the hands of a clock at 10:25.',
     options: ['197.5°', '162.5°', '195.0°', '200.0°'],
@@ -213,7 +213,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_16',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'A clock strikes once at 1 o\'clock, twice at 2 o\'clock, thrice at 3 o\'clock and so on. How many times will it strike in 24 hours?',
     options: ['156 times', '78 times', '160 times', '144 times'],
@@ -227,7 +227,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_17',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'Today is Monday. After 61 days, it will be:',
     options: ['Saturday', 'Sunday', 'Tuesday', 'Friday'],
@@ -241,7 +241,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_18',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'How much does a watch gain or lose per day if its hands coincide every 64 minutes?',
     options: ['Gains 32 8/11 minutes', 'Loses 32 8/11 minutes', 'Gains 30 minutes', 'Loses 30 minutes'],
@@ -255,7 +255,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_19',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'The year next to 1996 having the same calendar as that of 1996 is:',
     options: ['2024', '2002', '2008', '2012'],
@@ -269,7 +269,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_20',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'An accurate clock shows 8 o\'clock in the morning. Through how many degrees will the hour hand rotate when the clock shows 2 o\'clock in the afternoon?',
     options: ['180°', '150°', '160°', '170°'],
@@ -283,7 +283,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_21',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'On 8th Dec, 2007 Saturday falls. What day of the week was it on 8th Dec, 2006?',
     options: ['Friday', 'Saturday', 'Thursday', 'Sunday'],
@@ -297,7 +297,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_22',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'At 3:30, what is the angle between the minute hand and the hour hand of a clock?',
     options: ['75°', '70°', '80°', '85°'],
@@ -311,7 +311,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_23',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'A watch which gains uniformly was 5 minutes slow at 8 o\'clock in the morning on a Sunday and was 5 min 48 sec fast at 8 p.m. on the following Sunday. When was it correct?',
     options: ['Wednesday 7:20 p.m.', 'Wednesday 8:00 p.m.', 'Thursday 8:00 a.m.', 'Tuesday 6:00 p.m.'],
@@ -325,7 +325,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_24',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'How many leap years are there in 400 consecutive years?',
     options: ['97', '100', '96', '98'],
@@ -339,7 +339,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_25',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'At what time between 2 and 3 o\'clock will the hands of a clock be at right angles (first time)?',
     options: ['27 3/11 minutes past 2', '25 minutes past 2', '26 4/11 minutes past 2', '28 minutes past 2'],
@@ -353,7 +353,7 @@ export const TOPIC15_CLOCKS_CALENDARS_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'cc_26',
-    categoryId: 'clocks-and-calendars',
+    categoryId: 'clocks-calendars',
     categoryName: 'Clocks and Calendars',
     questionText: 'If the day before yesterday was Thursday, when will Sunday be?',
     options: ['Tomorrow', 'Today', 'Day after tomorrow', 'Two days after tomorrow'],

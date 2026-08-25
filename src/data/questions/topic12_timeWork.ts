@@ -3,7 +3,7 @@ import { AptitudeQuestion } from '../../types';
 export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   {
     id: 'tw_01',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A can do a work in 10 days and B can do the same work in 15 days. In how many days can they complete the work working together?',
     options: ['6 days', '5 days', '7.5 days', '8 days'],
@@ -17,7 +17,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_02',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A is twice as efficient as B and together they can complete a piece of work in 18 days. In how many days can A alone finish the work?',
     options: ['27 days', '36 days', '24 days', '30 days'],
@@ -31,7 +31,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_03',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'Two pipes A and B can fill a tank in 20 minutes and 30 minutes respectively. If both pipes are opened together, the time taken to fill the tank is:',
     options: ['12 minutes', '15 minutes', '10 minutes', '14 minutes'],
@@ -45,7 +45,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_04',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A pipe can fill a tank in 6 hours. Due to a leak at the bottom, it is filled in 8 hours. If the tank is full, how much time will the leak take to empty it?',
     options: ['24 hours', '18 hours', '20 hours', '30 hours'],
@@ -59,7 +59,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_05',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: '12 men can complete a piece of work in 16 days. How many men are required to complete the same work in 24 days?',
     options: ['8 men', '10 men', '9 men', '6 men'],
@@ -73,7 +73,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_06',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A, B, and C can do a job in 20, 30, and 60 days respectively. In how many days can A do the work if he is assisted by B and C on every third day?',
     options: ['15 days', '12 days', '16 days', '18 days'],
@@ -87,7 +87,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_07',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A can finish a work in 18 days and B can do the same work in 15 days. B worked for 10 days and left the job. In how many days can A alone finish the remaining work?',
     options: ['6 days', '5 days', '8 days', '7 days'],
@@ -101,7 +101,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_08',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A, B, and C can do a piece of work in 11 days, 20 days, and 55 days respectively, working alone. How soon can the work be done if A is assisted by B and C on alternate days?',
     options: ['8 days', '7 days', '9 days', '10 days'],
@@ -115,7 +115,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_09',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: '3 men or 6 women can do a piece of work in 16 days. In how many days can 12 men and 8 women do the same work?',
     options: ['3.2 days (3 1/5 days)', '4 days', '3 days', '5 days'],
@@ -129,7 +129,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_10',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A and B can do a piece of work in 12 days, B and C in 15 days, and C and A in 20 days. In how many days can A alone do the work?',
     options: ['30 days', '20 days', '24 days', '40 days'],
@@ -143,7 +143,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_11',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A tap can fill a tank in 4 hours and another tap can empty it in 6 hours. If both are opened together in an empty tank, in how many hours will the tank be filled?',
     options: ['12 hours', '10 hours', '8 hours', '15 hours'],
@@ -157,7 +157,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_12',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A and B undertake to do a piece of work for ₹600. A alone can do it in 6 days while B alone can do it in 8 days. With the help of C, they finish it in 3 days. Find C\'s share of the money.',
     options: ['₹75', '₹100', '₹80', '₹60'],
@@ -171,7 +171,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_13',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A takes 4 days more than (A + B) working together and B takes 9 days more than (A + B) working together to complete a piece of work. In how many days can A and B finish the work together?',
     options: ['6 days', '8 days', '5 days', '7 days'],
@@ -185,7 +185,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_14',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'Three pipes A, B, and C can fill a tank in 6 hours. After working at it together for 2 hours, C is closed and A and B can fill the remaining part in 7 hours. The number of hours taken by C alone to fill the tank is:',
     options: ['14 hours', '12 hours', '15 hours', '16 hours'],
@@ -199,7 +199,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_15',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'If 8 men or 12 boys can do a piece of work in 16 days, the number of days in which 12 men and 6 boys will finish the work is:',
     options: ['8 days', '10 days', '6 days', '9 days'],
@@ -213,7 +213,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_16',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A and B can complete a work in 15 days and 10 days respectively. They started the work together, but after 2 days B had to leave and A alone completed the remaining work. The whole work was completed in:',
     options: ['12 days', '10 days', '14 days', '11 days'],
@@ -227,7 +227,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_17',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'Two pipes A and B can fill a cistern in 37 1/2 minutes (75/2 min) and 45 minutes respectively. Both pipes are opened. The cistern will be filled in just 30 minutes, if pipe B is turned off after:',
     options: ['9 minutes', '10 minutes', '12 minutes', '15 minutes'],
@@ -241,7 +241,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_18',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: '40 men can finish a piece of work in 30 days. They started working together and after every 10 days, 5 men left the work. In how many days will the entire work be completed?',
     options: ['33 1/3 days', '35 days', '32 days', '36 days'],
@@ -255,7 +255,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_19',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A can do a piece of work in 4 hours, B and C together can do it in 3 hours, and A and C together can do it in 2 hours. How long will B alone take to do it?',
     options: ['12 hours', '10 hours', '8 hours', '15 hours'],
@@ -269,7 +269,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_20',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A contractor employed 20 men to finish a work in 30 days. After 20 days, he found that only 50% of the work was done. How many more men should he employ to finish the work on time?',
     options: ['20 men', '15 men', '25 men', '10 men'],
@@ -283,7 +283,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_21',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'Two pipes A and B can fill a tank in 15 hours and 20 hours respectively, while a third pipe C can empty the full tank in 25 hours. All three pipes are opened in the beginning. After 10 hours, C is closed. In how much total time will the tank be full?',
     options: ['12 hours', '14 hours', '10.5 hours', '11 hours'],
@@ -297,7 +297,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_22',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A is 50% more efficient than B. How much time will they together take to complete a work which A alone can finish in 20 days?',
     options: ['12 days', '10 days', '15 days', '8 days'],
@@ -311,7 +311,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_23',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A leak in a tank can empty it in 8 hours. An inlet tap admits 6 liters a minute into the tank and it is now emptied in 12 hours. How many liters does the tank hold?',
     options: ['8640 liters', '7200 liters', '9600 liters', '8000 liters'],
@@ -325,7 +325,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_24',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A and B can do a piece of work in 45 and 40 days respectively. They began the work together, but A left after some days and B finished the remaining work in 23 days. After how many days did A leave?',
     options: ['9 days', '10 days', '8 days', '12 days'],
@@ -339,7 +339,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_25',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'If 6 men and 8 boys can do a piece of work in 10 days while 26 men and 48 boys can do the same in 2 days, the time taken by 15 men and 20 boys in doing the same type of work will be:',
     options: ['4 days', '5 days', '6 days', '3 days'],
@@ -353,7 +353,7 @@ export const TOPIC12_TIME_WORK_QUESTIONS: AptitudeQuestion[] = [
   },
   {
     id: 'tw_26',
-    categoryId: 'time-and-work',
+    categoryId: 'time-work-pipes',
     categoryName: 'Time & Work, Pipes & Cisterns',
     questionText: 'A can do a work in 12 days and B in 18 days. They work together for 2 days and then A leaves. How long will B take to complete the remaining work?',
     options: ['13 days', '12 days', '14 days', '15 days'],

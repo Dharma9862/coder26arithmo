@@ -25,6 +25,7 @@ import {
 import { AptitudeCategory, AptitudeQuestion, ExamLevel } from '../types';
 import { TOPIC_CONCEPT_GUIDES } from '../data/aptitudeTopics';
 import { soundService } from '../services/soundService';
+import { AIDailyService } from '../services/aiDailyService';
 
 interface ExamPrepScreenProps {
   categories: AptitudeCategory[];
@@ -57,6 +58,18 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   const [reportReason, setReportReason] = useState<string>('');
   const [reportSuccess, setReportSuccess] = useState<boolean>(false);
   const [activeConceptGuideId, setActiveConceptGuideId] = useState<string | null>(null);
+  const [aiExplanations, setAiExplanations] = useState<Record<string, string>>({});
+  const [isLoadingAiExplanation, setIsLoadingAiExplanation] = useState<Record<string, boolean>>({});
+
+  const handleRequestAiExplanation = async (question: AptitudeQuestion) => {
+    if (isLoadingAiExplanation[question.id] || aiExplanations[question.id]) return;
+    setIsLoadingAiExplanation(prev => ({ ...prev, [question.id]: true }));
+    soundService.triggerHaptic('light');
+    soundService.playClick();
+    const explanation = await AIDailyService.explainQuestionWithAI(question);
+    setAiExplanations(prev => ({ ...prev, [question.id]: explanation }));
+    setIsLoadingAiExplanation(prev => ({ ...prev, [question.id]: false }));
+  };
 
   // Active category object
   const activeCategory = useMemo(() => {
@@ -160,6 +173,9 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
 
   const conceptGuide = activeConceptGuideId ? TOPIC_CONCEPT_GUIDES[activeConceptGuideId] : null;
 
+  const prelimsCount = questions.filter(q => q.examLevel === 'Prelims').length;
+  const mainsCount = questions.filter(q => q.examLevel === 'Mains').length;
+
   return (
     <div className="w-full px-3 sm:px-4 py-3 sm:py-4 space-y-3.5 pb-28 animate-in fade-in duration-200">
       
@@ -183,12 +199,15 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
       <div className="rounded-2xl sm:rounded-3xl bg-[#1E293B] border border-slate-700/60 p-4 sm:p-5 relative overflow-hidden shadow-md">
         <div className="flex flex-col gap-2 relative z-10">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-sky-500/20 text-sky-400 border border-sky-500/30">
                 EXAM PREP
               </span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase">
-                {questions.length} Questions
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Prelims: {prelimsCount} Qs
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                Mains: {mainsCount} Qs
               </span>
             </div>
 
@@ -209,10 +228,10 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
           </div>
 
           <h1 className="text-lg sm:text-xl font-black italic uppercase tracking-tight text-white leading-tight">
-            Quantitative Aptitude & Reasoning
+            Quantitative Aptitude Mastery
           </h1>
           <p className="text-[11px] text-slate-300 font-medium leading-normal">
-            Prelims & Mains standards for SSC CGL, Bank PO, CAT & RRB with instant AI breakdowns.
+            Prelims & Mains standards for SSC CGL, SBI/IBPS PO, CAT & RRB with instant formula shortcuts.
           </p>
         </div>
       </div>
@@ -239,21 +258,29 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
         <div className="flex items-center justify-between gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {/* Exam Level Filter Tabs */}
           <div className="flex items-center gap-1 bg-[#1E293B] border border-slate-700/60 p-1 rounded-xl shrink-0">
-            {(['All', 'Prelims', 'Mains'] as const).map((level) => (
+            {[
+              { id: 'All', label: `All (${questions.length})` },
+              { id: 'Prelims', label: `Prelims (${prelimsCount})` },
+              { id: 'Mains', label: `Mains (${mainsCount})` },
+            ].map((tab) => (
               <button
-                key={level}
-                id={`exam-level-${level.toLowerCase()}`}
+                key={tab.id}
+                id={`exam-level-${tab.id.toLowerCase()}`}
                 onClick={() => {
-                  setExamLevelFilter(level);
+                  setExamLevelFilter(tab.id as any);
                   setActiveQuestionIndex(0);
                 }}
-                className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
-                  examLevelFilter === level
-                    ? 'bg-purple-500 text-white shadow-xs'
+                className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-wider transition-colors ${
+                  examLevelFilter === tab.id
+                    ? tab.id === 'Mains'
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : tab.id === 'Prelims'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-sky-500 text-slate-950 shadow-xs'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                {level}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -507,13 +534,33 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
               {/* Main Question Card - Responsive Design */}
               <div className="p-4 sm:p-5 rounded-2xl bg-[#1E293B] border border-slate-700/60 shadow-md space-y-3.5">
                 
-                {/* Subtopic & Formula Tag */}
+                {/* Subtopic, Exam Level & Formula Tag */}
                 <div className="flex items-center justify-between gap-1.5 flex-wrap border-b border-slate-700/60 pb-2.5">
-                  {activeQuestion.subtopic ? (
-                    <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-bold border border-sky-500/20">
-                      {activeQuestion.subtopic}
-                    </span>
-                  ) : null}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {activeQuestion.examLevel && (
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                        activeQuestion.examLevel === 'Mains'
+                          ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                          : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      }`}>
+                        {activeQuestion.examLevel === 'Mains' ? '★ Mains Tier' : '✓ Prelims Tier'}
+                      </span>
+                    )}
+                    {activeQuestion.subtopic ? (
+                      <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-bold border border-sky-500/20">
+                        {activeQuestion.subtopic}
+                      </span>
+                    ) : null}
+                    {activeQuestion.examTags && activeQuestion.examTags.length > 0 && (
+                      <div className="hidden sm:flex items-center gap-1">
+                        {activeQuestion.examTags.slice(0, 2).map((tag, tIdx) => (
+                          <span key={tIdx} className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[9px] font-bold">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   {activeQuestion.formulaShortcut ? (
                     <span className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
@@ -642,13 +689,39 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                     )}
 
                     <div>
-                      <span className="text-[10px] font-black uppercase text-sky-400 block tracking-wider mb-1 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Step-by-Step Derivation
-                      </span>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <span className="text-[10px] font-black uppercase text-sky-400 flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Step-by-Step Derivation
+                        </span>
+                        
+                        {!aiExplanations[activeQuestion.id] && (
+                          <button
+                            onClick={() => handleRequestAiExplanation(activeQuestion)}
+                            disabled={isLoadingAiExplanation[activeQuestion.id]}
+                            className="px-2 py-0.5 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-[10px] font-bold flex items-center gap-1 transition-all disabled:opacity-50"
+                          >
+                            <Sparkles className={`w-3 h-3 ${isLoadingAiExplanation[activeQuestion.id] ? 'animate-spin' : ''}`} />
+                            <span>{isLoadingAiExplanation[activeQuestion.id] ? 'AI Thinking...' : 'Deep AI Breakdown'}</span>
+                          </button>
+                        )}
+                      </div>
+                      
                       <p className="text-[11px] text-slate-300 whitespace-pre-line leading-relaxed font-medium">
                         {activeQuestion.explanation}
                       </p>
+
+                      {aiExplanations[activeQuestion.id] && (
+                        <div className="mt-2.5 p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 space-y-1 animate-in fade-in">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-300 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-purple-400" />
+                            Gemini AI Deep Tutor Analysis
+                          </span>
+                          <p className="text-[11px] text-purple-100/90 whitespace-pre-line leading-relaxed">
+                            {aiExplanations[activeQuestion.id]}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

@@ -137,6 +137,61 @@ export const SUPPORT_PRODUCTS: SupportProduct[] = [
   },
 ];
 
+export const PRODUCT_TIER_RANK: Record<string, number> = {
+  tip_coffee: 1,
+  pro_supporter: 2,
+  lifetime_master: 3,
+  patron_supporter: 4,
+};
+
+export const getPlanTier = (productId?: string | null): number => {
+  if (!productId) return 0;
+  return PRODUCT_TIER_RANK[productId] || 0;
+};
+
+export const getProductById = (productId?: string | null): SupportProduct | undefined => {
+  if (!productId) return undefined;
+  return SUPPORT_PRODUCTS.find((p) => p.id === productId);
+};
+
+export const isBiggerPlan = (currentProductId: string | undefined | null, targetProductId: string): boolean => {
+  const currentTier = getPlanTier(currentProductId);
+  const targetTier = getPlanTier(targetProductId);
+  return targetTier > currentTier;
+};
+
+export const isLowerPlan = (currentProductId: string | undefined | null, targetProductId: string): boolean => {
+  const currentTier = getPlanTier(currentProductId);
+  const targetTier = getPlanTier(targetProductId);
+  return currentTier > 0 && targetTier < currentTier;
+};
+
+export const isCurrentPlan = (currentProductId: string | undefined | null, targetProductId: string, isPremium?: boolean): boolean => {
+  if (!isPremium) return false;
+  const effectiveCurrent = currentProductId || 'pro_supporter';
+  return effectiveCurrent === targetProductId;
+};
+
+export const getUpgradeDifference = (
+  currentProductId: string | undefined | null, 
+  targetProduct: SupportProduct
+): { diffUSD: number; hasUpgradeDiscount: boolean; originalPriceUSD: number } => {
+  const currentProduct = getProductById(currentProductId || 'pro_supporter');
+  if (!currentProduct) {
+    return { 
+      diffUSD: targetProduct.priceUSD, 
+      hasUpgradeDiscount: false,
+      originalPriceUSD: targetProduct.priceUSD 
+    };
+  }
+  const diff = Math.max(0, targetProduct.priceUSD - currentProduct.priceUSD);
+  return {
+    diffUSD: Number(diff.toFixed(2)),
+    hasUpgradeDiscount: diff < targetProduct.priceUSD,
+    originalPriceUSD: targetProduct.priceUSD,
+  };
+};
+
 export class RazorpayService {
   public static async processPayment(tier: SubscriptionTier | SupportProduct): Promise<{ success: boolean; transactionId?: string; error?: string }> {
     return new Promise((resolve) => {
