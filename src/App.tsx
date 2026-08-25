@@ -52,7 +52,8 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [authModalInitialMode, setAuthModalInitialMode] = useState<'signin' | 'signup'>('signin');
+  const [authModalInitialMode, setAuthModalInitialMode] = useState<'signin' | 'signup' | 'otp'>('signin');
+  const [authPromptReason, setAuthPromptReason] = useState<string | undefined>(undefined);
   const [isRateAppModalOpen, setIsRateAppModalOpen] = useState<boolean>(false);
   const [isMoreAppsModalOpen, setIsMoreAppsModalOpen] = useState<boolean>(false);
   const [isCodeViewerOpen, setIsCodeViewerOpen] = useState<boolean>(false);
@@ -64,8 +65,9 @@ export default function App() {
   const [questions, setQuestions] = useState<AptitudeQuestion[]>(StorageService.getAllAptitudeQuestions());
   const [dailyChallenge, setDailyChallenge] = useState(StorageService.getDailyChallenge());
 
-  const handleOpenAuthModal = (mode: 'signin' | 'signup' = 'signin') => {
+  const handleOpenAuthModal = (mode: 'signin' | 'signup' | 'otp' = 'signin', reason?: string) => {
     setAuthModalInitialMode(mode);
+    setAuthPromptReason(reason);
     setIsAuthModalOpen(true);
   };
 
@@ -122,11 +124,21 @@ export default function App() {
   };
 
   const handleLaunchSprint = (op: MathOperation) => {
+    if (profile.isGuest) {
+      soundService.playWrong();
+      handleOpenAuthModal('signin', 'Sign in or create an account to start Speed Sprints and Vedic Drills.');
+      return;
+    }
     setSelectedInitialOp(op);
     setIsConfigModalOpen(true);
   };
 
   const handleStartGame = (op: MathOperation, diff: DifficultyLevel, dur: GameDuration) => {
+    if (profile.isGuest) {
+      soundService.playWrong();
+      handleOpenAuthModal('signin', 'Sign in or create an account to play calculation drills.');
+      return;
+    }
     setIsConfigModalOpen(false);
     setLatestResult(null);
     setActiveGameParams({ operation: op, difficulty: diff, duration: dur });
@@ -236,6 +248,7 @@ export default function App() {
             onOpenPremium={() => setIsPremiumModalOpen(true)}
             onOpenProfile={() => setIsProfileModalOpen(true)}
             onOpenAuth={() => handleOpenAuthModal('signin')}
+            onRequireAuth={(reason) => handleOpenAuthModal('signin', reason)}
             onOpenRateApp={() => setIsRateAppModalOpen(true)}
             onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
             onSelectTab={setCurrentTab}
@@ -248,7 +261,9 @@ export default function App() {
           <ExamPrepScreen
             categories={APTITUDE_CATEGORIES}
             questions={questions}
+            isGuest={profile.isGuest}
             onToggleBookmark={handleToggleBookmark}
+            onRequireAuth={(reason) => handleOpenAuthModal('signin', reason)}
           />
         );
 
@@ -386,7 +401,11 @@ export default function App() {
         <AuthModal
           isOpen={isAuthModalOpen}
           initialMode={authModalInitialMode}
-          onClose={() => setIsAuthModalOpen(false)}
+          promptReason={authPromptReason}
+          onClose={() => {
+            setIsAuthModalOpen(false);
+            setAuthPromptReason(undefined);
+          }}
           onAuthenticate={handleAuthenticate}
         />
 

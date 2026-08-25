@@ -115,6 +115,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   avatar: string;
   preferredDifficulty: DifficultyLevel;
   preferredOperation: MathOperation;
@@ -131,6 +132,10 @@ export interface UserProfile {
   overallAccuracy: number;
   fastestAnswerMs: number;
   isGuest: boolean;
+  authProvider?: 'google' | 'email' | 'otp' | 'guest';
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
+  countryCode?: string;
   soundEnabled: boolean;
   hapticsEnabled: boolean;
   theme: 'dark' | 'light';

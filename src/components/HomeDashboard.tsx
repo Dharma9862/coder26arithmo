@@ -26,6 +26,7 @@ interface HomeDashboardProps {
   onOpenPremium: () => void;
   onOpenProfile?: () => void;
   onOpenAuth?: () => void;
+  onRequireAuth?: (reason?: string) => void;
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
   onBack?: () => void;
@@ -51,6 +52,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   onOpenPremium,
   onOpenProfile,
   onOpenAuth,
+  onRequireAuth,
   onOpenRateApp,
   onOpenMoreApps,
   onBack,
@@ -329,6 +331,17 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const handleCardClick = (card: PracticeCardItem) => {
     soundService.triggerHaptic('medium');
     soundService.playClick();
+
+    if (profile.isGuest) {
+      soundService.playWrong();
+      if (onRequireAuth) {
+        onRequireAuth('Please sign in or create an account to start calculations and drills.');
+      } else if (onOpenAuth) {
+        onOpenAuth();
+      }
+      return;
+    }
+
     if (card.action === 'sprint' && card.operation) {
       onLaunchSprint(card.operation);
     } else if (card.action === 'examprep') {
@@ -515,6 +528,26 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             Welcome back to Mind calculation
           </p>
         </div>
+
+        {/* Guest Lock Banner */}
+        {profile.isGuest && (
+          <div className="p-3 bg-amber-400/25 backdrop-blur-md rounded-2xl border border-amber-300/40 flex items-center justify-between gap-2 text-[#113876] shadow-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm shrink-0">🔒</span>
+              <span className="text-xs font-black truncate">Sign in to unlock calculations & streaks</span>
+            </div>
+            <button
+              onClick={() => {
+                soundService.playClick();
+                if (onRequireAuth) onRequireAuth('Sign in or create an account to start speed drills.');
+                else if (onOpenAuth) onOpenAuth();
+              }}
+              className="px-2.5 py-1 bg-[#15469e] hover:bg-[#113876] text-white text-[11px] font-black uppercase tracking-wider rounded-xl shadow-md shrink-0 active:scale-95 transition-all"
+            >
+              Sign In
+            </button>
+          </div>
+        )}
 
         {/* Carousel / Tab Pill Bar */}
         <div className="pt-2 pb-1 flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0">
