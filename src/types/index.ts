@@ -139,6 +139,7 @@ export interface UserProfile {
   countryCode?: string;
   soundEnabled: boolean;
   hapticsEnabled: boolean;
+  audioFeedbackEnabled: boolean;
   theme: 'dark' | 'light';
 }
 

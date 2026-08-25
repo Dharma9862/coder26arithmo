@@ -10,7 +10,8 @@ import {
   HelpCircle,
   Volume2,
   VolumeX,
-  ArrowLeft
+  ArrowLeft,
+  Mic
 } from 'lucide-react';
 import { DifficultyLevel, GameDuration, GameSessionResult, MathOperation, MathQuestion } from '../types';
 import { MathGenerator } from '../services/mathGenerator';
@@ -24,6 +25,8 @@ interface LiveGameScreenProps {
   onQuit: () => void;
   soundEnabled: boolean;
   onToggleSound: () => void;
+  audioFeedbackEnabled?: boolean;
+  streakDays?: number;
 }
 
 export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
@@ -34,6 +37,8 @@ export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
   onQuit,
   soundEnabled,
   onToggleSound,
+  audioFeedbackEnabled = true,
+  streakDays = 1,
 }) => {
   // Game Flow States
   const [countdown, setCountdown] = useState<number>(3); // Initial 3..2..1..GO
@@ -72,6 +77,11 @@ export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
   // Mobile / Tablet Input Mode Toggle: 4-Option Cards vs Tactile Numpad
   const [inputMode, setInputMode] = useState<'options' | 'numpad'>('options');
   const [numpadBuffer, setNumpadBuffer] = useState<string>('');
+
+  // Audio Feedback & Milestone Announcement Toast State
+  const [audioToast, setAudioToast] = useState<{ message: string; type: 'score' | 'streak' | 'combo' } | null>(null);
+  const announcedScoreMilestonesRef = useRef<Set<number>>(new Set());
+  const announcedComboMilestonesRef = useRef<Set<number>>(new Set());
   
   // Reaction Times & Tracking
   const questionTimesRef = useRef<number[]>([]);
@@ -142,8 +152,13 @@ export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
     };
 
     soundService.playFanfare();
+    if (audioFeedbackEnabled && streakDays > 0) {
+      setTimeout(() => {
+        soundService.speakDailyStreakAchievement(streakDays);
+      }, 700);
+    }
     onFinishGame(result);
-  }, [operation, difficulty, duration, onFinishGame]);
+  }, [operation, difficulty, duration, onFinishGame, audioFeedbackEnabled, streakDays]);
 
   // 3-2-1 Countdown before Sprint starts
   useEffect(() => {
@@ -217,10 +232,42 @@ export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
       const speedBonus = Math.max(0, Math.round((3000 - timeSpent) / 30));
       const comboMultiplier = 1 + Math.min(newCombo * 0.15, 2.0); // up to 3.0x
       const points = Math.round((100 + speedBonus) * comboMultiplier);
-      setScore((prev) => prev + points);
+      const newScore = score + points;
+      setScore(newScore);
 
       soundService.playCorrect(newCombo);
       soundService.triggerHaptic('light');
+
+      // Audio Feedback: Check Score Milestones (e.g., 500, 1000, 1500, 2000, 2500, 3000, 4000)
+      if (audioFeedbackEnabled) {
+        const milestones = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 5000];
+        for (const m of milestones) {
+          if (newScore >= m && !announcedScoreMilestonesRef.current.has(m)) {
+            announcedScoreMilestonesRef.current.add(m);
+            soundService.speakScoreMilestone(m);
+            setAudioToast({
+              message: `🎙️ Score Milestone: ${m.toLocaleString()} pts!`,
+              type: 'score'
+            });
+            setTimeout(() => setAudioToast(null), 2200);
+            break;
+          }
+        }
+
+        // Check Combo Milestones: 5, 10, 15, 20, 25, 30
+        if ([5, 10, 15, 20, 25, 30].includes(newCombo) && !announcedComboMilestonesRef.current.has(newCombo)) {
+          announcedComboMilestonesRef.current.add(newCombo);
+          // Only announce combo if not announcing score milestone simultaneously
+          if (![500, 1000, 1500, 2000, 2500, 3000].some(m => newScore >= m && newScore - points < m)) {
+            soundService.speakComboMilestone(newCombo);
+            setAudioToast({
+              message: `🔥 ${newCombo} Combo Streak!`,
+              type: 'combo'
+            });
+            setTimeout(() => setAudioToast(null), 2000);
+          }
+        }
+      }
 
       setTimeout(() => {
         loadNextQuestion(newAdaptive);
@@ -349,8 +396,18 @@ export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
     <div className="fixed inset-0 z-50 bg-[#0F172A] flex flex-col justify-between p-4 sm:p-6 select-none max-w-2xl mx-auto">
       
       {/* Top Status Bar */}
-      <div className="w-full flex items-center justify-between gap-3 bg-[#1E293B] backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-slate-700/60 shadow-xl">
+      <div className="w-full flex items-center justify-between gap-3 bg-[#1E293B] backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-slate-700/60 shadow-xl relative">
         
+        {/* Synthetic Voice Milestone Toast Overlay */}
+        {audioToast && (
+          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in zoom-in-95 duration-200 pointer-events-none whitespace-nowrap">
+            <div className="px-4 py-1.5 rounded-full bg-slate-900/95 border border-sky-400/80 shadow-2xl shadow-sky-500/40 flex items-center gap-2 backdrop-blur-md ring-2 ring-sky-500/20">
+              <Mic className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+              <span className="text-xs font-black text-white tracking-wide">{audioToast.message}</span>
+            </div>
+          </div>
+        )}
+
         {/* Back / Exit, Pause & Sound buttons */}
         <div className="flex items-center gap-1.5">
           <button

@@ -37,6 +37,7 @@ interface SideDrawerMenuProps {
   onOpenAuth?: () => void;
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
+  onTriggerAdmin?: () => void;
   bookmarkCount?: number;
 }
 
@@ -51,9 +52,30 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
   onOpenAuth,
   onOpenRateApp,
   onOpenMoreApps,
+  onTriggerAdmin,
   bookmarkCount = 0,
 }) => {
   const [isSoundMuted, setIsSoundMuted] = React.useState(soundService.getMuted());
+  const [secretAdminTaps, setSecretAdminTaps] = React.useState(0);
+  const secretTapTimer = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleSecretTap = () => {
+    if (secretTapTimer.current) clearTimeout(secretTapTimer.current);
+    const count = secretAdminTaps + 1;
+    setSecretAdminTaps(count);
+
+    if (count >= 5) {
+      soundService.triggerHaptic('heavy');
+      soundService.playClick();
+      setSecretAdminTaps(0);
+      onClose();
+      onTriggerAdmin?.();
+    } else {
+      secretTapTimer.current = setTimeout(() => {
+        setSecretAdminTaps(0);
+      }, 3000);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -421,6 +443,14 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
             <Settings className="w-4 h-4" />
             <span>Profile & Settings</span>
           </button>
+
+          <div 
+            onClick={handleSecretTap}
+            className="pt-2 text-center text-[10px] text-slate-400 font-mono-math cursor-pointer select-none"
+            title="Arithmo Core"
+          >
+            Arithmo v3.0 • Speed Math Engine
+          </div>
         </div>
 
       </div>

@@ -51,7 +51,7 @@ interface PracticeCardItem {
   operation?: MathOperation;
   badge?: string;
   iconType: 'parentheses' | 'sequence' | 'right_wrong' | 'grid' | 'zap' | 'cross' | 'exam' | 'percent' | 'trophy' | 'formula' | 'plus' | 'minus' | 'divide';
-  action: 'sprint' | 'examprep' | 'analytics';
+  action: 'sprint' | 'examprep' | 'analytics' | 'leaderboard';
 }
 
 export const HomeDashboard: React.FC<HomeDashboardProps> = ({
@@ -93,6 +93,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
   const categories = [
     { id: 'advance', label: 'Advance calculation Practice' },
+    { id: 'ranking', label: '🏆 Live Rankings & Leagues' },
     { id: 'multiplication', label: 'Multiplication (1,000+ Qs)' },
     { id: 'addition', label: 'Addition (1,000+ Qs)' },
     { id: 'subtraction', label: 'Subtraction (1,000+ Qs)' },
@@ -452,6 +453,34 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           },
         ];
 
+      case 'ranking':
+        return [
+          {
+            id: 'rank-grandmaster-league',
+            title: 'Grandmaster Daily League',
+            subtitle: 'Global real-time competitive leaderboard with rival challenges',
+            iconType: 'trophy',
+            action: 'leaderboard',
+            badge: '👑 Tier 1',
+          },
+          {
+            id: 'rank-national-ranking',
+            title: 'National & Regional Leaderboards',
+            subtitle: 'Compete against math sprinters and exam aspirants in your country',
+            iconType: 'trophy',
+            action: 'leaderboard',
+            badge: '🇮🇳 National',
+          },
+          {
+            id: 'rank-sprint-masters',
+            title: 'Speed Sprint Accuracy Rankings',
+            subtitle: 'Top 100 fastest reaction times & highest accuracy streaks',
+            iconType: 'zap',
+            action: 'leaderboard',
+            badge: '⚡ Speed',
+          },
+        ];
+
       case 'advance':
       default:
         return [
@@ -510,6 +539,14 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             badge: '1,000+ Qs',
           },
           {
+            id: 'card-competitive-rankings',
+            title: 'Competitive Rankings & Leagues',
+            subtitle: 'Global, National & Daily Grandmaster leaderboards',
+            iconType: 'trophy',
+            action: 'leaderboard',
+            badge: '🏆 Live Rank',
+          },
+          {
             id: 'card-exam-prep',
             title: 'Quantitative Exam Prep (2,000+ Qs)',
             subtitle: '1,000 Prelims + 1,000 Mains across 20 high-yield topics',
@@ -549,6 +586,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       onOpenExamPrep();
     } else if (card.action === 'analytics') {
       if (onSelectTab) onSelectTab('analytics');
+    } else if (card.action === 'leaderboard') {
+      if (onSelectTab) onSelectTab('leaderboard');
     }
   };
 
@@ -650,16 +689,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         {/* Top Control Bar */}
         <div className="flex items-center justify-between gap-2">
           
-          {/* Left Side: Back Button & Streak Badge */}
+          {/* Left Side: App Brand Icon & Streak Badge */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            <button
-              id="header-back-btn"
-              onClick={handleBackClick}
-              className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 text-white backdrop-blur-md transition-all shadow-xs"
-              title="Go Back / Reset Selection"
-            >
-              <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-            </button>
+            <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/20 text-white backdrop-blur-md shadow-xs">
+              <Zap className="w-5 h-5 fill-white stroke-white" />
+            </div>
 
             <div className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 bg-white/20 backdrop-blur-md rounded-full text-[#113876] font-extrabold text-xs sm:text-sm shadow-xs">
               <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#ea580c] text-[#ea580c]" />

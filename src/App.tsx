@@ -11,6 +11,7 @@ import { LeaderboardScreen } from './components/LeaderboardScreen';
 import { BookmarksScreen } from './components/BookmarksScreen';
 import { SideDrawerMenu } from './components/SideDrawerMenu';
 import { AdminUploadModal } from './components/AdminUploadModal';
+import { AdminAuthModal } from './components/AdminAuthModal';
 import { PremiumModal } from './components/PremiumModal';
 import { ProfileModal } from './components/ProfileModal';
 import { RateAppModal } from './components/RateAppModal';
@@ -49,6 +50,7 @@ export default function App() {
 
   // Modals
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState<boolean>(false);
+  const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState<boolean>(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -64,6 +66,76 @@ export default function App() {
   const [achievements, setAchievements] = useState(StorageService.getAchievements());
   const [questions, setQuestions] = useState<AptitudeQuestion[]>(StorageService.getAllAptitudeQuestions());
   const [dailyChallenge, setDailyChallenge] = useState(StorageService.getDailyChallenge());
+
+  // System & Android Hardware Back Button Handler (Backend / History Level)
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isAdminAuthModalOpen) {
+        setIsAdminAuthModalOpen(false);
+        return;
+      }
+      if (isAdminModalOpen) {
+        setIsAdminModalOpen(false);
+        return;
+      }
+      if (isAuthModalOpen) {
+        setIsAuthModalOpen(false);
+        return;
+      }
+      if (isProfileModalOpen) {
+        setIsProfileModalOpen(false);
+        return;
+      }
+      if (isPremiumModalOpen) {
+        setIsPremiumModalOpen(false);
+        return;
+      }
+      if (isRateAppModalOpen) {
+        setIsRateAppModalOpen(false);
+        return;
+      }
+      if (isMoreAppsModalOpen) {
+        setIsMoreAppsModalOpen(false);
+        return;
+      }
+      if (isCodeViewerOpen) {
+        setIsCodeViewerOpen(false);
+        return;
+      }
+      if (isConfigModalOpen) {
+        setIsConfigModalOpen(false);
+        return;
+      }
+      if (activeGameParams) {
+        setActiveGameParams(null);
+        return;
+      }
+      if (latestResult) {
+        setLatestResult(null);
+        setCurrentTab('sprint');
+        return;
+      }
+      if (currentTab !== 'sprint') {
+        setCurrentTab('sprint');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [
+    isAdminAuthModalOpen,
+    isAdminModalOpen,
+    isAuthModalOpen,
+    isProfileModalOpen,
+    isPremiumModalOpen,
+    isRateAppModalOpen,
+    isMoreAppsModalOpen,
+    isCodeViewerOpen,
+    isConfigModalOpen,
+    activeGameParams,
+    latestResult,
+    currentTab,
+  ]);
 
   const handleOpenAuthModal = (mode: 'signin' | 'signup' | 'otp' = 'signin', reason?: string) => {
     setAuthModalInitialMode(mode);
@@ -81,10 +153,11 @@ export default function App() {
     StorageService.saveProfile(updated);
   };
 
-  // Sound sync
+  // Sound & Audio Feedback sync
   useEffect(() => {
     soundService.setMuted(!profile.soundEnabled);
-  }, [profile.soundEnabled]);
+    soundService.setAudioFeedbackEnabled(profile.audioFeedbackEnabled ?? true);
+  }, [profile.soundEnabled, profile.audioFeedbackEnabled]);
 
   // Live Synchronization & Multi-Tab Broadcast Subscriber
   useEffect(() => {
@@ -216,6 +289,8 @@ export default function App() {
           onQuit={handleQuitGame}
           soundEnabled={profile.soundEnabled}
           onToggleSound={handleToggleSound}
+          audioFeedbackEnabled={profile.audioFeedbackEnabled ?? true}
+          streakDays={profile.streakDays}
         />
       );
     }
@@ -350,6 +425,7 @@ export default function App() {
           onOpenAuth={() => handleOpenAuthModal('signin')}
           onOpenRateApp={() => setIsRateAppModalOpen(true)}
           onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
+          onTriggerAdmin={() => setIsAdminAuthModalOpen(true)}
           bookmarkCount={bookmarkedQuestions.length}
         />
 
@@ -375,6 +451,12 @@ export default function App() {
           onStartGame={handleStartGame}
         />
 
+        <AdminAuthModal
+          isOpen={isAdminAuthModalOpen}
+          onClose={() => setIsAdminAuthModalOpen(false)}
+          onSuccess={() => setIsAdminModalOpen(true)}
+        />
+
         <AdminUploadModal
           isOpen={isAdminModalOpen}
           onClose={() => setIsAdminModalOpen(false)}
@@ -398,6 +480,7 @@ export default function App() {
           onOpenAuth={() => handleOpenAuthModal('signin')}
           onOpenRateApp={() => setIsRateAppModalOpen(true)}
           onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
+          onTriggerAdmin={() => setIsAdminAuthModalOpen(true)}
         />
 
         <AuthModal

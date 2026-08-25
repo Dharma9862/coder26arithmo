@@ -27,7 +27,9 @@ import {
   CheckCircle2,
   Star,
   Grid,
-  Heart
+  Heart,
+  Mic,
+  Radio
 } from 'lucide-react';
 import { Achievement, DifficultyLevel, MathOperation, UserProfile } from '../types';
 import { APP_EXTERNAL_LINKS, MORE_APPS_CATALOG } from '../config/appLinks';
@@ -43,6 +45,7 @@ interface ProfileModalProps {
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
   onOpenAuth?: () => void;
+  onTriggerAdmin?: () => void;
 }
 
 export const APP_INFO = {
@@ -117,12 +120,40 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [avatar, setAvatar] = useState<string>(profile.avatar);
   const [diff, setDiff] = useState<DifficultyLevel>(profile.preferredDifficulty);
   const [op, setOp] = useState<MathOperation>(profile.preferredOperation);
+  const [audioFeedbackEnabled, setAudioFeedbackEnabled] = useState<boolean>(profile.audioFeedbackEnabled ?? true);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(profile.soundEnabled ?? true);
+  const [hapticsEnabled, setHapticsEnabled] = useState<boolean>(profile.hapticsEnabled ?? true);
+  const [isTestingVoice, setIsTestingVoice] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
 
   // Auth form state
   const [emailInput, setEmailInput] = useState<string>('');
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [authMsg, setAuthMsg] = useState<string>('');
+
+  // Hidden Admin Easter Egg trigger state
+  const [secretTapCount, setSecretTapCount] = useState<number>(0);
+  const secretTapTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleSecretAdminTap = () => {
+    if (secretTapTimeoutRef.current) clearTimeout(secretTapTimeoutRef.current);
+    const nextCount = secretTapCount + 1;
+    setSecretTapCount(nextCount);
+
+    soundService.triggerHaptic('light');
+
+    if (nextCount >= 5) {
+      soundService.triggerHaptic('heavy');
+      soundService.playClick();
+      setSecretTapCount(0);
+      onClose();
+      onTriggerAdmin?.();
+    } else {
+      secretTapTimeoutRef.current = setTimeout(() => {
+        setSecretTapCount(0);
+      }, 3000);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -134,9 +165,24 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       avatar,
       preferredDifficulty: diff,
       preferredOperation: op,
+      audioFeedbackEnabled,
+      soundEnabled,
+      hapticsEnabled,
     });
+    soundService.setAudioFeedbackEnabled(audioFeedbackEnabled);
+    soundService.setMuted(!soundEnabled);
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 1500);
+  };
+
+  const handleTestVoice = () => {
+    soundService.triggerHaptic('medium');
+    soundService.playClick();
+    setIsTestingVoice(true);
+    soundService.setAudioFeedbackEnabled(true);
+    soundService.testVoiceAnnouncement(() => {
+      setIsTestingVoice(false);
+    });
   };
 
   const handleAuthSubmit = (e: React.FormEvent) => {
@@ -322,6 +368,136 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 </div>
               </div>
 
+              {/* Audio Feedback & Sensory Preferences */}
+              <div className="p-4 rounded-2xl bg-gradient-to-b from-sky-950/30 to-slate-900/90 border border-sky-500/30 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400">
+                      <Mic className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+                        <span>Audio Feedback</span>
+                        <span className="px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300 text-[9px] font-mono-math">
+                          Voice AI
+                        </span>
+                      </h4>
+                      <p className="text-[10px] text-slate-400 font-medium">Synthetic voice announcements in gameplay</p>
+                    </div>
+                  </div>
+
+                  {/* Primary Audio Feedback Switch */}
+                  <button
+                    id="toggle-audio-feedback-btn"
+                    type="button"
+                    onClick={() => {
+                      soundService.playClick();
+                      const next = !audioFeedbackEnabled;
+                      setAudioFeedbackEnabled(next);
+                      soundService.setAudioFeedbackEnabled(next);
+                    }}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      audioFeedbackEnabled ? 'bg-sky-500' : 'bg-slate-700'
+                    }`}
+                    role="switch"
+                    aria-checked={audioFeedbackEnabled}
+                    title="Toggle Audio Feedback Voice Announcements"
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-slate-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        audioFeedbackEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Subtext description */}
+                <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                  🎙️ Spoken synthetic voice announcements for <strong className="text-sky-300">score milestones</strong> (500, 1,000, 1,500+ pts) and <strong className="text-amber-300">daily streak achievements</strong> during gameplay.
+                </p>
+
+                {/* Test Voice Announcement Preview Button */}
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    id="test-voice-announcement-btn"
+                    type="button"
+                    disabled={isTestingVoice}
+                    onClick={handleTestVoice}
+                    className="px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/40 text-sky-300 hover:text-white text-xs font-bold flex items-center gap-2 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                    title="Hear a sample synthetic voice announcement"
+                  >
+                    {isTestingVoice ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+                        <span className="text-[11px]">Speaking Sample...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-3.5 h-3.5 text-sky-400" />
+                        <span className="text-[11px]">Test Voice Announcement</span>
+                      </>
+                    )}
+                  </button>
+
+                  <span className={`text-[10px] font-black uppercase tracking-wider ${
+                    audioFeedbackEnabled ? 'text-emerald-400' : 'text-slate-500'
+                  }`}>
+                    {audioFeedbackEnabled ? 'Voice Enabled' : 'Voice Muted'}
+                  </span>
+                </div>
+
+                {/* Secondary Audio Settings: Sound Effects & Haptics */}
+                <div className="pt-2.5 border-t border-slate-800 grid grid-cols-2 gap-2 text-xs">
+                  {/* Sound FX toggle */}
+                  <button
+                    id="pref-toggle-sound-effects-btn"
+                    type="button"
+                    onClick={() => {
+                      const next = !soundEnabled;
+                      setSoundEnabled(next);
+                      soundService.setMuted(!next);
+                    }}
+                    className={`p-2 rounded-xl border flex items-center justify-between text-left transition-colors cursor-pointer ${
+                      soundEnabled 
+                        ? 'bg-slate-900/90 border-slate-700 text-white' 
+                        : 'bg-slate-950/60 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-sky-400" /> : <VolumeX className="w-3.5 h-3.5 text-slate-500" />}
+                      <span className="text-[11px] font-bold">Sound FX</span>
+                    </div>
+                    <span className={`text-[9px] font-black uppercase ${soundEnabled ? 'text-sky-400' : 'text-slate-500'}`}>
+                      {soundEnabled ? 'ON' : 'OFF'}
+                    </span>
+                  </button>
+
+                  {/* Haptic Vibration toggle */}
+                  <button
+                    id="pref-toggle-haptics-btn"
+                    type="button"
+                    onClick={() => {
+                      const next = !hapticsEnabled;
+                      setHapticsEnabled(next);
+                      if (next) soundService.triggerHaptic('medium');
+                    }}
+                    className={`p-2 rounded-xl border flex items-center justify-between text-left transition-colors cursor-pointer ${
+                      hapticsEnabled 
+                        ? 'bg-slate-900/90 border-slate-700 text-white' 
+                        : 'bg-slate-950/60 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Zap className={`w-3.5 h-3.5 ${hapticsEnabled ? 'text-amber-400' : 'text-slate-500'}`} />
+                      <span className="text-[11px] font-bold">Haptics</span>
+                    </div>
+                    <span className={`text-[9px] font-black uppercase ${hapticsEnabled ? 'text-amber-400' : 'text-slate-500'}`}>
+                      {hapticsEnabled ? 'ON' : 'OFF'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="pt-4 flex items-center justify-between border-t border-slate-700/60">
                 <button
@@ -414,11 +590,19 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-lg font-black text-white tracking-tight">{APP_INFO.name}</h3>
-                      <span className="px-2 py-0.5 rounded-full bg-sky-500 text-slate-950 text-[10px] font-black font-mono-math">
+                      <button
+                        type="button"
+                        onClick={handleSecretAdminTap}
+                        className="px-2 py-0.5 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 text-[10px] font-black font-mono-math cursor-pointer active:scale-95 transition-all select-none"
+                        title="App Version"
+                      >
                         {APP_INFO.version}
-                      </span>
+                      </button>
                     </div>
-                    <p className="text-xs text-sky-300 font-mono-math mt-0.5">
+                    <p 
+                      onClick={handleSecretAdminTap}
+                      className="text-xs text-sky-300 font-mono-math mt-0.5 cursor-pointer select-none"
+                    >
                       Build: {APP_INFO.buildNumber} • {APP_INFO.releaseDate}
                     </p>
                   </div>

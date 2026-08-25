@@ -37,6 +37,7 @@ const DEFAULT_PROFILE: UserProfile = {
   isGuest: true,
   soundEnabled: true,
   hapticsEnabled: true,
+  audioFeedbackEnabled: true,
   theme: 'dark',
 };
 
@@ -155,6 +156,20 @@ export class StorageService {
 
       if (session.bestTimeMs > 0 && (profile.fastestAnswerMs === 0 || session.bestTimeMs < profile.fastestAnswerMs)) {
         profile.fastestAnswerMs = session.bestTimeMs;
+      }
+
+      // Update streak and activity
+      const today = new Date().toISOString().split('T')[0];
+      if (profile.lastActiveDate !== today) {
+        const lastActive = new Date(profile.lastActiveDate);
+        const currentDate = new Date(today);
+        const diffDays = Math.round((currentDate.getTime() - lastActive.getTime()) / (1000 * 3600 * 24));
+        if (diffDays === 1) {
+          profile.streakDays += 1;
+        } else if (diffDays > 1) {
+          profile.streakDays = 1;
+        }
+        profile.lastActiveDate = today;
       }
 
       // Recalculate average accuracy
