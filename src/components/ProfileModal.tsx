@@ -114,6 +114,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   onOpenRateApp,
   onOpenMoreApps,
   onOpenAuth,
+  onTriggerAdmin,
 }) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'about' | 'achievements' | 'auth'>('profile');
   const [name, setName] = useState<string>(profile.name);
