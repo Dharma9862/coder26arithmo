@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievements';
 import { QuestionBankService } from './questionBankGenerator';
+import { SupabaseService } from './supabaseService';
 import { FirebaseDatabaseService } from './firebase';
 
 const PROFILE_KEY = 'numbersprint_user_profile';
@@ -70,9 +71,10 @@ export class StorageService {
 
   public static async signOut(): Promise<UserProfile> {
     try {
-      await FirebaseDatabaseService.signOut();
+      await SupabaseService.signOut();
+      await FirebaseDatabaseService.signOut().catch(() => {});
     } catch (err) {
-      console.warn('Firebase signOut error:', err);
+      console.warn('SignOut error:', err);
     }
     const guestProfile = this.getDefaultGuestProfile();
     try {
@@ -118,10 +120,10 @@ export class StorageService {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
       this.notifyLocalUpdate(PROFILE_KEY, profile);
 
-      // Async sync to Cloud Firestore
+      // Async sync to Cloud Supabase
       if (profile.id && !profile.isGuest) {
-        FirebaseDatabaseService.saveUserProfile(profile).catch((err) => {
-          console.warn('Background Firestore profile sync:', err);
+        SupabaseService.saveUserProfile(profile).catch((err) => {
+          console.warn('Background Supabase profile sync:', err);
         });
       }
     } catch {
@@ -182,9 +184,9 @@ export class StorageService {
       this.evaluateAchievements(session);
       this.notifyLocalUpdate(SESSIONS_KEY, session);
 
-      // Async push session to Firebase Firestore
-      FirebaseDatabaseService.saveGameSession(session, profile).catch((err) => {
-        console.warn('Background Firestore session sync:', err);
+      // Async push session to Supabase
+      SupabaseService.saveGameSession(session, profile).catch((err) => {
+        console.warn('Background Supabase session sync:', err);
       });
     } catch {
       // Storage error
@@ -300,6 +302,7 @@ export class StorageService {
       // Async sync with cloud
       const profile = this.getProfile();
       if (profile.id && !profile.isGuest) {
+        SupabaseService.syncBookmarks(profile.id, list).catch(() => {});
         FirebaseDatabaseService.syncBookmarks(profile.id, list).catch((err) => {
           console.warn('Bookmarks cloud sync error:', err);
         });
@@ -313,6 +316,15 @@ export class StorageService {
   public static async fetchCloudBookmarks(): Promise<string[]> {
     const profile = this.getProfile();
     if (!profile.id || profile.isGuest) return this.getBookmarks();
+    
+    // Check Supabase first
+    const sbRemote = await SupabaseService.fetchBookmarks(profile.id).catch(() => null);
+    if (sbRemote && Array.isArray(sbRemote)) {
+      localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(sbRemote));
+      this.notifyLocalUpdate(BOOKMARKS_KEY, sbRemote);
+      return sbRemote;
+    }
+
     const remote = await FirebaseDatabaseService.fetchBookmarks(profile.id);
     if (remote && Array.isArray(remote)) {
       localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(remote));
@@ -404,6 +416,14 @@ export class StorageService {
   public static async fetchRealtimeLeaderboard(): Promise<LeaderboardEntry[]> {
     const profile = this.getProfile();
     try {
+      if (SupabaseService.isConfigured()) {
+        const sbEntries = await SupabaseService.fetchCloudLeaderboard(profile.id);
+        if (sbEntries.length > 0) {
+          localStorage.setItem(CLOUD_LEADERBOARD_CACHE_KEY, JSON.stringify(sbEntries));
+          return sbEntries;
+        }
+      }
+
       const remoteEntries = await FirebaseDatabaseService.fetchCloudLeaderboard(profile.id);
       if (remoteEntries.length > 0) {
         localStorage.setItem(CLOUD_LEADERBOARD_CACHE_KEY, JSON.stringify(remoteEntries));

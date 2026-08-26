@@ -31,6 +31,7 @@ import { APTITUDE_CATEGORIES } from './data/aptitudeQuestions';
 import { soundService } from './services/soundService';
 import { syncService, SyncMessage } from './services/syncService';
 import { FirebaseDatabaseService } from './services/firebase';
+import { SupabaseService } from './services/supabaseService';
 
 import { NativeMobileService } from './services/nativeMobileService';
 
@@ -174,6 +175,29 @@ export default function App() {
       }
     });
 
+    // Listen for Supabase Auth state changes
+    const unsubSupabaseAuth = SupabaseService.onAuthStateChange(async (supabaseUser, userProf) => {
+      if (supabaseUser) {
+        try {
+          const current = StorageService.getProfile();
+          const mergedProfile: UserProfile = {
+            ...current,
+            ...(userProf || {}),
+            id: supabaseUser.id,
+            email: supabaseUser.email || current.email || '',
+            name: userProf?.name || supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || current.name || 'Math Athlete',
+            isGuest: false,
+          };
+          setProfile(mergedProfile);
+          StorageService.saveProfile(mergedProfile);
+          await StorageService.fetchCloudBookmarks();
+          setQuestions(StorageService.getAllAptitudeQuestions());
+        } catch (err) {
+          console.warn('Error fetching Supabase cloud profile on auth change:', err);
+        }
+      }
+    });
+
     // Listen for Firebase Auth state changes
     let isInitialMount = true;
     const unsubAuth = FirebaseDatabaseService.onAuthStateChanged(async (firebaseUser) => {
@@ -201,7 +225,7 @@ export default function App() {
       } else {
         if (!isInitialMount) {
           const current = StorageService.getProfile();
-          if (!current.isGuest) {
+          if (!current.isGuest && !SupabaseService.isConfigured()) {
             const guest = StorageService.getDefaultGuestProfile();
             StorageService.saveProfile(guest);
             setProfile(guest);
@@ -213,6 +237,7 @@ export default function App() {
 
     return () => {
       unsubscribe();
+      unsubSupabaseAuth();
       unsubAuth();
     };
   }, []);
