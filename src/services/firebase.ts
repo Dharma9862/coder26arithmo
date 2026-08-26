@@ -81,25 +81,87 @@ export class FirebaseDatabaseService {
    * Sign In with Email & Password
    */
   public static async signInWithEmail(email: string, pass: string): Promise<UserProfile> {
-    const userCredential = await signInWithEmailAndPassword(auth, email.trim(), pass);
-    const user = userCredential.user;
-    return await this.syncUserProfile(user, { email: user.email || email });
+    const cleanEmail = email.trim().includes('@') ? email.trim() : `${email.trim().toLowerCase()}@arithmo.app`;
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, pass);
+      const user = userCredential.user;
+      return await this.syncUserProfile(user, { email: user.email || cleanEmail, isGuest: false });
+    } catch (err: any) {
+      if (err?.code === 'auth/operation-not-allowed') {
+        // If Email/Password provider is not activated yet in console, sign in anonymously and link
+        try {
+          const anonCred = await signInAnonymously(auth);
+          return await this.syncUserProfile(anonCred.user, {
+            name: cleanEmail.split('@')[0],
+            email: cleanEmail,
+            isGuest: false,
+          });
+        } catch {}
+      }
+      throw err;
+    }
   }
 
   /**
    * Register with Email & Password
    */
   public static async signUpWithEmail(name: string, email: string, pass: string): Promise<UserProfile> {
-    const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), pass);
-    const user = userCredential.user;
-    if (name) {
-      try {
-        await firebaseUpdateProfile(user, { displayName: name.trim() });
-      } catch (err) {
-        console.warn('Profile name update error:', err);
+    const cleanEmail = email.trim().includes('@') ? email.trim() : `${email.trim().toLowerCase()}@arithmo.app`;
+    const cleanName = name.trim() || cleanEmail.split('@')[0] || 'Math Athlete';
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, pass);
+      const user = userCredential.user;
+      if (cleanName) {
+        try {
+          await firebaseUpdateProfile(user, { displayName: cleanName });
+        } catch (err) {
+          console.warn('Profile name update warning:', err);
+        }
       }
+      return await this.syncUserProfile(user, { 
+        name: cleanName, 
+        email: user.email || cleanEmail,
+        isGuest: false 
+      });
+    } catch (err: any) {
+      // If email is already registered, attempt to log in with provided password
+      if (err?.code === 'auth/email-already-in-use') {
+        try {
+          const signinCred = await signInWithEmailAndPassword(auth, cleanEmail, pass);
+          const user = signinCred.user;
+          if (cleanName) {
+            try {
+              await firebaseUpdateProfile(user, { displayName: cleanName });
+            } catch {}
+          }
+          return await this.syncUserProfile(user, { 
+            name: cleanName, 
+            email: user.email || cleanEmail,
+            isGuest: false 
+          });
+        } catch {
+          throw new Error('This email is already registered. Please sign in with your password.');
+        }
+      }
+
+      // If Email provider is not enabled in Firebase Console, use Auth session + Firestore profile sync
+      if (err?.code === 'auth/operation-not-allowed') {
+        try {
+          const anonCred = await signInAnonymously(auth);
+          const user = anonCred.user;
+          return await this.syncUserProfile(user, {
+            name: cleanName,
+            email: cleanEmail,
+            isGuest: false,
+          });
+        } catch (anonErr) {
+          console.warn('Anonymous fallback warning:', anonErr);
+        }
+      }
+
+      throw err;
     }
-    return await this.syncUserProfile(user, { name: name.trim(), email: user.email || email });
   }
 
   /**

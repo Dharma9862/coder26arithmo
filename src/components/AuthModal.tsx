@@ -189,21 +189,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setIsLoading(false);
         soundService.playCorrect();
         soundService.triggerHaptic('success');
+        setSuccessMessage(`Account created for ${profile.name}! Welcome to Arithmo.`);
         onAuthenticate(profile);
-        onClose();
+        setTimeout(() => {
+          onClose();
+        }, 1000);
       } catch (err: any) {
         setIsLoading(false);
         soundService.playWrong();
         const code = err?.code || '';
         if (code === 'auth/operation-not-allowed') {
-          setErrorMessage('Email/Password registration is disabled in Firebase Console. Enable it in Firebase Console > Authentication > Sign-in method, or continue with Offline Athlete Profile.');
-          setShowOfflineFallback(true);
+          setErrorMessage('Email registration is not yet enabled in Firebase Console. You can also sign in with Google or try again.');
         } else if (code === 'auth/email-already-in-use') {
           setErrorMessage('This email is already registered. Please Sign In instead.');
         } else if (code === 'auth/weak-password') {
           setErrorMessage('Password is too weak. Please use at least 6 characters.');
+        } else if (code === 'auth/invalid-email') {
+          setErrorMessage('Please enter a valid email format (e.g. user@gmail.com).');
         } else {
-          setErrorMessage(err?.message || 'Account creation failed. Please try again.');
+          setErrorMessage(err?.message || 'Account creation failed. Please check details and try again.');
         }
       }
     } else if (mode === 'otp') {

@@ -672,78 +672,33 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             </div>
           </div>
 
-          {/* Right Side: Upgrade Badge Button & User Toggle Button */}
+          {/* Right Side: User Menu Toggle Button (Visible only after login) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {profile.isGuest && onOpenAuth && (
+            {!profile.isGuest ? (
               <button
-                id="header-signup-btn"
+                id="header-user-toggle-btn"
                 onClick={() => {
                   soundService.triggerHaptic('medium');
                   soundService.playClick();
-                  onOpenAuth('signup');
+                  setIsDrawerOpen(true);
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-[#113876] hover:bg-white/90 font-black text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer"
-                title="Create Free Athlete Account"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/25 hover:bg-white/35 active:scale-95 text-white backdrop-blur-md transition-all shadow-sm border border-white/35 cursor-pointer flex items-center justify-center"
+                title="Toggle Profile, Settings & Menu"
               >
-                <UserPlus className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Sign Up</span>
+                <Menu className="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-[2.7] text-white" />
               </button>
-            )}
-
-            {!profile.isPremium ? (
+            ) : onOpenAuth ? (
               <button
-                id="header-upgrade-btn"
+                id="header-login-quick-btn"
                 onClick={() => {
-                  soundService.triggerHaptic('medium');
                   soundService.playClick();
-                  onOpenPremium();
+                  onOpenAuth('signin');
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
-                title="Upgrade to PRO"
+                className="px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-xs backdrop-blur-md transition-all border border-white/30 shadow-xs cursor-pointer active:scale-95"
               >
-                <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
-                <span className="hidden sm:inline">Upgrade</span>
+                Sign In
               </button>
-            ) : getPlanTier(profile.purchasedProductId || 'pro_supporter') < 4 ? (
-              <button
-                id="header-upgrade-plan-btn"
-                onClick={() => {
-                  soundService.triggerHaptic('medium');
-                  soundService.playClick();
-                  onOpenPremium();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
-                title="Upgrade to Bigger Plan"
-              >
-                <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
-                <span>Upgrade Plan</span>
-              </button>
-            ) : (
-              <div 
-                onClick={() => {
-                  soundService.playClick();
-                  onOpenPremium();
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-[#113876] backdrop-blur-md text-xs font-black uppercase tracking-wider shadow-xs cursor-pointer active:scale-95 transition-all"
-                title="View VIP Super Patron Status"
-              >
-                <Crown className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                <span>Super Patron</span>
-              </div>
-            )}
-
-            <button
-              id="header-user-toggle-btn"
-              onClick={() => {
-                soundService.triggerHaptic('medium');
-                soundService.playClick();
-                setIsDrawerOpen(true);
-              }}
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/25 hover:bg-white/35 active:scale-95 text-white backdrop-blur-md transition-all shadow-sm border border-white/35 cursor-pointer flex items-center justify-center"
-              title="Toggle Profile, Settings & Menu"
-            >
-              <Menu className="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-[2.7] text-white" />
-            </button>
+            ) : null}
           </div>
         </div>
 
@@ -756,6 +711,74 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             Welcome back to Mind calculation • Daily Unique AI Quests & Drills
           </p>
         </div>
+
+        {/* Upgrade Banner for Logged-In Users on Dashboard */}
+        {!profile.isGuest && !profile.isPremium && (
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-400/25 via-amber-300/20 to-orange-400/25 border border-white/40 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-md animate-in fade-in duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/30 shrink-0">
+                <Crown className="w-5 h-5 fill-slate-950 stroke-slate-950" />
+              </div>
+              <div className="text-xs sm:text-sm">
+                <div className="font-black text-[#113876] flex items-center gap-1.5 text-sm sm:text-base">
+                  <span>Upgrade to Arithmo PRO</span>
+                  <span className="px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 text-[10px] font-black uppercase">
+                    PRO Access
+                  </span>
+                </div>
+                <p className="text-[#15469e] font-medium text-xs">
+                  Unlock unlimited AI Quests, full Prelims & Mains banks, Vedic shortcuts & ad-free drills.
+                </p>
+              </div>
+            </div>
+            <button
+              id="dashboard-upgrade-btn"
+              onClick={() => {
+                soundService.triggerHaptic('medium');
+                soundService.playClick();
+                onOpenPremium();
+              }}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-md shadow-amber-500/30 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 self-stretch sm:self-center"
+            >
+              <Crown className="w-4 h-4 fill-slate-950 stroke-slate-950" />
+              <span>Upgrade to PRO</span>
+            </button>
+          </div>
+        )}
+
+        {/* Upgrade Plan Banner for Logged-In Lower Tier Premium Users */}
+        {!profile.isGuest && profile.isPremium && getPlanTier(profile.purchasedProductId || 'pro_supporter') < 4 && (
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-400/25 via-sky-400/20 to-emerald-400/25 border border-white/40 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-md animate-in fade-in duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 shadow-md shrink-0">
+                <Crown className="w-5 h-5 fill-slate-950 stroke-slate-950" />
+              </div>
+              <div>
+                <div className="font-black text-[#113876] text-sm sm:text-base flex items-center gap-1.5">
+                  <span>PRO Member Active</span>
+                  <span className="px-1.5 py-0.5 rounded bg-emerald-400 text-slate-950 text-[10px] font-black uppercase">
+                    Active
+                  </span>
+                </div>
+                <p className="text-[#15469e] text-xs font-medium">
+                  Upgrade to Higher Tier or Lifetime Super Patron for exclusive badges & perks.
+                </p>
+              </div>
+            </div>
+            <button
+              id="dashboard-upgrade-plan-btn"
+              onClick={() => {
+                soundService.triggerHaptic('medium');
+                soundService.playClick();
+                onOpenPremium();
+              }}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 self-stretch sm:self-center"
+            >
+              <Crown className="w-4 h-4 fill-slate-950 stroke-slate-950" />
+              <span>Upgrade Plan</span>
+            </button>
+          </div>
+        )}
 
         {/* Guest Athlete Prompt Banner */}
         {profile.isGuest && onOpenAuth && (

@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Right Side: Streamlined Controls (Streak, Sign Up if Guest, Upgrade Button, User Toggle) */}
+        {/* Right Side: Streak Badge and User Menu Toggle (Visible after login) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Daily Streak */}
           <div 
@@ -78,44 +78,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{profile.streakDays}D</span>
           </div>
 
-          {/* Dedicated Sign Up Button for Guest Users */}
-          {profile.isGuest && onOpenAuth && (
+          {/* User Profile & Menu Toggle Button - Enabled after login */}
+          {!profile.isGuest ? (
             <button
-              id="navbar-sign-up-btn"
-              onClick={() => onOpenAuth('signup')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-300 hover:to-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-sky-500/20 transition-all active:scale-95"
-              title="Sign Up Athlete Account"
+              id="navbar-user-toggle-btn"
+              onClick={() => {
+                if (onToggleMenu) onToggleMenu();
+                else onOpenProfile();
+              }}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#1E293B] hover:bg-slate-700 border border-slate-700/80 active:scale-95 transition-all text-white flex items-center justify-center shadow-sm cursor-pointer"
+              title="Toggle Profile, Settings & Menu"
             >
-              <UserPlus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Sign Up</span>
+              <Menu className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-slate-200 stroke-[2.4]" />
             </button>
-          )}
-
-          {/* Upgrade Badge Button - Only shown when user has NOT bought PRO */}
-          {!profile.isPremium && (
+          ) : onOpenAuth ? (
             <button
-              id="upgrade-premium-btn"
-              onClick={onOpenPremium}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 transition-all active:scale-95"
-              title="Upgrade to PRO"
+              id="navbar-login-btn"
+              onClick={() => onOpenAuth('signin')}
+              className="px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-bold transition-all cursor-pointer"
             >
-              <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
-              <span className="hidden sm:inline">Upgrade</span>
+              Sign In
             </button>
-          )}
-
-          {/* User Profile & Menu Toggle Button */}
-          <button
-            id="navbar-user-toggle-btn"
-            onClick={() => {
-              if (onToggleMenu) onToggleMenu();
-              else onOpenProfile();
-            }}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#1E293B] hover:bg-slate-700 border border-slate-700/80 active:scale-95 transition-all text-white flex items-center justify-center shadow-sm cursor-pointer"
-            title="Toggle Profile, Settings & Menu"
-          >
-            <Menu className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-slate-200 stroke-[2.4]" />
-          </button>
+          ) : null}
         </div>
 
       </div>
