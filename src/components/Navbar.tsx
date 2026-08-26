@@ -38,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleMenu,
 }) => {
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800">
+    <header className="sticky top-0 z-40 w-full bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800 pt-4">
       <div className="w-full px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
         
         {/* Left Side: Back button + App Logo & Title */}

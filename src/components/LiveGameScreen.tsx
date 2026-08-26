@@ -393,7 +393,7 @@ export const LiveGameScreen: React.FC<LiveGameScreenProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0F172A] flex flex-col justify-between p-4 sm:p-6 select-none max-w-2xl mx-auto">
+    <div className="fixed inset-0 z-50 bg-[#0F172A] flex flex-col justify-between p-4 sm:p-6 pt-8 sm:pt-10 select-none max-w-2xl mx-auto">
       
       {/* Top Status Bar */}
       <div className="w-full flex items-center justify-between gap-3 bg-[#1E293B] backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-slate-700/60 shadow-xl relative">

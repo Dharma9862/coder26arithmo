@@ -655,7 +655,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       />
 
       {/* Top Cyan Header Area */}
-      <header className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 pb-6 space-y-4">
+      <header className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-8 sm:pt-10 pb-6 space-y-4">
         
         {/* Top Control Bar */}
         <div className="flex items-center justify-between gap-2">
