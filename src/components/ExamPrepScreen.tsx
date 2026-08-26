@@ -31,19 +31,15 @@ import { TopicConceptGuideView } from './TopicConceptGuideView';
 interface ExamPrepScreenProps {
   categories: AptitudeCategory[];
   questions: AptitudeQuestion[];
-  isGuest?: boolean;
   onToggleBookmark: (questionId: string) => void;
   onQuestionSolved?: (questionId: string, isCorrect: boolean) => void;
-  onRequireAuth?: (reason?: string) => void;
 }
 
 export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   categories,
   questions,
-  isGuest = false,
   onToggleBookmark,
   onQuestionSolved,
-  onRequireAuth,
 }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [activeTopicTab, setActiveTopicTab] = useState<'concept' | 'practice'>('concept');
@@ -100,12 +96,6 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   const activeQuestion = filteredQuestions[activeQuestionIndex] || filteredQuestions[0];
 
   const handleSelectOption = (optionIndex: number) => {
-    if (isGuest) {
-      soundService.playWrong();
-      onRequireAuth?.("Please sign in or create an account to answer exam questions, view AI derivations, and track your progress.");
-      return;
-    }
-
     if (!activeQuestion) return;
     if (userSelections[activeQuestion.id] !== undefined) return; // already answered
 
@@ -125,20 +115,10 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   };
 
   const handleBookmarkClick = (questionId: string) => {
-    if (isGuest) {
-      soundService.playWrong();
-      onRequireAuth?.("Sign in or create an account to save bookmarks and review high-yield questions.");
-      return;
-    }
     onToggleBookmark(questionId);
   };
 
   const handleSelectCategory = (catId: string, initialTab: 'concept' | 'practice' = 'concept') => {
-    if (isGuest) {
-      soundService.playWrong();
-      onRequireAuth?.("Sign in or create an account to access topic theory and practice questions.");
-      return;
-    }
     setSelectedCategoryId(catId);
     setActiveTopicTab(initialTab);
     setSelectedSubtopic('All');
@@ -186,22 +166,6 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   return (
     <div className="w-full px-3 sm:px-4 py-3 sm:py-4 space-y-3.5 pb-28 animate-in fade-in duration-200">
       
-      {/* Guest Warning Banner if unauthenticated */}
-      {isGuest && (
-        <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between gap-2 text-amber-300">
-          <div className="flex items-center gap-2 text-xs font-bold">
-            <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Sign in to unlock interactive question answering & save bookmarks</span>
-          </div>
-          <button
-            onClick={() => onRequireAuth?.("Sign in or create an account to practice exam questions.")}
-            className="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shrink-0 hover:bg-amber-400 active:scale-95 transition-all"
-          >
-            Sign In
-          </button>
-        </div>
-      )}
-
       {/* Header Banner */}
       <div className="rounded-2xl sm:rounded-3xl bg-[#1E293B] border border-slate-700/60 p-4 sm:p-5 relative overflow-hidden shadow-md">
         <div className="flex flex-col gap-2 relative z-10">
@@ -360,16 +324,20 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <h2 className="text-[11px] font-black uppercase tracking-widest text-slate-400">
-              All 20 Topics
+              All 20 Quantitative Topics
             </h2>
-            <span className="text-[10px] text-sky-400 font-bold">
-              {categories.length} Categories
-            </span>
+            <div className="flex items-center gap-2 text-[10px] font-bold">
+              <span className="text-emerald-400">✓ {prelimsCount} Prelims</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-purple-400">★ {mainsCount} Mains</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-2.5">
             {categories.map((cat, catIndex) => {
               const catQuestions = questions.filter((q) => q.categoryId === cat.id);
+              const catPrelims = catQuestions.filter((q) => q.examLevel === 'Prelims');
+              const catMains = catQuestions.filter((q) => q.examLevel === 'Mains');
               const answeredCount = catQuestions.filter(q => userSelections[q.id] !== undefined).length;
               const hasGuide = !!TOPIC_CONCEPT_GUIDES[cat.id];
 
@@ -402,25 +370,67 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                         >
                           {cat.description}
                         </p>
+
+                        {/* Prelims & Mains Mapping Badges */}
+                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                            ✓ {catPrelims.length} Prelims Qs
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                            ★ {catMains.length} Mains Qs
+                          </span>
+                          {answeredCount > 0 && (
+                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-sky-500/15 text-sky-300 border border-sky-500/25">
+                              {answeredCount}/{catQuestions.length} Done
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <div className="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between gap-1.5 flex-wrap text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                     <button
                       onClick={() => handleSelectCategory(cat.id, 'concept')}
-                      className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20"
+                      className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20"
                     >
-                      <BookOpen className="w-3 h-3" /> Study Concept
+                      <BookOpen className="w-3 h-3" /> Theory
                     </button>
 
-                    <button
-                      onClick={() => handleSelectCategory(cat.id, 'practice')}
-                      className="px-2.5 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-black flex items-center gap-1 text-[10px] transition-all active:scale-95 shadow-sm"
-                    >
-                      <span>Practice ({catQuestions.length} Qs)</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      <button
+                        onClick={() => {
+                          setExamLevelFilter('Prelims');
+                          handleSelectCategory(cat.id, 'practice');
+                        }}
+                        className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-black text-[10px] transition-all"
+                        title="Practice Prelims Questions"
+                      >
+                        Prelims ({catPrelims.length})
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setExamLevelFilter('Mains');
+                          handleSelectCategory(cat.id, 'practice');
+                        }}
+                        className="px-2 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 font-black text-[10px] transition-all"
+                        title="Practice Mains Questions"
+                      >
+                        Mains ({catMains.length})
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setExamLevelFilter('All');
+                          handleSelectCategory(cat.id, 'practice');
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-black flex items-center gap-1 text-[10px] transition-all active:scale-95 shadow-sm"
+                      >
+                        <span>All ({catQuestions.length})</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -461,23 +471,66 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
         /* Practice Session View - MOBILE OPTIMIZED */
         <div className="space-y-3">
           
-          {/* If inside a selected topic, show the 2-Tab Switcher at the top of practice mode */}
+          {/* If inside a selected topic, show the 2-Tab Switcher and Exam Level Bar */}
           {selectedCategoryId && !searchQuery && activeCategory && (
-            <div className="bg-[#1E293B] border border-slate-700/60 p-1.5 rounded-2xl flex items-center gap-1 shadow-sm">
-              <button
-                onClick={() => setActiveTopicTab('concept')}
-                className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
-              >
-                <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                <span>1. Concept & Exam Theory</span>
-              </button>
-              <button
-                onClick={() => setActiveTopicTab('practice')}
-                className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 bg-sky-500 text-slate-950 shadow-sm transition-all"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>2. Practice Questions ({filteredQuestions.length})</span>
-              </button>
+            <div className="space-y-2">
+              <div className="bg-[#1E293B] border border-slate-700/60 p-1.5 rounded-2xl flex items-center gap-1 shadow-sm">
+                <button
+                  onClick={() => setActiveTopicTab('concept')}
+                  className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <span>1. Concept & Exam Theory</span>
+                </button>
+                <button
+                  onClick={() => setActiveTopicTab('practice')}
+                  className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 bg-sky-500 text-slate-950 shadow-sm transition-all"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>2. Practice Questions ({filteredQuestions.length})</span>
+                </button>
+              </div>
+
+              {/* Topic-specific Exam Level Quick Switcher */}
+              {(() => {
+                const topicAllQuestions = questions.filter(q => q.categoryId === selectedCategoryId);
+                const topicPrelimsCount = topicAllQuestions.filter(q => q.examLevel === 'Prelims').length;
+                const topicMainsCount = topicAllQuestions.filter(q => q.examLevel === 'Mains').length;
+
+                return (
+                  <div className="flex items-center justify-between gap-1.5 bg-[#1E293B] border border-slate-700/60 p-1.5 rounded-xl text-xs">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 pl-1">
+                      Exam Level:
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => { setExamLevelFilter('All'); setActiveQuestionIndex(0); }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
+                          examLevelFilter === 'All' ? 'bg-sky-500 text-slate-950 shadow-xs' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        All ({topicAllQuestions.length})
+                      </button>
+                      <button
+                        onClick={() => { setExamLevelFilter('Prelims'); setActiveQuestionIndex(0); }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
+                          examLevelFilter === 'Prelims' ? 'bg-emerald-600 text-white shadow-xs' : 'text-emerald-400 hover:bg-emerald-500/10'
+                        }`}
+                      >
+                        ✓ Prelims ({topicPrelimsCount})
+                      </button>
+                      <button
+                        onClick={() => { setExamLevelFilter('Mains'); setActiveQuestionIndex(0); }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
+                          examLevelFilter === 'Mains' ? 'bg-purple-600 text-white shadow-xs' : 'text-purple-400 hover:bg-purple-500/10'
+                        }`}
+                      >
+                        ★ Mains ({topicMainsCount})
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -705,10 +758,6 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                   {!revealedSolutions[activeQuestion.id] ? (
                     <button
                       onClick={() => {
-                        if (isGuest) {
-                          onRequireAuth?.("Please sign in or create an account to view AI solutions & shortcuts.");
-                          return;
-                        }
                         setRevealedSolutions(prev => ({ ...prev, [activeQuestion.id]: true }));
                       }}
                       className="text-[11px] font-black uppercase text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1 py-1"

@@ -1,30 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
-  LogIn, 
-  UserPlus, 
-  Sparkles, 
-  Lock, 
   Mail, 
+  Lock, 
   User, 
-  Phone,
+  UserPlus,
+  Phone, 
+  ArrowRight, 
+  Sparkles, 
   CheckCircle2, 
+  ShieldCheck, 
+  Zap, 
   Eye, 
   EyeOff, 
-  ArrowRight,
-  Flame,
-  Trophy,
-  ShieldCheck,
-  RotateCcw,
-  Check
+  KeyRound,
+  RotateCcw
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
-import { UserProfile } from '../types';
 import { soundService } from '../services/soundService';
+import { UserProfile } from '../types';
+import { FirebaseDatabaseService } from '../services/firebase';
 
-export type AuthTab = 'google' | 'email_signin' | 'email_signup' | 'phone_otp';
-
-interface AuthModalProps {
+export interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthenticate: (userData: Partial<UserProfile>) => void;
@@ -32,27 +28,7 @@ interface AuthModalProps {
   promptReason?: string;
 }
 
-const AVATAR_PRESETS = ['⚡', '🧠', '👑', '🚀', '💎', '🎯', '🔥', '🏆', '🌟', '🦁', '🥋', '🦊'];
-
-const TARGET_GOALS = [
-  { id: 'math_athlete', label: 'Speed Math Athlete & Vedic Drills' },
-  { id: 'ssc_bank', label: 'Competitive Exams (SSC CGL, Bank PO, Railways)' },
-  { id: 'cat_gre', label: 'Management & Grad (CAT, GMAT, GRE)' },
-  { id: 'school_sat', label: 'School & Standardized Tests (SAT, ACT)' },
-  { id: 'brain_fitness', label: 'Daily Mental Agility & Focus' },
-];
-
-const COUNTRY_CODES = [
-  { code: '+91', country: 'IN', name: 'India (+91)', flag: '🇮🇳' },
-  { code: '+1', country: 'US', name: 'USA / Canada (+1)', flag: '🇺🇸' },
-  { code: '+44', country: 'GB', name: 'United Kingdom (+44)', flag: '🇬🇧' },
-  { code: '+880', country: 'BD', name: 'Bangladesh (+880)', flag: '🇧🇩' },
-  { code: '+61', country: 'AU', name: 'Australia (+61)', flag: '🇦🇺' },
-  { code: '+49', country: 'DE', name: 'Germany (+49)', flag: '🇩🇪' },
-  { code: '+81', country: 'JP', name: 'Japan (+81)', flag: '🇯🇵' },
-  { code: '+65', country: 'SG', name: 'Singapore (+65)', flag: '🇸🇬' },
-  { code: '+971', country: 'AE', name: 'UAE (+971)', flag: '🇦🇪' },
-];
+type AuthMode = 'signin' | 'signup' | 'otp' | 'forgot';
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
@@ -61,906 +37,584 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialMode = 'signin',
   promptReason,
 }) => {
-  const [activeTab, setActiveTab] = useState<AuthTab>(
-    initialMode === 'otp' ? 'phone_otp' : initialMode === 'signup' ? 'email_signup' : 'email_signin'
-  );
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   
+  // Form fields
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  
+  // UI states
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [successInfo, setSuccessInfo] = useState<{ title: string; desc: string } | null>(null);
-
-  // Email Sign In
-  const [loginEmail, setLoginEmail] = useState<string>('');
-  const [loginPassword, setLoginPassword] = useState<string>('');
-
-  // Email Sign Up
-  const [signUpName, setSignUpName] = useState<string>('');
-  const [signUpEmail, setSignUpEmail] = useState<string>('');
-  const [signUpPassword, setSignUpPassword] = useState<string>('');
-  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState<string>('');
-  const [selectedAvatar, setSelectedAvatar] = useState<string>('⚡');
-  const [targetGoal, setTargetGoal] = useState<string>('math_athlete');
-
-  // Phone OTP
-  const [phoneUserName, setPhoneUserName] = useState<string>('');
-  const [selectedCountryCode, setSelectedCountryCode] = useState<string>('+91');
-  const [phoneNumber, setPhoneNumber] = useState<string>('');
-  const [otpStep, setOtpStep] = useState<'phone_input' | 'otp_verify'>('phone_input');
-  const [otpCode, setOtpCode] = useState<string[]>(['', '', '', '', '', '']);
-  const [sentOtpDisplay, setSentOtpDisplay] = useState<string>('');
-  const [resendTimer, setResendTimer] = useState<number>(0);
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Email OTP / Verification step (optional)
-  const [emailOtpStep, setEmailOtpStep] = useState<boolean>(false);
-  const [emailVerificationCode, setEmailVerificationCode] = useState<string>('');
-  const [sentEmailOtp, setSentEmailOtp] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [resendTimer, setResendTimer] = useState<number>(30);
+  const [canResend, setCanResend] = useState<boolean>(false);
 
   useEffect(() => {
-    if (initialMode === 'otp') setActiveTab('phone_otp');
-    else if (initialMode === 'signup') setActiveTab('email_signup');
-    else setActiveTab('email_signin');
-    setErrorMessage('');
-    setSuccessInfo(null);
-    setOtpStep('phone_input');
-    setEmailOtpStep(false);
-  }, [initialMode, isOpen]);
+    if (isOpen) {
+      setMode(initialMode);
+      setErrorMessage('');
+      setSuccessMessage('');
+      setIsLoading(false);
+      setOtpDigits(['', '', '', '', '', '']);
+    }
+  }, [isOpen, initialMode]);
 
-  // Resend Timer Countdown
+  // Resend OTP countdown
   useEffect(() => {
-    let timer: any;
-    if (resendTimer > 0) {
-      timer = setInterval(() => {
-        setResendTimer((prev) => prev - 1);
+    let interval: NodeJS.Timeout;
+    if (mode === 'otp' && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
     }
-    return () => clearInterval(timer);
-  }, [resendTimer]);
+    return () => clearInterval(interval);
+  }, [mode, resendTimer]);
 
   if (!isOpen) return null;
 
-  const triggerSuccessCelebration = (title: string, desc: string, userData: Partial<UserProfile>) => {
-    soundService.triggerHaptic('heavy');
-    soundService.playFanfare();
+  const handleOtpChange = (index: number, val: string) => {
+    if (!/^\d*$/.test(val)) return;
+    const nextDigits = [...otpDigits];
+    nextDigits[index] = val.slice(-1);
+    setOtpDigits(nextDigits);
 
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#38bdf8', '#fbbf24', '#34d399', '#818cf8']
-      });
-    } catch {
-      // fallback
-    }
-
-    setSuccessInfo({ title, desc });
-    onAuthenticate({
-      ...userData,
-      isGuest: false,
-    });
-
-    setTimeout(() => {
-      onClose();
-      setSuccessInfo(null);
-    }, 1300);
-  };
-
-  // Google Authentication Handler
-  const handleGoogleAuth = () => {
-    soundService.triggerHaptic('medium');
-    soundService.playCorrect();
-    setErrorMessage('');
-
-    // Pre-configured Google User
-    const googleEmail = 'dharmapriyochakma72@gmail.com';
-    const googleName = 'Dharmapriyo Chakma';
-
-    triggerSuccessCelebration(
-      'Google Sign-In Successful!',
-      `Signed in with ${googleEmail}. All speed sprints and stats unlocked.`,
-      {
-        name: googleName,
-        email: googleEmail,
-        avatar: '🚀',
-        authProvider: 'google',
-        isEmailVerified: true,
-        streakDays: Math.max(1, 4),
-      }
-    );
-  };
-
-  // Email Sign In Handler
-  const handleEmailSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!loginEmail.trim()) {
-      setErrorMessage('Please enter your email or username');
-      return;
-    }
-    if (!loginPassword) {
-      setErrorMessage('Please enter your password');
-      return;
-    }
-
-    soundService.triggerHaptic('success');
-    soundService.playCorrect();
-
-    const derivedName = loginEmail.includes('@')
-      ? loginEmail.split('@')[0]
-      : loginEmail;
-
-    const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
-
-    triggerSuccessCelebration(
-      'Welcome Back!',
-      `Signed in as ${loginEmail}. Your stats and rankings are synced.`,
-      {
-        name: formattedName,
-        email: loginEmail.includes('@') ? loginEmail : `${loginEmail}@arithmo.app`,
-        authProvider: 'email',
-        isEmailVerified: true,
-      }
-    );
-  };
-
-  // Email Sign Up Handler
-  const handleEmailSignUp = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!signUpName.trim()) {
-      setErrorMessage('Please enter your full name');
-      return;
-    }
-    if (!signUpEmail.trim() || !signUpEmail.includes('@')) {
-      setErrorMessage('Please enter a valid email address');
-      return;
-    }
-    if (!signUpPassword || signUpPassword.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long');
-      return;
-    }
-    if (signUpPassword !== signUpConfirmPassword) {
-      setErrorMessage('Passwords do not match');
-      return;
-    }
-
-    // Step into Email Verification Code Confirmation
-    const generatedEmailCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setSentEmailOtp(generatedEmailCode);
-    setEmailOtpStep(true);
-    soundService.playClick();
-  };
-
-  // Verify Email Code
-  const handleVerifyEmailCode = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!emailVerificationCode.trim()) {
-      setErrorMessage('Please enter the 6-digit verification code sent to your email');
-      return;
-    }
-
-    if (emailVerificationCode.trim() !== sentEmailOtp && emailVerificationCode.trim() !== '123456') {
-      setErrorMessage(`Invalid code. Enter the code "${sentEmailOtp}" or 123456`);
-      return;
-    }
-
-    triggerSuccessCelebration(
-      'Account Verified & Created!',
-      `Welcome to Arithmo, ${signUpName}! All activities are unlocked.`,
-      {
-        name: signUpName.trim(),
-        email: signUpEmail.trim(),
-        avatar: selectedAvatar,
-        authProvider: 'email',
-        isEmailVerified: true,
-        streakDays: 1,
-      }
-    );
-  };
-
-  // Phone OTP: Send Code
-  const handleSendMobileOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!phoneUserName.trim()) {
-      setErrorMessage('Please enter your full name');
-      return;
-    }
-
-    const cleanNumber = phoneNumber.replace(/\D/g, '');
-    if (!cleanNumber || cleanNumber.length < 7 || cleanNumber.length > 15) {
-      setErrorMessage('Please enter a valid mobile phone number');
-      return;
-    }
-
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setSentOtpDisplay(generatedOtp);
-    setOtpStep('otp_verify');
-    setResendTimer(45);
-    setOtpCode(['', '', '', '', '', '']);
-    soundService.playCorrect();
-
-    // Auto-focus first input
-    setTimeout(() => {
-      otpInputRefs.current[0]?.focus();
-    }, 100);
-  };
-
-  // Handle OTP digit input
-  const handleOtpDigitChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-
-    const newOtp = [...otpCode];
-    newOtp[index] = value.slice(-1);
-    setOtpCode(newOtp);
-
-    // Auto-advance
-    if (value && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
+    // Auto-focus next input
+    if (val && index < 5) {
+      const nextInput = document.getElementById(`otp-input-${index + 1}`);
+      nextInput?.focus();
     }
   };
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-input-${index - 1}`);
+      prevInput?.focus();
     }
   };
 
-  // Phone OTP: Verify Code
-  const handleVerifyMobileOtp = (e: React.FormEvent) => {
+  const handleResendOtp = () => {
+    if (!canResend) return;
+    soundService.playClick();
+    setCanResend(false);
+    setResendTimer(30);
+    setSuccessMessage('A new 6-digit verification code has been sent.');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
 
-    const enteredCode = otpCode.join('');
-    if (enteredCode.length < 6) {
-      setErrorMessage('Please enter all 6 digits of the OTP code');
-      return;
-    }
-
-    if (enteredCode !== sentOtpDisplay && enteredCode !== '123456') {
-      setErrorMessage(`Invalid verification code. Enter "${sentOtpDisplay}" or 123456`);
-      return;
-    }
-
-    const fullPhone = `${selectedCountryCode} ${phoneNumber.trim()}`;
-    const verifiedName = phoneUserName.trim() || `Athlete ${phoneNumber.slice(-4)}`;
-
-    triggerSuccessCelebration(
-      'Mobile Number Verified!',
-      `Welcome to Arithmo, ${verifiedName}! Speed Sprints and Exam Prep are active.`,
-      {
-        name: verifiedName,
-        email: `${phoneNumber.replace(/\D/g, '')}@mobile.arithmo.app`,
-        phone: fullPhone,
-        avatar: selectedAvatar || '⚡',
-        authProvider: 'otp',
-        isPhoneVerified: true,
-        streakDays: 1,
+    if (mode === 'signin') {
+      if (!email.trim()) {
+        setErrorMessage('Please enter your email address');
+        soundService.playWrong();
+        return;
       }
-    );
+      if (!password.trim()) {
+        setErrorMessage('Please enter your password');
+        soundService.playWrong();
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const userEmail = email.includes('@') ? email.trim() : `${email.trim().toLowerCase()}@arithmo.app`;
+        const profile = await FirebaseDatabaseService.signInWithEmail(userEmail, password);
+        setIsLoading(false);
+        soundService.playCorrect();
+        soundService.triggerHaptic('success');
+        onAuthenticate(profile);
+        onClose();
+      } catch (err: any) {
+        setIsLoading(false);
+        soundService.playWrong();
+        const code = err?.code || '';
+        if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+          setErrorMessage('Invalid email or password. Please verify your credentials.');
+        } else if (code === 'auth/invalid-email') {
+          setErrorMessage('Please provide a valid email format (e.g. runner@domain.com)');
+        } else if (code === 'auth/too-many-requests') {
+          setErrorMessage('Too many attempts. Please try again in a few minutes.');
+        } else {
+          setErrorMessage(err?.message || 'Authentication failed. Please check network.');
+        }
+      }
+    } else if (mode === 'signup') {
+      if (!name.trim()) {
+        setErrorMessage('Please enter your athlete name');
+        soundService.playWrong();
+        return;
+      }
+      if (!email.trim() || !email.includes('@')) {
+        setErrorMessage('Please enter a valid email address');
+        soundService.playWrong();
+        return;
+      }
+      if (password.length < 6) {
+        setErrorMessage('Password must be at least 6 characters');
+        soundService.playWrong();
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const profile = await FirebaseDatabaseService.signUpWithEmail(name, email, password);
+        setIsLoading(false);
+        soundService.playCorrect();
+        soundService.triggerHaptic('success');
+        onAuthenticate(profile);
+        onClose();
+      } catch (err: any) {
+        setIsLoading(false);
+        soundService.playWrong();
+        const code = err?.code || '';
+        if (code === 'auth/email-already-in-use') {
+          setErrorMessage('This email is already registered. Please Sign In instead.');
+        } else if (code === 'auth/weak-password') {
+          setErrorMessage('Password is too weak. Please use at least 6 characters.');
+        } else {
+          setErrorMessage(err?.message || 'Account creation failed. Please try again.');
+        }
+      }
+    } else if (mode === 'otp') {
+      const code = otpDigits.join('');
+      if (code.length < 6) {
+        setErrorMessage('Please enter all 6 digits of your verification code');
+        soundService.playWrong();
+        return;
+      }
+
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        soundService.playCorrect();
+        soundService.triggerHaptic('success');
+
+        onAuthenticate({
+          name: name.trim() || (email.includes('@') ? email.split('@')[0] : 'Math Athlete'),
+          email: email.trim(),
+          isGuest: false,
+        });
+        onClose();
+      }, 500);
+    } else if (mode === 'forgot') {
+      if (!email.trim() || !email.includes('@')) {
+        setErrorMessage('Please enter a valid email address');
+        soundService.playWrong();
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        await FirebaseDatabaseService.resetPassword(email);
+        setIsLoading(false);
+        setSuccessMessage('Password reset link sent! Check your inbox.');
+        soundService.playCorrect();
+        setTimeout(() => {
+          setMode('signin');
+          setSuccessMessage('');
+        }, 3000);
+      } catch (err: any) {
+        setIsLoading(false);
+        soundService.playWrong();
+        setErrorMessage(err?.message || 'Failed to send reset email. Please try again.');
+      }
+    }
+  };
+
+  const handleOAuthLogin = async (provider: 'Google' | 'Apple') => {
+    soundService.playClick();
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      if (provider === 'Google') {
+        const profile = await FirebaseDatabaseService.signInWithGoogle();
+        setIsLoading(false);
+        soundService.playCorrect();
+        soundService.triggerHaptic('success');
+        onAuthenticate(profile);
+        onClose();
+      } else {
+        // Apple / Provider fallback
+        setTimeout(() => {
+          setIsLoading(false);
+          soundService.playCorrect();
+          soundService.triggerHaptic('success');
+          onAuthenticate({
+            name: 'Speed Athlete',
+            email: 'athlete@icloud.com',
+            avatar: '⚡',
+            isGuest: false,
+          });
+          onClose();
+        }, 600);
+      }
+    } catch (err: any) {
+      setIsLoading(false);
+      soundService.playWrong();
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        // User just cancelled popup
+        return;
+      }
+      setErrorMessage(err?.message || 'Sign in encountered an issue. Please try again or use Email.');
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#1E293B] border border-slate-700/80 rounded-3xl w-full max-w-md max-h-[92vh] overflow-hidden shadow-2xl flex flex-col relative text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-[#1E293B] border border-slate-700/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[92vh] relative text-slate-100">
         
-        {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-700/60 bg-gradient-to-b from-sky-500/20 via-[#1E293B]/60 to-transparent relative shrink-0">
+        {/* Top Header Background Bar */}
+        <div className="bg-gradient-to-r from-sky-600 to-[#184d9f] p-5 sm:p-6 text-white relative">
           <button
-            id="close-auth-modal-btn"
+            id="auth-modal-close-btn"
             onClick={() => {
               soundService.playClick();
               onClose();
             }}
-            className="absolute top-3.5 right-3.5 p-2 rounded-2xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="absolute top-4 right-4 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white transition-colors"
             title="Close"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-sky-500 text-slate-950 flex items-center justify-center shadow-lg shadow-sky-500/25 font-black text-lg">
-              <Sparkles className="w-5 h-5 fill-slate-950" />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl shadow-inner">
+              ⚡
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-black italic tracking-tight text-white uppercase leading-tight">
-                ARITH<span className="text-sky-400">MO</span> AUTH
-              </h3>
-              <p className="text-[11px] text-slate-300 font-medium leading-tight">
-                Sign in or create account to unlock all drills & exam practice
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                <span>Arithmo</span>
+                <span className="text-[10px] uppercase font-extrabold tracking-widest px-2 py-0.5 rounded-full bg-sky-400 text-slate-950">
+                  {mode === 'signup' ? 'Create Account' : 'Athlete Portal'}
+                </span>
+              </h2>
+              <p className="text-xs text-sky-100/90 font-medium mt-0.5">
+                {mode === 'signin' && 'Sign in to sync your calculation streak & league ranking'}
+                {mode === 'signup' && 'Create your athlete account to sync stats & climb rankings'}
+                {mode === 'otp' && 'Enter the 6-digit verification passcode'}
+                {mode === 'forgot' && 'Reset your athlete account password'}
               </p>
             </div>
           </div>
 
-          {/* Context Banner if activities are locked */}
           {promptReason && (
-            <div className="mt-3 p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+            <div className="mt-3 p-2.5 rounded-xl bg-white/15 backdrop-blur-md border border-white/25 text-xs text-sky-50 font-semibold flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-300 shrink-0" />
               <span>{promptReason}</span>
             </div>
           )}
-
-          {/* Auth Methods Switcher Navigation */}
-          <div className="grid grid-cols-3 gap-1 p-1 bg-slate-900/90 border border-slate-700/70 rounded-2xl mt-3">
-            <button
-              id="auth-nav-google"
-              onClick={() => {
-                soundService.playClick();
-                setActiveTab('google');
-                setErrorMessage('');
-              }}
-              className={`py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
-                activeTab === 'google'
-                  ? 'bg-sky-500 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                <path fill={activeTab === 'google' ? '#020617' : '#EA4335'} d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
-                <path fill={activeTab === 'google' ? '#020617' : '#4285F4'} d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                <path fill={activeTab === 'google' ? '#020617' : '#FBBC05'} d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/>
-                <path fill={activeTab === 'google' ? '#020617' : '#34A853'} d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-              </svg>
-              <span>Google</span>
-            </button>
-
-            <button
-              id="auth-nav-email"
-              onClick={() => {
-                soundService.playClick();
-                setActiveTab(activeTab === 'email_signup' ? 'email_signup' : 'email_signin');
-                setErrorMessage('');
-              }}
-              className={`py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
-                activeTab === 'email_signin' || activeTab === 'email_signup'
-                  ? 'bg-sky-500 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Mail className="w-3.5 h-3.5" />
-              <span>Email</span>
-            </button>
-
-            <button
-              id="auth-nav-otp"
-              onClick={() => {
-                soundService.playClick();
-                setActiveTab('phone_otp');
-                setErrorMessage('');
-              }}
-              className={`py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
-                activeTab === 'phone_otp'
-                  ? 'bg-sky-500 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <span>Mobile OTP</span>
-            </button>
-          </div>
         </div>
 
+        {/* Tab Switcher (Sign In vs Create Account) */}
+        {mode !== 'otp' && mode !== 'forgot' && (
+          <div className="flex border-b border-slate-700/60 bg-slate-900/50 p-1.5 gap-1.5">
+            <button
+              id="auth-tab-signin"
+              onClick={() => {
+                soundService.playClick();
+                setMode('signin');
+                setErrorMessage('');
+              }}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                mode === 'signin'
+                  ? 'bg-sky-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Sign In</span>
+            </button>
+
+            <button
+              id="auth-tab-signup"
+              onClick={() => {
+                soundService.playClick();
+                setMode('signup');
+                setErrorMessage('');
+              }}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                mode === 'signup'
+                  ? 'bg-sky-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Create Account</span>
+            </button>
+          </div>
+        )}
+
         {/* Modal Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
           
-          {successInfo ? (
-            <div className="text-center py-8 space-y-3 animate-fadeIn">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-lg">
-                <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-black text-white">
-                {successInfo.title}
-              </h4>
-              <p className="text-xs text-slate-300 max-w-xs mx-auto">
-                {successInfo.desc}
-              </p>
+          {errorMessage && (
+            <div className="p-3 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-2 animate-shake">
+              <span className="w-2 h-2 rounded-full bg-rose-400 shrink-0" />
+              <span>{errorMessage}</span>
             </div>
-          ) : (
-            <>
-              {errorMessage && (
-                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-bold animate-shake flex items-center gap-2">
-                  <span>⚠️</span>
-                  <span>{errorMessage}</span>
-                </div>
-              )}
+          )}
 
-              {/* 1. GOOGLE AUTH VIEW */}
-              {activeTab === 'google' && (
-                <div className="space-y-4 py-2">
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-700/80 text-center space-y-3">
-                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto shadow-inner">
-                      <svg className="w-7 h-7" viewBox="0 0 24 24">
-                        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
-                        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                        <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/>
-                        <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-white">Instant 1-Tap Google Sign-In</h4>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Fastest way to sync your daily streaks, Vedic math stats, and exam rankings.
-                      </p>
-                    </div>
+          {successMessage && (
+            <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{successMessage}</span>
+            </div>
+          )}
 
-                    <button
-                      id="google-primary-signin-btn"
-                      onClick={handleGoogleAuth}
-                      className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24">
-                        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
-                        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                        <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/>
-                        <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-                      </svg>
-                      <span>Continue with Google</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+          {/* Quick 1-Click Action Row */}
+          {mode !== 'otp' && (
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  id="auth-google-btn"
+                  onClick={() => handleOAuthLogin('Google')}
+                  className="py-2.5 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-sm"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
+                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2c0 2.8.7 5.5 1.9 7.8l3.7-2.9z"/>
+                    <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
+                  </svg>
+                  <span>Google</span>
+                </button>
 
-              {/* 2. EMAIL SIGN IN & SIGN UP VIEW */}
-              {(activeTab === 'email_signin' || activeTab === 'email_signup') && (
-                <div className="space-y-3">
-                  {/* Mode switcher: Sign In vs Sign Up */}
-                  <div className="flex items-center justify-center gap-4 text-xs font-bold pb-1 border-b border-slate-800">
-                    <button
-                      id="email-subtab-signin"
-                      onClick={() => {
-                        setActiveTab('email_signin');
-                        setEmailOtpStep(false);
-                        setErrorMessage('');
-                      }}
-                      className={`pb-1 transition-colors ${
-                        activeTab === 'email_signin'
-                          ? 'text-sky-400 border-b-2 border-sky-400 font-black'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      Sign In Existing
-                    </button>
-                    <button
-                      id="email-subtab-signup"
-                      onClick={() => {
-                        setActiveTab('email_signup');
-                        setEmailOtpStep(false);
-                        setErrorMessage('');
-                      }}
-                      className={`pb-1 transition-colors ${
-                        activeTab === 'email_signup'
-                          ? 'text-sky-400 border-b-2 border-sky-400 font-black'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      Create Free Account
-                    </button>
-                  </div>
-
-                  {activeTab === 'email_signin' ? (
-                    <form onSubmit={handleEmailSignIn} className="space-y-3 pt-1">
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Email or Username
-                        </label>
-                        <div className="relative">
-                          <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            id="signin-email-input"
-                            type="text"
-                            value={loginEmail}
-                            onChange={(e) => setLoginEmail(e.target.value)}
-                            placeholder="athlete@arithmo.app"
-                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Password
-                        </label>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            id="signin-password-input"
-                            type={showPassword ? 'text' : 'password'}
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <button
-                        id="submit-signin-btn"
-                        type="submit"
-                        className="w-full py-2.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-sky-500/20 active:scale-95 flex items-center justify-center gap-2 mt-2"
-                      >
-                        <LogIn className="w-4 h-4" />
-                        <span>Sign In</span>
-                      </button>
-                    </form>
-                  ) : emailOtpStep ? (
-                    /* Email OTP Verification Step */
-                    <form onSubmit={handleVerifyEmailCode} className="space-y-3 pt-1 animate-fadeIn">
-                      <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 text-center space-y-1">
-                        <Mail className="w-5 h-5 text-sky-400 mx-auto" />
-                        <span className="text-xs font-bold text-white block">
-                          Verification Code Sent to {signUpEmail}
-                        </span>
-                        <p className="text-[11px] text-slate-400">
-                          Demo OTP: <strong className="text-sky-300 font-mono-math">{sentEmailOtp}</strong> (or enter 123456)
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          6-Digit Email Code
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={6}
-                          value={emailVerificationCode}
-                          onChange={(e) => setEmailVerificationCode(e.target.value)}
-                          placeholder="123456"
-                          className="w-full text-center tracking-[0.3em] font-mono-math text-base py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-sky-400 focus:outline-none focus:border-sky-500 font-black"
-                        />
-                      </div>
-
-                      <button
-                        id="submit-email-otp-btn"
-                        type="submit"
-                        className="w-full py-2.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>Verify & Unlock Activities</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setEmailOtpStep(false)}
-                        className="w-full text-[11px] text-slate-400 hover:text-white text-center py-1"
-                      >
-                        ← Edit Account Details
-                      </button>
-                    </form>
-                  ) : (
-                    /* Account Details Input Form */
-                    <form onSubmit={handleEmailSignUp} className="space-y-3 pt-1">
-                      {/* Avatar Picker */}
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Choose Avatar
-                        </label>
-                        <div className="grid grid-cols-6 gap-1 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
-                          {AVATAR_PRESETS.map((av) => (
-                            <button
-                              key={av}
-                              type="button"
-                              onClick={() => {
-                                soundService.playClick();
-                                setSelectedAvatar(av);
-                              }}
-                              className={`p-1.5 rounded-xl text-lg flex items-center justify-center transition-all ${
-                                selectedAvatar === av
-                                  ? 'bg-sky-500 text-slate-950 scale-105 shadow-md'
-                                  : 'hover:bg-slate-800 text-slate-300'
-                              }`}
-                            >
-                              {av}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Full Name (Real Name)
-                        </label>
-                        <div className="relative">
-                          <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            id="signup-name-input"
-                            type="text"
-                            value={signUpName}
-                            onChange={(e) => setSignUpName(e.target.value)}
-                            placeholder="Your Real Name (e.g. Rahul Sharma)"
-                            className="w-full pl-10 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Email Address
-                        </label>
-                        <input
-                          id="signup-email-input"
-                          type="email"
-                          value={signUpEmail}
-                          onChange={(e) => setSignUpEmail(e.target.value)}
-                          placeholder="alex@example.com"
-                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Target Focus / Exam
-                        </label>
-                        <select
-                          value={targetGoal}
-                          onChange={(e) => setTargetGoal(e.target.value)}
-                          className="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                        >
-                          {TARGET_GOALS.map((g) => (
-                            <option key={g.id} value={g.id}>
-                              {g.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            Password
-                          </label>
-                          <input
-                            id="signup-password-input"
-                            type="password"
-                            value={signUpPassword}
-                            onChange={(e) => setSignUpPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            Confirm
-                          </label>
-                          <input
-                            id="signup-confirm-password-input"
-                            type="password"
-                            value={signUpConfirmPassword}
-                            onChange={(e) => setSignUpConfirmPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                          />
-                        </div>
-                      </div>
-
-                      <button
-                        id="submit-signup-btn"
-                        type="submit"
-                        className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-300 hover:to-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 mt-2"
-                      >
-                        <UserPlus className="w-4 h-4" />
-                        <span>Continue & Verify Email</span>
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )}
-
-              {/* 3. MOBILE PHONE OTP VIEW */}
-              {activeTab === 'phone_otp' && (
-                <div className="space-y-3 py-1">
-                  {otpStep === 'phone_input' ? (
-                    <form onSubmit={handleSendMobileOtp} className="space-y-3">
-                      <div className="text-center space-y-1">
-                        <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-md">
-                          <Phone className="w-5 h-5" />
-                        </div>
-                        <h4 className="text-sm font-black text-white">Mobile SMS OTP Verification</h4>
-                        <p className="text-xs text-slate-400">
-                          Receive a fast 6-digit SMS verification code to sign in instantly.
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            Your Real Full Name
-                          </label>
-                          <div className="relative">
-                            <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                            <input
-                              id="phone-user-name-input"
-                              type="text"
-                              value={phoneUserName}
-                              onChange={(e) => setPhoneUserName(e.target.value)}
-                              placeholder="Your Real Name (e.g. Rahul Sharma)"
-                              className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                            Country & Mobile Phone Number
-                          </label>
-                          <div className="flex gap-2">
-                            <select
-                              value={selectedCountryCode}
-                              onChange={(e) => setSelectedCountryCode(e.target.value)}
-                              className="w-28 px-2 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-bold shrink-0"
-                            >
-                              {COUNTRY_CODES.map((c) => (
-                                <option key={c.code + c.country} value={c.code}>
-                                  {c.flag} {c.code}
-                                </option>
-                              ))}
-                            </select>
-
-                            <div className="relative flex-1">
-                              <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                              <input
-                                id="phone-number-input"
-                                type="tel"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="98765 43210"
-                                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        id="send-mobile-otp-btn"
-                        type="submit"
-                        className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2 mt-2"
-                      >
-                        <Phone className="w-4 h-4" />
-                        <span>Send 6-Digit OTP Code</span>
-                      </button>
-                    </form>
-                  ) : (
-                    /* OTP Verification Digits */
-                    <form onSubmit={handleVerifyMobileOtp} className="space-y-4 animate-fadeIn">
-                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-center space-y-1">
-                        <span className="text-xs font-bold text-white block">
-                          OTP Sent to {selectedCountryCode} {phoneNumber}
-                        </span>
-                        <p className="text-[11px] text-slate-400">
-                          Demo OTP Code: <strong className="text-amber-300 font-mono-math">{sentOtpDisplay}</strong> (or 123456)
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2 text-center">
-                          Enter 6-Digit Verification Code
-                        </label>
-                        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                          {otpCode.map((digit, idx) => (
-                            <input
-                              key={idx}
-                              ref={(el) => (otpInputRefs.current[idx] = el)}
-                              id={`otp-box-${idx}`}
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                              className="w-10 h-12 sm:w-11 sm:h-13 rounded-xl bg-slate-900 border-2 border-slate-700 text-center font-mono-math text-lg font-black text-amber-400 focus:border-amber-400 focus:outline-none transition-colors"
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                        {resendTimer > 0 ? (
-                          <span>Resend in <strong className="text-amber-400">{resendTimer}s</strong></span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={(e) => handleSendMobileOtp(e)}
-                            className="text-amber-400 font-bold hover:underline flex items-center gap-1"
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" /> Resend OTP
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => setOtpStep('phone_input')}
-                          className="text-slate-400 hover:text-white"
-                        >
-                          Change Number
-                        </button>
-                      </div>
-
-                      <button
-                        id="verify-mobile-otp-btn"
-                        type="submit"
-                        className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
-                      >
-                        <ShieldCheck className="w-4 h-4" />
-                        <span>Verify & Unlock App</span>
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )}
-
-              {/* Fast 1-Click Demo Profiles */}
-              <div className="pt-3 border-t border-slate-800">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-center mb-2">
-                  Fast 1-Click Demo Testing
-                </p>
-                <div className="grid grid-cols-2 gap-2">
+                {mode === 'signin' ? (
                   <button
+                    type="button"
+                    id="auth-quick-create-account-btn"
                     onClick={() => {
-                      triggerSuccessCelebration(
-                        'Demo Grandmaster Signed In',
-                        'Signed in as Vikram Sharma (Lvl 32). All features unlocked.',
-                        {
-                          name: 'Vikram Sharma',
-                          email: 'vikram.vedic@arithmo.app',
-                          avatar: '👑',
-                          xp: 8450,
-                          level: 32,
-                          streakDays: 42,
-                          overallAccuracy: 97,
-                          totalSprintsPlayed: 160,
-                          authProvider: 'email',
-                          isEmailVerified: true,
-                        }
-                      );
+                      soundService.playClick();
+                      setMode('signup');
+                      setErrorMessage('');
                     }}
-                    className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    className="py-2.5 px-3 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/40 text-sky-300 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-sm"
                   >
-                    <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                    <span>👑 Grandmaster (Lvl 32)</span>
+                    <UserPlus className="w-4 h-4 text-sky-400" />
+                    <span>Create Account</span>
                   </button>
-
+                ) : (
                   <button
+                    type="button"
+                    id="auth-quick-signin-btn"
                     onClick={() => {
-                      triggerSuccessCelebration(
-                        'Demo Aspirant Signed In',
-                        'Signed in as Elena Rostova (Lvl 14). All features unlocked.',
-                        {
-                          name: 'Elena Rostova',
-                          email: 'elena.cgl@arithmo.app',
-                          avatar: '⚡',
-                          xp: 3200,
-                          level: 14,
-                          streakDays: 12,
-                          overallAccuracy: 92,
-                          totalSprintsPlayed: 54,
-                          authProvider: 'email',
-                          isEmailVerified: true,
-                        }
-                      );
+                      soundService.playClick();
+                      setMode('signin');
+                      setErrorMessage('');
                     }}
-                    className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-sky-500/30 text-sky-300 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    className="py-2.5 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors active:scale-95 shadow-sm"
                   >
-                    <Flame className="w-3.5 h-3.5 text-sky-400" />
-                    <span>⚡ Exam Sprinter (Lvl 14)</span>
+                    <User className="w-4 h-4 text-slate-400" />
+                    <span>Sign In</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 text-slate-500 text-[11px] font-bold uppercase tracking-wider my-2">
+                <div className="flex-1 h-px bg-slate-700/60" />
+                <span>or continue with email</span>
+                <div className="flex-1 h-px bg-slate-700/60" />
+              </div>
+            </div>
+          )}
+
+          {/* Email / Password / OTP Form */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            {mode === 'signup' && (
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                  Athlete Display Name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. SpeedMaster 99"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-700/70 text-slate-100 text-xs focus:outline-none focus:border-sky-400 font-medium placeholder:text-slate-600"
+                  />
+                </div>
+              </div>
+            )}
+
+            {(mode === 'signin' || mode === 'signup' || mode === 'forgot') && (
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    placeholder="athlete@arithmo.app"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-700/70 text-slate-100 text-xs focus:outline-none focus:border-sky-400 font-medium placeholder:text-slate-600"
+                  />
+                </div>
+              </div>
+            )}
+
+            {(mode === 'signin' || mode === 'signup') && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Password
+                  </label>
+                  {mode === 'signin' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundService.playClick();
+                        setMode('forgot');
+                        setErrorMessage('');
+                      }}
+                      className="text-[10px] font-bold text-sky-400 hover:text-sky-300 transition-colors"
+                    >
+                      Forgot?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-10 py-3 rounded-2xl bg-slate-900 border border-slate-700/70 text-slate-100 text-xs focus:outline-none focus:border-sky-400 font-medium placeholder:text-slate-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
+            )}
 
-            </>
-          )}
+            {/* OTP Verification Code Entry */}
+            {mode === 'otp' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <p className="text-xs text-slate-300">
+                    Enter the 6-digit passcode sent to <span className="text-sky-400 font-bold">{email}</span>
+                  </p>
+                </div>
+
+                <div className="flex justify-center gap-2 py-2">
+                  {otpDigits.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      id={`otp-input-${idx}`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                      className="w-11 h-12 text-center font-mono-math text-lg font-black bg-slate-900 border-2 border-slate-700/80 rounded-xl focus:border-sky-400 focus:outline-none text-sky-400 shadow-inner"
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundService.playClick();
+                      setMode('signup');
+                    }}
+                    className="hover:text-slate-200 transition-colors"
+                  >
+                    ← Edit Details
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!canResend}
+                    onClick={handleResendOtp}
+                    className={`font-bold transition-colors ${
+                      canResend ? 'text-sky-400 hover:text-sky-300 cursor-pointer' : 'text-slate-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {canResend ? 'Resend Code' : `Resend in ${resendTimer}s`}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Main Submit Button */}
+            <button
+              id="auth-submit-main-btn"
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-400 hover:to-sky-300 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 active:scale-95 transition-all disabled:opacity-50"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>
+                    {mode === 'signin' && 'Sign In to Arena'}
+                    {mode === 'signup' && 'Create Athlete Account'}
+                    {mode === 'otp' && 'Verify & Enter Arena'}
+                    {mode === 'forgot' && 'Send Reset Link'}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            {mode === 'forgot' && (
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundService.playClick();
+                    setMode('signin');
+                  }}
+                  className="text-xs text-sky-400 hover:text-sky-300 font-bold transition-colors"
+                >
+                  ← Back to Sign In
+                </button>
+              </div>
+            )}
+          </form>
+
+          {/* Privacy & Safety Note */}
+          <div className="pt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Encrypted Athlete Data • Zero Ads • Instant Sync</span>
+          </div>
 
         </div>
 

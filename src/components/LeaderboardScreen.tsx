@@ -41,7 +41,6 @@ interface LeaderboardScreenProps {
     scope: LeaderboardScope
   ) => LeaderboardEntry[];
   onChallengeRival?: (rival: LeaderboardEntry) => void;
-  onOpenAuth?: () => void;
 }
 
 const LEAGUES: { tier: LeagueTier; minXp: number; color: string; bgGradient: string; badge: string }[] = [
@@ -58,7 +57,6 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
   profile,
   getLeaderboard,
   onChallengeRival,
-  onOpenAuth 
 }) => {
   // Filters & State
   const [timeframe, setTimeframe] = useState<LeaderboardTimeframe>('daily');
@@ -190,36 +188,6 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
             </div>
           )}
         </div>
-
-        {/* Guest Sign-In Notice Banner */}
-        {profile?.isGuest && onOpenAuth && (
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-sky-950/60 via-slate-900 to-amber-950/40 border border-sky-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center shrink-0 font-bold shadow-md">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                  Playing as Guest • Rank #{currentUserEntry?.rank || 11}
-                </h4>
-                <p className="text-[11px] text-slate-300">
-                  Create a free Arithmo account to permanently lock in your streaks, badges, and national ranking.
-                </p>
-              </div>
-            </div>
-
-            <button
-              id="leaderboard-signup-cta-btn"
-              onClick={() => {
-                soundService.playClick();
-                onOpenAuth();
-              }}
-              className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 shrink-0"
-            >
-              Sign Up / Sign In
-            </button>
-          </div>
-        )}
 
         {/* Navigation Filters HUD: Timeframe, Scope & Category */}
         <div className="space-y-3 pt-1 border-t border-slate-700/40">

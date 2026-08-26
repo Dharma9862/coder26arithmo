@@ -424,7 +424,7 @@ export class QuestionBankService {
     const neededPrelims = Math.max(0, targetPrelims - initialPrelims.length);
     const neededMains = Math.max(0, targetMains - initialMains.length);
 
-    // List of 20 categories
+    // List of exact 20 quantitative categories
     const categoryIds = [
       'number-system',
       'simplification-bodmas',
@@ -435,17 +435,17 @@ export class QuestionBankService {
       'average',
       'profit-loss-discount',
       'simple-compound-interest',
-      'time-work-pipes',
-      'speed-time-distance',
-      'ages-problems',
-      'partnership-investment',
+      'partnership',
       'mixture-alligation',
+      'time-work-pipes',
+      'speed-distance-trains-boats',
+      'ages',
       'clocks-calendars',
-      'mensuration-2d-3d',
+      'mensuration',
       'data-interpretation',
       'probability-permutation-combination',
       'quadratic-linear-equations',
-      'tables-graphs-caselets',
+      'tables-graphs-quantity-comparison',
     ];
 
     // Generate balanced Prelims questions across all 20 categories

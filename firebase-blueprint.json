@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "fields": {
+        "id": { "type": "string", "description": "Unique user ID matching auth UID" },
+        "name": { "type": "string", "description": "Athlete display name" },
+        "email": { "type": "string", "description": "User email address" },
+        "avatar": { "type": "string", "description": "Avatar emoji or icon" },
+        "xp": { "type": "number", "description": "Total experience points" },
+        "level": { "type": "number", "description": "Calculated athlete level" },
+        "streakDays": { "type": "number", "description": "Daily practice streak" },
+        "lastActiveDate": { "type": "string", "description": "YYYY-MM-DD last active date" },
+        "totalSprintsPlayed": { "type": "number", "description": "Total sprints completed" },
+        "totalQuestionsAnswered": { "type": "number", "description": "Lifetime questions answered" },
+        "overallAccuracy": { "type": "number", "description": "Average accuracy percentage" },
+        "fastestAnswerMs": { "type": "number", "description": "Fastest correct answer in ms" },
+        "isPremium": { "type": "boolean", "description": "Pro subscription status" },
+        "isGuest": { "type": "boolean", "description": "Whether account is a guest" },
+        "preferredDifficulty": { "type": "string", "description": "Selected difficulty" },
+        "preferredOperation": { "type": "string", "description": "Preferred math operation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    },
+    "LeaderboardEntry": {
+      "collection": "leaderboard",
+      "fields": {
+        "id": { "type": "string", "description": "User ID / Entry ID" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "name": { "type": "string", "description": "Athlete name" },
+        "avatar": { "type": "string", "description": "Avatar emoji" },
+        "score": { "type": "number", "description": "Calculated sprint rating / score" },
+        "xp": { "type": "number", "description": "XP points" },
+        "level": { "type": "number", "description": "Level tier" },
+        "accuracy": { "type": "number", "description": "Accuracy percentage" },
+        "streak": { "type": "number", "description": "Current active streak" },
+        "league": { "type": "string", "description": "League tier (Grandmaster, Master, Diamond, etc.)" },
+        "badge": { "type": "string", "description": "Badge description" },
+        "countryCode": { "type": "string", "description": "2-letter country code" },
+        "countryFlag": { "type": "string", "description": "Country flag emoji" },
+        "avgReactionMs": { "type": "number", "description": "Average reaction time in ms" },
+        "bestOperation": { "type": "string", "description": "Favorite or top performing operation" },
+        "sprintsPlayed": { "type": "number", "description": "Number of sprints completed" },
+        "updatedAt": { "type": "number", "description": "Epoch timestamp of last update" }
+      }
+    },
+    "GameSession": {
+      "collection": "game_sessions",
+      "fields": {
+        "id": { "type": "string", "description": "Unique session ID" },
+        "userId": { "type": "string", "description": "User who played the session" },
+        "operation": { "type": "string", "description": "Operation type" },
+        "difficulty": { "type": "string", "description": "Difficulty level" },
+        "duration": { "type": "number", "description": "Sprint duration in seconds" },
+        "score": { "type": "number", "description": "Sprint score achieved" },
+        "correctCount": { "type": "number", "description": "Correct answers" },
+        "wrongCount": { "type": "number", "description": "Incorrect answers" },
+        "totalAnswered": { "type": "number", "description": "Total answers" },
+        "accuracy": { "type": "number", "description": "Session accuracy percentage" },
+        "maxCombo": { "type": "number", "description": "Highest consecutive combo" },
+        "avgTimeSpentMs": { "type": "number", "description": "Average time per question in ms" },
+        "bestTimeMs": { "type": "number", "description": "Fastest question in ms" },
+        "xpEarned": { "type": "number", "description": "XP awarded" },
+        "timestamp": { "type": "number", "description": "Epoch millisecond timestamp" }
+      }
+    },
+    "UserBookmarks": {
+      "collection": "bookmarks",
+      "fields": {
+        "userId": { "type": "string", "description": "User ID owning the bookmarks" },
+        "questionIds": { "type": "array", "description": "Array of bookmarked question IDs" },
+        "updatedAt": { "type": "number", "description": "Epoch timestamp of last update" }
+      }
+    }
+  }
+}

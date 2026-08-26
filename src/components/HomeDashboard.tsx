@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Crown,
   User,
+  UserPlus,
+  ShieldCheck,
   Plus,
   Minus,
   Divide,
@@ -35,11 +37,10 @@ interface HomeDashboardProps {
   onOpenExamPrep: () => void;
   onOpenPremium: () => void;
   onOpenProfile?: () => void;
-  onOpenAuth?: () => void;
-  onSignOut?: () => void;
-  onRequireAuth?: (reason?: string) => void;
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void;
+  onRequireAuth?: (reason?: string) => void;
   onBack?: () => void;
   onSelectTab?: (tab: 'sprint' | 'examprep' | 'analytics' | 'bookmarks') => void;
   bookmarkCount?: number;
@@ -62,11 +63,10 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   onOpenExamPrep,
   onOpenPremium,
   onOpenProfile,
-  onOpenAuth,
-  onSignOut,
-  onRequireAuth,
   onOpenRateApp,
   onOpenMoreApps,
+  onOpenAuth,
+  onRequireAuth,
   onBack,
   onSelectTab,
   bookmarkCount = 0,
@@ -535,16 +535,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
     soundService.triggerHaptic('medium');
     soundService.playClick();
 
-    if (profile.isGuest) {
-      soundService.playWrong();
-      if (onRequireAuth) {
-        onRequireAuth('Please sign in or create an account to start calculations and drills.');
-      } else if (onOpenAuth) {
-        onOpenAuth();
-      }
-      return;
-    }
-
     if (card.action === 'sprint' && card.operation) {
       onLaunchSprint(card.operation);
     } else if (card.action === 'examprep') {
@@ -641,7 +631,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         }}
         onOpenPremium={onOpenPremium}
         onOpenAuth={onOpenAuth}
-        onSignOut={onSignOut}
         onOpenRateApp={onOpenRateApp}
         onOpenMoreApps={onOpenMoreApps}
         bookmarkCount={bookmarkCount}
@@ -667,6 +656,22 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
           {/* Right Side: Upgrade Badge Button & User Toggle Button */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {profile.isGuest && onOpenAuth && (
+              <button
+                id="header-signup-btn"
+                onClick={() => {
+                  soundService.triggerHaptic('medium');
+                  soundService.playClick();
+                  onOpenAuth('signup');
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-[#113876] hover:bg-white/90 font-black text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer"
+                title="Create Free Athlete Account"
+              >
+                <UserPlus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Sign Up</span>
+              </button>
+            )}
+
             {!profile.isPremium ? (
               <button
                 id="header-upgrade-btn"
@@ -679,7 +684,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 title="Upgrade to PRO"
               >
                 <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
-                <span>Upgrade</span>
+                <span className="hidden sm:inline">Upgrade</span>
               </button>
             ) : getPlanTier(profile.purchasedProductId || 'pro_supporter') < 4 ? (
               <button
@@ -727,30 +732,53 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         {/* User Greeting */}
         <div className="space-y-0.5 sm:space-y-1 pt-1">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#15469e] tracking-tight">
-            Hi {profile.name || (profile.isGuest ? 'Guest Runner' : 'Math Athlete')}
+            Hi {profile.name || 'Math Athlete'}
           </h1>
           <p className="text-sm sm:text-base md:text-lg font-semibold text-[#184d9f]/90">
             Welcome back to Mind calculation • Daily Unique AI Quests & Drills
           </p>
         </div>
 
-        {/* Guest Lock Banner */}
-        {profile.isGuest && (
-          <div className="p-3 bg-amber-400/25 backdrop-blur-md rounded-2xl border border-amber-300/40 flex items-center justify-between gap-2 text-[#113876] shadow-sm">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-sm shrink-0">🔒</span>
-              <span className="text-xs font-black truncate">Sign in to unlock calculations & streaks</span>
+        {/* Guest Athlete Prompt Banner */}
+        {profile.isGuest && onOpenAuth && (
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-white/20 border border-white/30 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-sm animate-in fade-in duration-300">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-white/25 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4.5 h-4.5 text-white" />
+              </div>
+              <div className="text-xs">
+                <div className="font-bold text-white flex items-center gap-1.5">
+                  <span>Guest Mode</span>
+                  <span className="px-1.5 py-0.2 rounded bg-amber-400/30 text-amber-100 text-[10px] font-black uppercase">Unsynced</span>
+                </div>
+                <span className="text-white/80 text-[11px]">
+                  Sign up to sync streaks, cloud backup & climb the global rank.
+                </span>
+              </div>
             </div>
-            <button
-              onClick={() => {
-                soundService.playClick();
-                if (onRequireAuth) onRequireAuth('Sign in or create an account to start speed drills.');
-                else if (onOpenAuth) onOpenAuth();
-              }}
-              className="px-2.5 py-1 bg-[#15469e] hover:bg-[#113876] text-white text-[11px] font-black uppercase tracking-wider rounded-xl shadow-md shrink-0 active:scale-95 transition-all"
-            >
-              Sign In
-            </button>
+            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+              <button
+                id="banner-signin-btn"
+                onClick={() => {
+                  soundService.playClick();
+                  onOpenAuth('signin');
+                }}
+                className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                Sign In
+              </button>
+              <button
+                id="banner-signup-btn"
+                onClick={() => {
+                  soundService.playClick();
+                  onOpenAuth('signup');
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-white text-[#113876] hover:bg-white/90 text-xs font-black uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+              >
+                <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500" />
+                <span>Sign Up Free</span>
+              </button>
+            </div>
           </div>
         )}
 

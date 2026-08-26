@@ -7,8 +7,8 @@ import {
   UserProfile 
 } from '../types';
 import { INITIAL_ACHIEVEMENTS } from '../data/achievements';
-import { INITIAL_APTITUDE_QUESTIONS } from '../data/aptitudeQuestions';
 import { QuestionBankService } from './questionBankGenerator';
+import { FirebaseDatabaseService } from './firebase';
 
 const PROFILE_KEY = 'numbersprint_user_profile';
 const SESSIONS_KEY = 'numbersprint_game_sessions';
@@ -16,24 +16,25 @@ const BOOKMARKS_KEY = 'numbersprint_bookmarks';
 const ACHIEVEMENTS_KEY = 'numbersprint_achievements';
 const CUSTOM_QUESTIONS_KEY = 'numbersprint_custom_questions';
 const DAILY_CHALLENGE_KEY = 'numbersprint_daily_challenge';
+const CLOUD_LEADERBOARD_CACHE_KEY = 'numbersprint_cloud_leaderboard_cache';
 
 const DEFAULT_PROFILE: UserProfile = {
   id: 'usr_' + Math.random().toString(36).substring(2, 9),
-  name: 'Guest Runner',
-  email: 'guest@numbersprint.app',
+  name: 'Math Athlete',
+  email: '',
   avatar: '⚡',
   preferredDifficulty: 'intermediate',
   preferredOperation: 'multiplication',
-  streakDays: 4,
+  streakDays: 1,
   lastActiveDate: new Date().toISOString().split('T')[0],
-  xp: 750,
-  level: 4,
+  xp: 0,
+  level: 1,
   isPremium: false,
-  leaderboardRank: 18,
-  totalSprintsPlayed: 14,
-  totalQuestionsAnswered: 185,
-  overallAccuracy: 88,
-  fastestAnswerMs: 980,
+  leaderboardRank: 1,
+  totalSprintsPlayed: 0,
+  totalQuestionsAnswered: 0,
+  overallAccuracy: 100,
+  fastestAnswerMs: 0,
   isGuest: true,
   soundEnabled: true,
   hapticsEnabled: true,
@@ -50,12 +51,37 @@ export class StorageService {
       email: '',
       isGuest: true,
       isPremium: false,
+      xp: 0,
+      level: 1,
+      totalSprintsPlayed: 0,
+      totalQuestionsAnswered: 0,
+      streakDays: 1,
     };
   }
 
-  public static signOut(): UserProfile {
+  public static getDefaultProfile(): UserProfile {
+    return {
+      ...DEFAULT_PROFILE,
+      id: 'usr_' + Math.random().toString(36).substring(2, 9),
+      name: 'Math Athlete',
+      isGuest: false,
+    };
+  }
+
+  public static async signOut(): Promise<UserProfile> {
+    try {
+      await FirebaseDatabaseService.signOut();
+    } catch (err) {
+      console.warn('Firebase signOut error:', err);
+    }
     const guestProfile = this.getDefaultGuestProfile();
-    this.saveProfile(guestProfile);
+    try {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(guestProfile));
+      localStorage.removeItem(CLOUD_LEADERBOARD_CACHE_KEY);
+      this.notifyLocalUpdate(PROFILE_KEY, guestProfile);
+    } catch {
+      // ignore
+    }
     return guestProfile;
   }
 
@@ -79,9 +105,6 @@ export class StorageService {
         if (parsed.avatar === '📱') {
           parsed.avatar = '⚡';
         }
-        if (parsed.name === 'Lala') {
-          parsed.name = parsed.isGuest ? 'Guest Runner' : 'Math Athlete';
-        }
         return { ...DEFAULT_PROFILE, ...parsed };
       }
     } catch {
@@ -94,6 +117,13 @@ export class StorageService {
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
       this.notifyLocalUpdate(PROFILE_KEY, profile);
+
+      // Async sync to Cloud Firestore
+      if (profile.id && !profile.isGuest) {
+        FirebaseDatabaseService.saveUserProfile(profile).catch((err) => {
+          console.warn('Background Firestore profile sync:', err);
+        });
+      }
     } catch {
       // LocalStorage error fallback
     }
@@ -108,60 +138,7 @@ export class StorageService {
     } catch {
       // Fallback
     }
-    // Return sample seeded sessions for rich initial analytics
-    return [
-      {
-        id: 'sess_seed_1',
-        operation: 'multiplication',
-        difficulty: 'intermediate',
-        duration: 60,
-        score: 1420,
-        correctCount: 22,
-        wrongCount: 2,
-        totalAnswered: 24,
-        accuracy: 92,
-        maxCombo: 14,
-        avgTimeSpentMs: 2350,
-        bestTimeMs: 1100,
-        xpEarned: 180,
-        timestamp: Date.now() - 86400000 * 2,
-        mistakes: [],
-      },
-      {
-        id: 'sess_seed_2',
-        operation: 'addition',
-        difficulty: 'advanced',
-        duration: 30,
-        score: 890,
-        correctCount: 15,
-        wrongCount: 1,
-        totalAnswered: 16,
-        accuracy: 94,
-        maxCombo: 12,
-        avgTimeSpentMs: 1820,
-        bestTimeMs: 980,
-        xpEarned: 120,
-        timestamp: Date.now() - 86400000,
-        mistakes: [],
-      },
-      {
-        id: 'sess_seed_3',
-        operation: 'mixed',
-        difficulty: 'intermediate',
-        duration: 60,
-        score: 1650,
-        correctCount: 26,
-        wrongCount: 2,
-        totalAnswered: 28,
-        accuracy: 93,
-        maxCombo: 18,
-        avgTimeSpentMs: 2050,
-        bestTimeMs: 1040,
-        xpEarned: 210,
-        timestamp: Date.now() - 3600000 * 4,
-        mistakes: [],
-      },
-    ];
+    return [];
   }
 
   public static saveSession(session: GameSessionResult): void {
@@ -204,6 +181,11 @@ export class StorageService {
       this.saveProfile(profile);
       this.evaluateAchievements(session);
       this.notifyLocalUpdate(SESSIONS_KEY, session);
+
+      // Async push session to Firebase Firestore
+      FirebaseDatabaseService.saveGameSession(session, profile).catch((err) => {
+        console.warn('Background Firestore session sync:', err);
+      });
     } catch {
       // Storage error
     }
@@ -297,7 +279,7 @@ export class StorageService {
     } catch {
       // Fallback
     }
-    return ['num-1', 'pct-1', 'pnl-1'];
+    return [];
   }
 
   public static toggleBookmark(questionId: string): boolean {
@@ -314,10 +296,30 @@ export class StorageService {
     try {
       localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(list));
       this.notifyLocalUpdate(BOOKMARKS_KEY, list);
+
+      // Async sync with cloud
+      const profile = this.getProfile();
+      if (profile.id && !profile.isGuest) {
+        FirebaseDatabaseService.syncBookmarks(profile.id, list).catch((err) => {
+          console.warn('Bookmarks cloud sync error:', err);
+        });
+      }
     } catch {
       // Storage error
     }
     return isBookmarked;
+  }
+
+  public static async fetchCloudBookmarks(): Promise<string[]> {
+    const profile = this.getProfile();
+    if (!profile.id || profile.isGuest) return this.getBookmarks();
+    const remote = await FirebaseDatabaseService.fetchBookmarks(profile.id);
+    if (remote && Array.isArray(remote)) {
+      localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(remote));
+      this.notifyLocalUpdate(BOOKMARKS_KEY, remote);
+      return remote;
+    }
+    return this.getBookmarks();
   }
 
   public static getAllAptitudeQuestions(): AptitudeQuestion[] {
@@ -369,10 +371,10 @@ export class StorageService {
       title: 'Vedic Multiplication Sprint',
       description: 'Score 20 correct answers in Intermediate Multiplication within 60s',
       targetCount: 20,
-      currentCount: 8,
+      currentCount: 0,
       rewardXp: 350,
       isCompleted: false,
-      expiresInHours: 14,
+      expiresInHours: 24,
       operation: 'multiplication',
       difficulty: 'intermediate',
     };
@@ -399,6 +401,20 @@ export class StorageService {
     return challenge;
   }
 
+  public static async fetchRealtimeLeaderboard(): Promise<LeaderboardEntry[]> {
+    const profile = this.getProfile();
+    try {
+      const remoteEntries = await FirebaseDatabaseService.fetchCloudLeaderboard(profile.id);
+      if (remoteEntries.length > 0) {
+        localStorage.setItem(CLOUD_LEADERBOARD_CACHE_KEY, JSON.stringify(remoteEntries));
+        return remoteEntries;
+      }
+    } catch (err) {
+      console.warn('Realtime leaderboard fetch error:', err);
+    }
+    return this.getLeaderboard();
+  }
+
   public static getLeaderboard(
     timeframe: 'daily' | 'weekly' | 'season' | 'all-time' = 'daily',
     category: 'overall' | 'speed' | 'accuracy' | 'streak' = 'overall',
@@ -407,269 +423,59 @@ export class StorageService {
     const profile = this.getProfile();
     const multiplier = timeframe === 'daily' ? 1 : (timeframe === 'weekly' ? 3.8 : (timeframe === 'season' ? 7.5 : 14));
 
-    const basePeers: LeaderboardEntry[] = [
-      { 
-        id: 'p1', 
-        rank: 1, 
-        name: 'Aarav Sharma', 
-        avatar: '⚡', 
-        score: Math.round(2840 * multiplier), 
-        accuracy: 99, 
-        streak: 28, 
-        xp: 9450, 
-        level: 34, 
-        isCurrentUser: false, 
-        badge: 'Grandmaster #1', 
-        countryCode: 'IN',
-        countryFlag: '🇮🇳',
-        league: 'Grandmaster',
-        avgReactionMs: 780,
-        bestOperation: 'Multiplication',
-        trend: 'same',
-        trendPositions: 0,
-        sprintsPlayed: 142
-      },
-      { 
-        id: 'p2', 
-        rank: 2, 
-        name: 'Elena Rostova', 
-        avatar: '🎯', 
-        score: Math.round(2620 * multiplier), 
-        accuracy: 97, 
-        streak: 21, 
-        xp: 8120, 
-        level: 29, 
-        isCurrentUser: false, 
-        badge: 'Grandmaster #2', 
-        countryCode: 'US',
-        countryFlag: '🇺🇸',
-        league: 'Grandmaster',
-        avgReactionMs: 840,
-        bestOperation: 'Vedic Math',
-        trend: 'up',
-        trendPositions: 1,
-        sprintsPlayed: 118
-      },
-      { 
-        id: 'p3', 
-        rank: 3, 
-        name: 'Kenji Takahashi', 
-        avatar: '🌸', 
-        score: Math.round(2490 * multiplier), 
-        accuracy: 98, 
-        streak: 19, 
-        xp: 7600, 
-        level: 28, 
-        isCurrentUser: false, 
-        badge: 'Grandmaster #3', 
-        countryCode: 'JP',
-        countryFlag: '🇯🇵',
-        league: 'Grandmaster',
-        avgReactionMs: 810,
-        bestOperation: 'Percentages',
-        trend: 'down',
-        trendPositions: 1,
-        sprintsPlayed: 105
-      },
-      { 
-        id: 'p4', 
-        rank: 4, 
-        name: 'Devon Chen', 
-        avatar: '🔥', 
-        score: Math.round(2380 * multiplier), 
-        accuracy: 95, 
-        streak: 16, 
-        xp: 6890, 
-        level: 26, 
-        isCurrentUser: false, 
-        badge: 'Master Div I', 
-        countryCode: 'SG',
-        countryFlag: '🇸🇬',
-        league: 'Master',
-        avgReactionMs: 890,
-        bestOperation: 'Addition',
-        trend: 'up',
-        trendPositions: 2,
-        sprintsPlayed: 94
-      },
-      { 
-        id: 'p5', 
-        rank: 5, 
-        name: 'Priya Patel', 
-        avatar: '🌟', 
-        score: Math.round(2180 * multiplier), 
-        accuracy: 94, 
-        streak: 14, 
-        xp: 5720, 
-        level: 22, 
-        isCurrentUser: false,
-        badge: 'Master Div II',
-        countryCode: 'GB',
-        countryFlag: '🇬🇧',
-        league: 'Master',
-        avgReactionMs: 940,
-        bestOperation: 'Division',
-        trend: 'up',
-        trendPositions: 1,
-        sprintsPlayed: 86
-      },
-      { 
-        id: 'p6', 
-        rank: 6, 
-        name: 'Marcus Vance', 
-        avatar: '🚀', 
-        score: Math.round(1950 * multiplier), 
-        accuracy: 92, 
-        streak: 11, 
-        xp: 4800, 
-        level: 19, 
-        isCurrentUser: false,
-        badge: 'Diamond Div I',
-        countryCode: 'CA',
-        countryFlag: '🇨🇦',
-        league: 'Diamond',
-        avgReactionMs: 1020,
-        bestOperation: 'Subtraction',
-        trend: 'down',
-        trendPositions: 2,
-        sprintsPlayed: 72
-      },
-      { 
-        id: 'p7', 
-        rank: 7, 
-        name: 'Sophia Miller', 
-        avatar: '💎', 
-        score: Math.round(1790 * multiplier), 
-        accuracy: 91, 
-        streak: 9, 
-        xp: 4100, 
-        level: 16, 
-        isCurrentUser: false,
-        badge: 'Diamond Div II',
-        countryCode: 'DE',
-        countryFlag: '🇩🇪',
-        league: 'Diamond',
-        avgReactionMs: 1110,
-        bestOperation: 'Multiplication',
-        trend: 'same',
-        trendPositions: 0,
-        sprintsPlayed: 64
-      },
-      { 
-        id: 'p8', 
-        rank: 8, 
-        name: 'Lucas Silva', 
-        avatar: '⚽', 
-        score: Math.round(1620 * multiplier), 
-        accuracy: 90, 
-        streak: 8, 
-        xp: 3550, 
-        level: 14, 
-        isCurrentUser: false,
-        badge: 'Platinum Div I',
-        countryCode: 'BR',
-        countryFlag: '🇧🇷',
-        league: 'Platinum',
-        avgReactionMs: 1180,
-        bestOperation: 'Aptitude Mixed',
-        trend: 'up',
-        trendPositions: 3,
-        sprintsPlayed: 55
-      },
-      { 
-        id: 'p9', 
-        rank: 9, 
-        name: 'Karthik Raja', 
-        avatar: '🏆', 
-        score: Math.round(1490 * multiplier), 
-        accuracy: 89, 
-        streak: 7, 
-        xp: 3150, 
-        level: 13, 
-        isCurrentUser: false,
-        badge: 'Platinum Div II',
-        countryCode: 'IN',
-        countryFlag: '🇮🇳',
-        league: 'Platinum',
-        avgReactionMs: 1240,
-        bestOperation: 'Percentages',
-        trend: 'down',
-        trendPositions: 1,
-        sprintsPlayed: 48
-      },
-      { 
-        id: 'p10', 
-        rank: 10, 
-        name: 'Hannah Weber', 
-        avatar: '🦊', 
-        score: Math.round(1350 * multiplier), 
-        accuracy: 88, 
-        streak: 6, 
-        xp: 2750, 
-        level: 11, 
-        isCurrentUser: false,
-        badge: 'Gold Div I',
-        countryCode: 'AU',
-        countryFlag: '🇦🇺',
-        league: 'Gold',
-        avgReactionMs: 1320,
-        bestOperation: 'Addition',
-        trend: 'same',
-        trendPositions: 0,
-        sprintsPlayed: 42
-      },
-    ];
+    // Try reading cached cloud entries
+    let cloudEntries: LeaderboardEntry[] = [];
+    try {
+      const cached = localStorage.getItem(CLOUD_LEADERBOARD_CACHE_KEY);
+      if (cached) {
+        cloudEntries = JSON.parse(cached);
+      }
+    } catch {
+      // ignore
+    }
 
     // Determine user's League from XP
-    let userLeague: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | 'Master' | 'Grandmaster' = 'Bronze';
-    if (profile.xp >= 8000) userLeague = 'Grandmaster';
-    else if (profile.xp >= 6000) userLeague = 'Master';
-    else if (profile.xp >= 4000) userLeague = 'Diamond';
-    else if (profile.xp >= 2500) userLeague = 'Platinum';
-    else if (profile.xp >= 1200) userLeague = 'Gold';
-    else if (profile.xp >= 500) userLeague = 'Silver';
+    const userLeague = FirebaseDatabaseService.getLeagueFromXp(profile.xp);
+    const userScore = Math.max(
+      Math.round((profile.totalSprintsPlayed * 140 + profile.xp * 0.65) * (multiplier * 0.55)),
+      profile.xp > 0 ? profile.xp : (profile.isGuest ? 0 : 250)
+    );
 
     const userEntry: LeaderboardEntry = {
       id: profile.id,
-      rank: 11,
-      name: profile.name + ' (You)',
+      rank: 1,
+      name: (profile.name || 'Math Athlete') + ' (You)',
       avatar: profile.avatar || '⚡',
-      score: Math.max(
-        Math.round((profile.totalSprintsPlayed * 140 + profile.xp * 0.65) * (multiplier * 0.55)),
-        Math.round(480 * multiplier)
-      ),
-      accuracy: profile.overallAccuracy || 92,
+      score: userScore,
+      accuracy: profile.overallAccuracy || 100,
       streak: profile.streakDays || 1,
       xp: profile.xp,
-      level: profile.level,
+      level: profile.level || 1,
       isCurrentUser: true,
-      badge: profile.isPremium ? 'PRO Champion' : `${userLeague} Sprinter`,
-      countryCode: 'GLOBAL',
+      badge: profile.isPremium ? 'PRO Champion' : `${userLeague} Athlete`,
+      countryCode: profile.countryCode || 'GLOBAL',
       countryFlag: '🌐',
       league: userLeague,
-      avgReactionMs: profile.fastestAnswerMs > 0 ? Math.round(profile.fastestAnswerMs * 1.15) : 1050,
-      bestOperation: 'Multiplication',
-      trend: 'up',
-      trendPositions: 1,
+      avgReactionMs: profile.fastestAnswerMs > 0 ? profile.fastestAnswerMs : 980,
+      bestOperation: profile.preferredOperation || 'Multiplication',
+      trend: 'same',
+      trendPositions: 0,
       sprintsPlayed: profile.totalSprintsPlayed,
     };
 
-    let list = [...basePeers, userEntry];
-
-    // Filter by Scope
-    if (scope === 'friends') {
-      // Return top 5 peers plus current user as friends circle
-      list = [basePeers[0], basePeers[2], basePeers[4], userEntry];
-    } else if (scope === 'country') {
-      // Filter by user's or selected flag
-      list = [basePeers[0], basePeers[4], basePeers[8], userEntry];
+    let list: LeaderboardEntry[] = [];
+    if (cloudEntries.length > 0) {
+      // Merge user entry with cloud entries
+      const filteredCloud = cloudEntries.filter(e => e.id !== profile.id);
+      list = [userEntry, ...filteredCloud];
+    } else {
+      list = [userEntry];
     }
 
     // Sort according to selected category
     if (category === 'overall') {
       list.sort((a, b) => b.score - a.score);
     } else if (category === 'speed') {
-      // Fastest reaction time first
       list.sort((a, b) => (a.avgReactionMs || 9999) - (b.avgReactionMs || 9999));
     } else if (category === 'accuracy') {
       list.sort((a, b) => b.accuracy - a.accuracy || b.score - a.score);

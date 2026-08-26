@@ -8,6 +8,7 @@ import {
   Upload, 
   Code2, 
   User,
+  UserPlus,
   ArrowLeft,
   Menu
 } from 'lucide-react';
@@ -19,7 +20,7 @@ interface NavbarProps {
   onOpenPremium: () => void;
   onOpenAdmin: () => void;
   onOpenCodeViewer: () => void;
-  onOpenAuth?: () => void;
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void;
   onToggleSound: () => void;
   onBack?: () => void;
   onToggleMenu?: () => void;
@@ -65,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Right Side: Streamlined Controls (Streak, Upgrade Button if not bought, User Toggle) */}
+        {/* Right Side: Streamlined Controls (Streak, Sign Up if Guest, Upgrade Button, User Toggle) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Daily Streak */}
           <div 
@@ -77,6 +78,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{profile.streakDays}D</span>
           </div>
 
+          {/* Dedicated Sign Up Button for Guest Users */}
+          {profile.isGuest && onOpenAuth && (
+            <button
+              id="navbar-sign-up-btn"
+              onClick={() => onOpenAuth('signup')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-300 hover:to-sky-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md shadow-sky-500/20 transition-all active:scale-95"
+              title="Sign Up Athlete Account"
+            >
+              <UserPlus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Sign Up</span>
+            </button>
+          )}
+
           {/* Upgrade Badge Button - Only shown when user has NOT bought PRO */}
           {!profile.isPremium && (
             <button
@@ -86,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Upgrade to PRO"
             >
               <Crown className="w-3.5 h-3.5 fill-slate-950 stroke-slate-950" />
-              <span>Upgrade</span>
+              <span className="hidden sm:inline">Upgrade</span>
             </button>
           )}
 

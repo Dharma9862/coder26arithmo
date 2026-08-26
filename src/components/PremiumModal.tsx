@@ -7,7 +7,6 @@ import {
   Zap, 
   Lock,
   Crown,
-  RotateCcw,
   ArrowRightLeft,
   TrendingUp,
   ArrowUpCircle,
@@ -48,7 +47,6 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [purchasedId, setPurchasedId] = useState<string | null>(null);
   const [upgradeNotification, setUpgradeNotification] = useState<string | null>(null);
-  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -106,16 +104,6 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({
         onClose();
       }, 1600);
     }
-  };
-
-  const handleRestore = () => {
-    soundService.triggerHaptic('light');
-    soundService.playClick();
-    setRestoreMessage('Checking previous purchases...');
-    setTimeout(() => {
-      setRestoreMessage('Your ad-free status & plan tier are active & synchronized!');
-      setTimeout(() => setRestoreMessage(null), 3000);
-    }, 800);
   };
 
   const parsedCalcUsd = parseFloat(calcUsdInput) || 0;
@@ -328,12 +316,6 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({
             </div>
           )}
 
-          {restoreMessage && (
-            <div className="p-3 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold text-center animate-fadeIn">
-              {restoreMessage}
-            </div>
-          )}
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {SUPPORT_PRODUCTS.map((product) => {
               const isBuying = processingId === product.id;
@@ -516,21 +498,10 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({
             })}
           </div>
 
-          {/* Guarantee & Restore Purchase Bar */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 text-xs border-t border-slate-700/50 mt-4">
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Safe 256-bit payment • One-time purchase • Zero ads forever</span>
-            </div>
-
-            <button
-              id="restore-purchases-btn"
-              onClick={handleRestore}
-              className="text-[11px] text-sky-400 hover:text-sky-300 font-bold underline underline-offset-2 flex items-center gap-1 cursor-pointer"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Restore Purchases</span>
-            </button>
+          {/* Guarantee Security Bar */}
+          <div className="pt-2.5 flex items-center justify-center gap-2 text-slate-400 text-xs border-t border-slate-700/50 mt-4">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-[11px] text-slate-300 font-medium">Safe 256-bit payment • One-time lifetime purchase • Zero ads forever</span>
           </div>
 
         </div>

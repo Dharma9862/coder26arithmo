@@ -23,6 +23,15 @@ export const BookmarksScreen: React.FC<BookmarksScreenProps> = ({
   onOpenPractice,
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [levelFilter, setLevelFilter] = useState<'All' | 'Prelims' | 'Mains'>('All');
+
+  const filteredBookmarks = bookmarkedQuestions.filter(q => {
+    if (levelFilter === 'All') return true;
+    return q.examLevel === levelFilter;
+  });
+
+  const prelimsCount = bookmarkedQuestions.filter(q => q.examLevel === 'Prelims').length;
+  const mainsCount = bookmarkedQuestions.filter(q => q.examLevel === 'Mains').length;
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6 pb-24 animate-in fade-in duration-200">
@@ -42,6 +51,42 @@ export const BookmarksScreen: React.FC<BookmarksScreenProps> = ({
           <p className="text-xs text-slate-300 mt-2 max-w-xl font-medium leading-relaxed">
             Revisit your marked exam questions, review shortcuts, and reinforce weak concepts before tests.
           </p>
+
+          {/* Level Filter Tabs */}
+          {bookmarkedQuestions.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-4">
+              <button
+                onClick={() => setLevelFilter('All')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors ${
+                  levelFilter === 'All'
+                    ? 'bg-sky-500 text-slate-950 shadow-sm'
+                    : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white'
+                }`}
+              >
+                All ({bookmarkedQuestions.length})
+              </button>
+              <button
+                onClick={() => setLevelFilter('Prelims')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors ${
+                  levelFilter === 'Prelims'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'bg-slate-900/80 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10'
+                }`}
+              >
+                ✓ Prelims ({prelimsCount})
+              </button>
+              <button
+                onClick={() => setLevelFilter('Mains')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors ${
+                  levelFilter === 'Mains'
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'bg-slate-900/80 text-purple-400 border border-purple-500/30 hover:bg-purple-500/10'
+                }`}
+              >
+                ★ Mains ({mainsCount})
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -55,9 +100,19 @@ export const BookmarksScreen: React.FC<BookmarksScreenProps> = ({
             While practicing questions in the Exam Prep section, tap the bookmark icon to save challenging problems here.
           </p>
         </div>
+      ) : filteredBookmarks.length === 0 ? (
+        <div className="p-8 text-center rounded-3xl bg-[#1E293B] border border-slate-700/60 space-y-2 shadow-md">
+          <p className="text-sm text-slate-300 font-bold">No {levelFilter} questions bookmarked.</p>
+          <button
+            onClick={() => setLevelFilter('All')}
+            className="text-xs text-sky-400 font-bold hover:underline"
+          >
+            Show all bookmarked questions
+          </button>
+        </div>
       ) : (
         <div className="space-y-4">
-          {bookmarkedQuestions.map((q, idx) => {
+          {filteredBookmarks.map((q, idx) => {
             const isExpanded = expandedId === q.id;
             return (
               <div 
@@ -66,10 +121,19 @@ export const BookmarksScreen: React.FC<BookmarksScreenProps> = ({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/30">
                         {q.categoryName}
                       </span>
+                      {q.examLevel && (
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                          q.examLevel === 'Mains'
+                            ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                            : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        }`}>
+                          {q.examLevel === 'Mains' ? '★ Mains Tier' : '✓ Prelims Tier'}
+                        </span>
+                      )}
                       <span className="text-slate-500 text-xs">•</span>
                       <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
                         {q.difficulty}

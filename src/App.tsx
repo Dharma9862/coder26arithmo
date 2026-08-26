@@ -30,6 +30,7 @@ import { StorageService } from './services/storageService';
 import { APTITUDE_CATEGORIES } from './data/aptitudeQuestions';
 import { soundService } from './services/soundService';
 import { syncService, SyncMessage } from './services/syncService';
+import { FirebaseDatabaseService } from './services/firebase';
 
 export default function App() {
   // Navigation & Screen States
@@ -48,13 +49,13 @@ export default function App() {
   const [latestResult, setLatestResult] = useState<GameSessionResult | null>(null);
 
   // Modals
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authModalInitialMode, setAuthModalInitialMode] = useState<'signin' | 'signup' | 'otp'>('signin');
+  const [authPromptReason, setAuthPromptReason] = useState<string | undefined>(undefined);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState<boolean>(false);
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState<boolean>(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [authModalInitialMode, setAuthModalInitialMode] = useState<'signin' | 'signup' | 'otp'>('signin');
-  const [authPromptReason, setAuthPromptReason] = useState<string | undefined>(undefined);
   const [isRateAppModalOpen, setIsRateAppModalOpen] = useState<boolean>(false);
   const [isMoreAppsModalOpen, setIsMoreAppsModalOpen] = useState<boolean>(false);
   const [isCodeViewerOpen, setIsCodeViewerOpen] = useState<boolean>(false);
@@ -75,10 +76,6 @@ export default function App() {
       }
       if (isAdminModalOpen) {
         setIsAdminModalOpen(false);
-        return;
-      }
-      if (isAuthModalOpen) {
-        setIsAuthModalOpen(false);
         return;
       }
       if (isProfileModalOpen) {
@@ -124,7 +121,6 @@ export default function App() {
   }, [
     isAdminAuthModalOpen,
     isAdminModalOpen,
-    isAuthModalOpen,
     isProfileModalOpen,
     isPremiumModalOpen,
     isRateAppModalOpen,
@@ -135,22 +131,6 @@ export default function App() {
     latestResult,
     currentTab,
   ]);
-
-  const handleOpenAuthModal = (mode: 'signin' | 'signup' | 'otp' = 'signin', reason?: string) => {
-    setAuthModalInitialMode(mode);
-    setAuthPromptReason(reason);
-    setIsAuthModalOpen(true);
-  };
-
-  const handleAuthenticate = (userData: Partial<UserProfile>) => {
-    const updated: UserProfile = {
-      ...profile,
-      ...userData,
-      isGuest: false,
-    };
-    setProfile(updated);
-    StorageService.saveProfile(updated);
-  };
 
   // Sound & Audio Feedback sync
   useEffect(() => {
@@ -174,7 +154,47 @@ export default function App() {
       }
     });
 
-    return () => unsubscribe();
+    // Listen for Firebase Auth state changes
+    let isInitialMount = true;
+    const unsubAuth = FirebaseDatabaseService.onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const cloudProfile = await FirebaseDatabaseService.fetchUserProfile(firebaseUser.uid);
+          if (cloudProfile) {
+            const mergedProfile: UserProfile = {
+              ...StorageService.getProfile(),
+              ...cloudProfile,
+              id: firebaseUser.uid,
+              email: firebaseUser.email || cloudProfile.email || '',
+              name: cloudProfile.name || firebaseUser.displayName || 'Math Athlete',
+              isGuest: false,
+            };
+            setProfile(mergedProfile);
+            StorageService.saveProfile(mergedProfile);
+          }
+          // Fetch cloud bookmarks
+          await StorageService.fetchCloudBookmarks();
+          setQuestions(StorageService.getAllAptitudeQuestions());
+        } catch (err) {
+          console.warn('Error fetching cloud profile on auth change:', err);
+        }
+      } else {
+        if (!isInitialMount) {
+          const current = StorageService.getProfile();
+          if (!current.isGuest) {
+            const guest = StorageService.getDefaultGuestProfile();
+            StorageService.saveProfile(guest);
+            setProfile(guest);
+          }
+        }
+      }
+      isInitialMount = false;
+    });
+
+    return () => {
+      unsubscribe();
+      unsubAuth();
+    };
   }, []);
 
   const handleLiveReload = () => {
@@ -196,21 +216,11 @@ export default function App() {
   };
 
   const handleLaunchSprint = (op: MathOperation) => {
-    if (profile.isGuest) {
-      soundService.playWrong();
-      handleOpenAuthModal('signin', 'Sign in or create an account to start Speed Sprints and Vedic Drills.');
-      return;
-    }
     setSelectedInitialOp(op);
     setIsConfigModalOpen(true);
   };
 
   const handleStartGame = (op: MathOperation, diff: DifficultyLevel, dur: GameDuration) => {
-    if (profile.isGuest) {
-      soundService.playWrong();
-      handleOpenAuthModal('signin', 'Sign in or create an account to play calculation drills.');
-      return;
-    }
     setIsConfigModalOpen(false);
     setLatestResult(null);
     setActiveGameParams({ operation: op, difficulty: diff, duration: dur });
@@ -246,6 +256,37 @@ export default function App() {
     setQuestions(StorageService.getAllAptitudeQuestions());
   };
 
+  const handleOpenAuthModal = (mode: 'signin' | 'signup' | 'otp' = 'signin', reason?: string) => {
+    setAuthModalInitialMode(mode);
+    setAuthPromptReason(reason);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleAuthenticate = (userData: Partial<UserProfile>) => {
+    const updated: UserProfile = {
+      ...profile,
+      ...userData,
+      isGuest: false,
+    };
+    setProfile(updated);
+    StorageService.saveProfile(updated);
+    setSyncToast(`⚡ Welcome ${updated.name}! Account linked.`);
+    setTimeout(() => setSyncToast(null), 3000);
+  };
+
+  const handleSignOut = async () => {
+    const guest = await StorageService.signOut();
+    setProfile(guest);
+    setQuestions(StorageService.getAllAptitudeQuestions());
+    setIsProfileModalOpen(false);
+    setIsSideDrawerOpen(false);
+    setActiveGameParams(null);
+    setCurrentTab('sprint');
+    handleOpenAuthModal('signin', 'You have been signed out. Please sign in to your athlete account.');
+    setSyncToast('👋 Signed out. Redirected to login.');
+    setTimeout(() => setSyncToast(null), 3000);
+  };
+
   const handleUpgradeSuccess = (productId?: string) => {
     const updated: UserProfile = {
       ...profile,
@@ -262,11 +303,6 @@ export default function App() {
     const updated: UserProfile = { ...profile, ...changes };
     setProfile(updated);
     StorageService.saveProfile(updated);
-  };
-
-  const handleSignOut = () => {
-    const guestProfile = StorageService.signOut();
-    setProfile(guestProfile);
   };
 
   const handleResetProgress = () => {
@@ -327,11 +363,10 @@ export default function App() {
             onOpenExamPrep={() => setCurrentTab('examprep')}
             onOpenPremium={() => setIsPremiumModalOpen(true)}
             onOpenProfile={() => setIsProfileModalOpen(true)}
-            onOpenAuth={() => handleOpenAuthModal('signin')}
-            onSignOut={handleSignOut}
-            onRequireAuth={(reason) => handleOpenAuthModal('signin', reason)}
             onOpenRateApp={() => setIsRateAppModalOpen(true)}
             onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
+            onOpenAuth={(mode) => handleOpenAuthModal(mode || 'signin')}
+            onRequireAuth={(reason) => handleOpenAuthModal('signin', reason)}
             onSelectTab={setCurrentTab}
             bookmarkCount={bookmarkedQuestions.length}
           />
@@ -395,7 +430,7 @@ export default function App() {
             onOpenPremium={() => setIsPremiumModalOpen(true)}
             onOpenAdmin={() => setIsAdminModalOpen(true)}
             onOpenCodeViewer={() => setIsCodeViewerOpen(true)}
-            onOpenAuth={() => handleOpenAuthModal('signin')}
+            onOpenAuth={(mode) => handleOpenAuthModal(mode || 'signin')}
             onToggleSound={handleToggleSound}
             onBack={() => setCurrentTab('sprint')}
             onToggleMenu={() => setIsSideDrawerOpen(true)}
@@ -411,7 +446,7 @@ export default function App() {
           onLaunchOperation={handleLaunchSprint}
           onOpenProfile={() => setIsProfileModalOpen(true)}
           onOpenPremium={() => setIsPremiumModalOpen(true)}
-          onOpenAuth={() => handleOpenAuthModal('signin')}
+          onOpenAuth={(mode) => handleOpenAuthModal(mode || 'signin')}
           onSignOut={handleSignOut}
           onOpenRateApp={() => setIsRateAppModalOpen(true)}
           onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
@@ -468,7 +503,7 @@ export default function App() {
           onUpdateProfile={handleUpdateProfile}
           onResetProgress={handleResetProgress}
           onSignOut={handleSignOut}
-          onOpenAuth={() => handleOpenAuthModal('signin')}
+          onOpenAuth={(mode) => handleOpenAuthModal(mode || 'signin')}
           onOpenRateApp={() => setIsRateAppModalOpen(true)}
           onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
           onTriggerAdmin={() => setIsAdminAuthModalOpen(true)}
@@ -476,13 +511,10 @@ export default function App() {
 
         <AuthModal
           isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthenticate={handleAuthenticate}
           initialMode={authModalInitialMode}
           promptReason={authPromptReason}
-          onClose={() => {
-            setIsAuthModalOpen(false);
-            setAuthPromptReason(undefined);
-          }}
-          onAuthenticate={handleAuthenticate}
         />
 
         <RateAppModal
