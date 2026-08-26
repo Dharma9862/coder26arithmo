@@ -19,8 +19,8 @@ const DAILY_CHALLENGE_KEY = 'numbersprint_daily_challenge';
 
 const DEFAULT_PROFILE: UserProfile = {
   id: 'usr_' + Math.random().toString(36).substring(2, 9),
-  name: 'Lala',
-  email: 'lala@numbersprint.app',
+  name: 'Guest Runner',
+  email: 'guest@numbersprint.app',
   avatar: '⚡',
   preferredDifficulty: 'intermediate',
   preferredOperation: 'multiplication',
@@ -42,6 +42,23 @@ const DEFAULT_PROFILE: UserProfile = {
 };
 
 export class StorageService {
+  public static getDefaultGuestProfile(): UserProfile {
+    return {
+      ...DEFAULT_PROFILE,
+      id: 'usr_' + Math.random().toString(36).substring(2, 9),
+      name: 'Guest Runner',
+      email: '',
+      isGuest: true,
+      isPremium: false,
+    };
+  }
+
+  public static signOut(): UserProfile {
+    const guestProfile = this.getDefaultGuestProfile();
+    this.saveProfile(guestProfile);
+    return guestProfile;
+  }
+
   private static notifyLocalUpdate(key: string, data?: any) {
     if (typeof window !== 'undefined') {
       try {
@@ -58,7 +75,14 @@ export class StorageService {
     try {
       const data = localStorage.getItem(PROFILE_KEY);
       if (data) {
-        return { ...DEFAULT_PROFILE, ...JSON.parse(data) };
+        const parsed = JSON.parse(data);
+        if (parsed.avatar === '📱') {
+          parsed.avatar = '⚡';
+        }
+        if (parsed.name === 'Lala') {
+          parsed.name = parsed.isGuest ? 'Guest Runner' : 'Math Athlete';
+        }
+        return { ...DEFAULT_PROFILE, ...parsed };
       }
     } catch {
       // Fallback

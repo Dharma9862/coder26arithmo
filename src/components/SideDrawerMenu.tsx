@@ -4,7 +4,6 @@ import {
   Zap, 
   GraduationCap, 
   BarChart3, 
-  Trophy, 
   BookmarkCheck, 
   Settings, 
   Volume2, 
@@ -19,7 +18,8 @@ import {
   Ban,
   Star,
   Grid,
-  RefreshCw
+  RefreshCw,
+  LogOut
 } from 'lucide-react';
 import { MathOperation, UserProfile } from '../types';
 import { soundService } from '../services/soundService';
@@ -30,11 +30,12 @@ interface SideDrawerMenuProps {
   isOpen: boolean;
   onClose: () => void;
   profile: UserProfile;
-  onSelectTab: (tab: 'sprint' | 'examprep' | 'analytics' | 'leaderboard' | 'bookmarks') => void;
+  onSelectTab: (tab: 'sprint' | 'examprep' | 'analytics' | 'bookmarks') => void;
   onLaunchOperation: (op: MathOperation) => void;
   onOpenProfile: () => void;
   onOpenPremium: () => void;
   onOpenAuth?: () => void;
+  onSignOut?: () => void;
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
   onTriggerAdmin?: () => void;
@@ -50,6 +51,7 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
   onOpenProfile,
   onOpenPremium,
   onOpenAuth,
+  onSignOut,
   onOpenRateApp,
   onOpenMoreApps,
   onTriggerAdmin,
@@ -79,7 +81,7 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
 
   if (!isOpen) return null;
 
-  const handleTabClick = (tab: 'sprint' | 'examprep' | 'analytics' | 'leaderboard' | 'bookmarks') => {
+  const handleTabClick = (tab: 'sprint' | 'examprep' | 'analytics' | 'bookmarks') => {
     soundService.triggerHaptic('light');
     soundService.playClick();
     onSelectTab(tab);
@@ -117,11 +119,11 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
           <div className="bg-[#38B6DB] p-5 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl border border-white/30 shadow-inner">
-                {profile.avatar || '⚡'}
+                {profile.avatar && profile.avatar !== '📱' ? profile.avatar : '⚡'}
               </div>
               <div>
                 <h3 className="font-extrabold text-xl text-[#113876] tracking-tight leading-tight">
-                  {profile.name || 'Lala'}
+                  {profile.name || (profile.isGuest ? 'Guest Runner' : 'Math Athlete')}
                 </h3>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs font-bold text-[#15469e] flex items-center gap-1">
@@ -281,20 +283,6 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
             </button>
 
             <button
-              id="menu-nav-leaderboard"
-              onClick={() => handleTabClick('leaderboard')}
-              className="w-full flex items-center justify-between p-3 rounded-2xl text-slate-800 hover:bg-blue-50/80 active:bg-blue-100 transition-colors font-bold text-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
-                  <Trophy className="w-5 h-5" />
-                </div>
-                <span>Competitive Rankings</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
-            </button>
-
-            <button
               id="menu-nav-bookmarks"
               onClick={() => handleTabClick('bookmarks')}
               className="w-full flex items-center justify-between p-3 rounded-2xl text-slate-800 hover:bg-blue-50/80 active:bg-blue-100 transition-colors font-bold text-sm"
@@ -443,6 +431,21 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
             <Settings className="w-4 h-4" />
             <span>Profile & Settings</span>
           </button>
+
+          {!profile.isGuest && onSignOut && (
+            <button
+              id="drawer-signout-btn"
+              onClick={() => {
+                soundService.playClick();
+                onClose();
+                onSignOut();
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-600" />
+              <span>Sign Out</span>
+            </button>
+          )}
 
           <div 
             onClick={handleSecretTap}

@@ -28,6 +28,33 @@ function getGeminiClient(): GoogleGenAI | null {
   return geminiClient;
 }
 
+// Resilient Gemini content generator with multi-model fallback
+async function generateGeminiContentWithFallback(
+  ai: GoogleGenAI,
+  contents: string,
+  responseMimeType?: string
+): Promise<string | null> {
+  const candidateModels = ['gemini-3.7-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+  
+  for (const model of candidateModels) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents,
+        config: responseMimeType ? { responseMimeType } : undefined,
+      });
+
+      const text = response.text?.trim();
+      if (text) {
+        return text;
+      }
+    } catch (error: any) {
+      console.warn(`[Gemini API] Model ${model} unavailable (${error?.message || 'error'}), attempting fallback...`);
+    }
+  }
+  return null;
+}
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
@@ -37,18 +64,19 @@ app.get('/api/health', (req, res) => {
 app.post('/api/ai/daily-tasks', async (req, res) => {
   try {
     const { date, userLevel, streak, accuracy } = req.body || {};
+    const dateStr = date || new Date().toISOString().split('T')[0];
     const ai = getGeminiClient();
 
     if (!ai) {
       // Fallback deterministic response when API key is not configured
       return res.json({
         source: 'algorithm',
-        tasks: generateFallbackDailyTasks(date || new Date().toISOString().split('T')[0]),
+        tasks: generateFallbackDailyTasks(dateStr),
       });
     }
 
     const prompt = `You are the master quantitative aptitude and speed math coach for Arithmo.
-Generate 3 unique, exciting, and mathematically rich daily quests for the date ${date || new Date().toISOString().split('T')[0]}.
+Generate 3 unique, exciting, and mathematically rich daily quests for the date ${dateStr}.
 The user has level ${userLevel || 1}, a ${streak || 0}-day streak, and ${accuracy || 90}% overall accuracy.
 
 Return a JSON array of 3 objects with these exact keys:
@@ -65,23 +93,29 @@ Return a JSON array of 3 objects with these exact keys:
 
 Respond ONLY with valid JSON array of 3 task objects.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-      },
-    });
+    const text = await generateGeminiContentWithFallback(ai, prompt, 'application/json');
 
-    const text = response.text?.trim() || '[]';
-    const tasks = JSON.parse(text);
+    if (text) {
+      try {
+        const tasks = JSON.parse(text);
+        if (Array.isArray(tasks) && tasks.length > 0) {
+          return res.json({
+            source: 'gemini-ai',
+            tasks,
+          });
+        }
+      } catch (parseError) {
+        console.warn('Could not parse Gemini tasks JSON, using algorithmic fallback', parseError);
+      }
+    }
 
+    // Graceful fallback if models were under heavy demand or returned non-JSON
     return res.json({
-      source: 'gemini-ai',
-      tasks: Array.isArray(tasks) && tasks.length > 0 ? tasks : generateFallbackDailyTasks(date),
+      source: 'algorithm-fallback',
+      tasks: generateFallbackDailyTasks(dateStr),
     });
   } catch (error: any) {
-    console.error('Error generating AI daily tasks:', error);
+    console.warn('Handled error in daily tasks API, serving algorithmic tasks:', error?.message || error);
     const dateStr = req.body?.date || new Date().toISOString().split('T')[0];
     return res.json({
       source: 'algorithm-fallback',
@@ -96,13 +130,15 @@ app.post('/api/ai/explain-question', async (req, res) => {
     const { questionText, options, correctAnswerIndex, categoryName, subtopic } = req.body || {};
     const ai = getGeminiClient();
 
+    const correctOption = options && options[correctAnswerIndex] !== undefined 
+      ? options[correctAnswerIndex] 
+      : 'Option ' + (Number(correctAnswerIndex) + 1);
+
     if (!ai) {
       return res.json({
-        explanation: 'Instant Step-by-Step AI breakdown is available. Review the formula shortcuts and standard derivations provided in the exam syllabus.',
+        explanation: `• **Concept & Formula**: Standard quantitative aptitude derivation applying fundamental ${categoryName || 'arithmetic'} principles.\n• **Vedic / Fast Trick**: Eliminate extreme options using digital roots (modulo 9) and unit digit matching.\n• **Solution**: The verified correct choice is **${correctOption}**.`,
       });
     }
-
-    const correctOption = options && options[correctAnswerIndex] !== undefined ? options[correctAnswerIndex] : 'Option ' + (correctAnswerIndex + 1);
 
     const prompt = `You are an expert Quantitative Aptitude exam tutor for SSC CGL, SBI/IBPS PO, and CAT.
 Break down this question concisely with:
@@ -118,17 +154,23 @@ Correct Option: ${correctOption}
 
 Keep the explanation clear, crisp, and high-yield.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
-      contents: prompt,
-    });
+    const text = await generateGeminiContentWithFallback(ai, prompt);
 
+    if (text) {
+      return res.json({
+        explanation: text,
+      });
+    }
+
+    // Fallback explanation if models are momentarily unavailable
     return res.json({
-      explanation: response.text || 'Explanation generated.',
+      explanation: `• **Key Concept & Rule**: Review the core formula for ${subtopic || categoryName || 'this question'}.\n• **Speed Trick**: Verify with unit digit check and modulo arithmetic for instant elimination.\n• **Answer**: Correct solution is **${correctOption}**.`,
     });
   } catch (error: any) {
-    console.error('Error explaining question with Gemini:', error);
-    return res.status(500).json({ error: 'Failed to generate explanation' });
+    console.warn('Error in AI question explanation API, serving structured fallback:', error?.message || error);
+    return res.json({
+      explanation: 'Refer to standard formula shortcuts and Vedic elimination rules.',
+    });
   }
 });
 

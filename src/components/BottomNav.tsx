@@ -3,12 +3,11 @@ import {
   Zap, 
   GraduationCap, 
   BarChart3, 
-  Trophy, 
   BookmarkCheck 
 } from 'lucide-react';
 import { soundService } from '../services/soundService';
 
-export type TabType = 'sprint' | 'examprep' | 'analytics' | 'leaderboard' | 'bookmarks';
+export type TabType = 'sprint' | 'examprep' | 'analytics' | 'bookmarks';
 
 interface BottomNavProps {
   currentTab: TabType;
@@ -25,7 +24,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     { id: 'sprint' as TabType, label: 'Practice', icon: Zap },
     { id: 'examprep' as TabType, label: 'Exam Prep', icon: GraduationCap },
     { id: 'analytics' as TabType, label: 'Analytics', icon: BarChart3 },
-    { id: 'leaderboard' as TabType, label: 'Rankings', icon: Trophy },
     { id: 'bookmarks' as TabType, label: 'Saved', icon: BookmarkCheck, badge: bookmarkCount },
   ];
 

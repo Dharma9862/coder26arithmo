@@ -92,6 +92,12 @@ export interface TopicConceptGuide {
   categoryId: string;
   topicName: string;
   overview: string;
+  deepExplanation?: string;
+  fundamentalConcepts?: Array<{
+    title: string;
+    explanation: string;
+    examTakeaway?: string;
+  }>;
   keyFormulas: Array<{
     name: string;
     formula: string;
@@ -108,6 +114,7 @@ export interface TopicConceptGuide {
     prelimsWeightage: string;
     mainsWeightage: string;
     recommendedTimePerQuestion: string;
+    targetExams?: string;
   };
 }
 

@@ -6,8 +6,7 @@ import {
   ExternalLink, 
   Check, 
   MessageSquare, 
-  Sparkles,
-  Smartphone
+  Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { APP_EXTERNAL_LINKS } from '../config/appLinks';
@@ -171,7 +170,7 @@ export const RateAppModal: React.FC<RateAppModalProps> = ({ isOpen, onClose }) =
                   className="w-full py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold transition-colors border border-slate-700/60 flex items-center justify-center gap-1.5"
                   title="Open App Store / Play Store Link"
                 >
-                  <Smartphone className="w-3.5 h-3.5 text-sky-400" />
+                  <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                   <span>Rate on App Store / Play Store</span>
                   <ExternalLink className="w-3 h-3 text-slate-400" />
                 </button>

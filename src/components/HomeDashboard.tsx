@@ -36,11 +36,12 @@ interface HomeDashboardProps {
   onOpenPremium: () => void;
   onOpenProfile?: () => void;
   onOpenAuth?: () => void;
+  onSignOut?: () => void;
   onRequireAuth?: (reason?: string) => void;
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
   onBack?: () => void;
-  onSelectTab?: (tab: 'sprint' | 'examprep' | 'analytics' | 'leaderboard' | 'bookmarks') => void;
+  onSelectTab?: (tab: 'sprint' | 'examprep' | 'analytics' | 'bookmarks') => void;
   bookmarkCount?: number;
 }
 
@@ -51,7 +52,7 @@ interface PracticeCardItem {
   operation?: MathOperation;
   badge?: string;
   iconType: 'parentheses' | 'sequence' | 'right_wrong' | 'grid' | 'zap' | 'cross' | 'exam' | 'percent' | 'trophy' | 'formula' | 'plus' | 'minus' | 'divide';
-  action: 'sprint' | 'examprep' | 'analytics' | 'leaderboard';
+  action: 'sprint' | 'examprep' | 'analytics';
 }
 
 export const HomeDashboard: React.FC<HomeDashboardProps> = ({
@@ -62,6 +63,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   onOpenPremium,
   onOpenProfile,
   onOpenAuth,
+  onSignOut,
   onRequireAuth,
   onOpenRateApp,
   onOpenMoreApps,
@@ -93,16 +95,15 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
   const categories = [
     { id: 'advance', label: 'Advance calculation Practice' },
-    { id: 'ranking', label: '🏆 Live Rankings & Leagues' },
-    { id: 'multiplication', label: 'Multiplication (1,000+ Qs)' },
-    { id: 'addition', label: 'Addition (1,000+ Qs)' },
-    { id: 'subtraction', label: 'Subtraction (1,000+ Qs)' },
-    { id: 'division', label: 'Division (1,000+ Qs)' },
-    { id: 'puzzle', label: 'Math Puzzles (1,000+ Qs)' },
+    { id: 'multiplication', label: 'Multiplication' },
+    { id: 'addition', label: 'Addition' },
+    { id: 'subtraction', label: 'Subtraction' },
+    { id: 'division', label: 'Division' },
+    { id: 'puzzle', label: 'Math Puzzles' },
     { id: 'linear', label: 'Linear Sequence' },
     { id: 'right_wrong', label: 'Right or Wrong' },
     { id: 'sprints', label: 'Speed Sprints' },
-    { id: 'exam', label: 'Aptitude Exam Prep (2,000+ Qs)' },
+    { id: 'exam', label: 'Aptitude Exam Prep' },
   ];
 
   // Dynamic practice cards mapped to selected category
@@ -117,7 +118,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'multiplication',
             iconType: 'cross',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Vedic',
           },
           {
             id: 'mul-base-100',
@@ -126,7 +127,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'multiplication',
             iconType: 'cross',
             action: 'sprint',
-            badge: 'Vedic',
+            badge: 'Base 100',
           },
           {
             id: 'mul-squares-5',
@@ -140,7 +141,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           {
             id: 'mul-table-sprint',
             title: 'Tables 12-99 Rapid Fire',
-            subtitle: 'Randomized 1,000+ procedural speed multiplication drills',
+            subtitle: 'Randomized procedural speed multiplication drills',
             operation: 'multiplication',
             iconType: 'zap',
             action: 'sprint',
@@ -157,7 +158,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'addition',
             iconType: 'plus',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Sprint',
           },
           {
             id: 'add-3-term-chain',
@@ -197,7 +198,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'subtraction',
             iconType: 'minus',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Vedic',
           },
           {
             id: 'sub-borrowing-speed',
@@ -233,11 +234,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           {
             id: 'div-clean-sprint',
             title: 'Clean Speed Division',
-            subtitle: '1,000+ rapid quotient recognition problems',
+            subtitle: 'Rapid quotient recognition problems',
             operation: 'division',
             iconType: 'divide',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Speed',
           },
           {
             id: 'div-remainder-challenge',
@@ -277,7 +278,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'linear_sequence',
             iconType: 'sequence',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Sequence',
           },
           {
             id: 'linear-seq-delta',
@@ -315,7 +316,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'right_or_wrong',
             iconType: 'right_wrong',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Speed Check',
           },
           {
             id: 'rw-inequality',
@@ -352,7 +353,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'math_puzzle',
             iconType: 'grid',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Matrix',
           },
           {
             id: 'puzzle-missing-div',
@@ -422,24 +423,24 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         return [
           {
             id: 'exam-prelims-bank',
-            title: 'Prelims Question Bank (1,000+ Qs)',
+            title: 'Prelims Question Bank',
             subtitle: 'Speed-focused 30-45s solving shortcuts across 20 topics',
             iconType: 'exam',
             action: 'examprep',
-            badge: '1,000 Prelims',
+            badge: 'Prelims Tier',
           },
           {
             id: 'exam-mains-bank',
-            title: 'Mains Question Bank (1,000+ Qs)',
+            title: 'Mains Question Bank',
             subtitle: 'Multi-step caselets, DI, and advanced quantitative problems',
             iconType: 'exam',
             action: 'examprep',
-            badge: '1,000 Mains',
+            badge: 'Mains Tier',
           },
           {
             id: 'exam-20-topics',
             title: 'All 20 Quantitative Syllabus Topics',
-            subtitle: 'CAT, SBI PO, SSC CGL & Placement Modules (2,000+ Total)',
+            subtitle: 'CAT, SBI PO, SSC CGL & Placement Modules',
             iconType: 'exam',
             action: 'examprep',
             badge: 'Complete',
@@ -453,34 +454,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           },
         ];
 
-      case 'ranking':
-        return [
-          {
-            id: 'rank-grandmaster-league',
-            title: 'Grandmaster Daily League',
-            subtitle: 'Global real-time competitive leaderboard with rival challenges',
-            iconType: 'trophy',
-            action: 'leaderboard',
-            badge: '👑 Tier 1',
-          },
-          {
-            id: 'rank-national-ranking',
-            title: 'National & Regional Leaderboards',
-            subtitle: 'Compete against math sprinters and exam aspirants in your country',
-            iconType: 'trophy',
-            action: 'leaderboard',
-            badge: '🇮🇳 National',
-          },
-          {
-            id: 'rank-sprint-masters',
-            title: 'Speed Sprint Accuracy Rankings',
-            subtitle: 'Top 100 fastest reaction times & highest accuracy streaks',
-            iconType: 'zap',
-            action: 'leaderboard',
-            badge: '⚡ Speed',
-          },
-        ];
-
       case 'advance':
       default:
         return [
@@ -491,68 +464,60 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             operation: 'advance_calc',
             iconType: 'parentheses',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Advance',
           },
           {
             id: 'card-math-puzzle',
             title: 'Math puzzle',
-            subtitle: '1,000+ Procedural missing number & matrix riddles',
+            subtitle: 'Procedural missing number & matrix riddles',
             operation: 'math_puzzle',
             iconType: 'grid',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Puzzles',
           },
           {
             id: 'card-multiplication',
-            title: 'Multiplication (1,000+ Qs)',
+            title: 'Multiplication',
             subtitle: 'Vedic criss-cross, near-base & rapid tables',
             operation: 'multiplication',
             iconType: 'cross',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Multiplication',
           },
           {
             id: 'card-addition',
-            title: 'Addition (1,000+ Qs)',
+            title: 'Addition',
             subtitle: 'Carryover surges, 3-term chains & decimal drills',
             operation: 'addition',
             iconType: 'plus',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Addition',
           },
           {
             id: 'card-subtraction',
-            title: 'Subtraction (1,000+ Qs)',
+            title: 'Subtraction',
             subtitle: 'All from 9 last from 10 & borrow sprints',
             operation: 'subtraction',
             iconType: 'minus',
             action: 'sprint',
-            badge: '1,000+ Qs',
+            badge: 'Subtraction',
           },
           {
             id: 'card-division',
-            title: 'Division (1,000+ Qs)',
+            title: 'Division',
             subtitle: 'Clean division, remainders & fraction shortcuts',
             operation: 'division',
             iconType: 'divide',
             action: 'sprint',
-            badge: '1,000+ Qs',
-          },
-          {
-            id: 'card-competitive-rankings',
-            title: 'Competitive Rankings & Leagues',
-            subtitle: 'Global, National & Daily Grandmaster leaderboards',
-            iconType: 'trophy',
-            action: 'leaderboard',
-            badge: '🏆 Live Rank',
+            badge: 'Division',
           },
           {
             id: 'card-exam-prep',
-            title: 'Quantitative Exam Prep (2,000+ Qs)',
-            subtitle: '1,000 Prelims + 1,000 Mains across 20 high-yield topics',
+            title: 'Quantitative Exam Prep',
+            subtitle: 'Prelims & Mains across 20 high-yield topics',
             iconType: 'exam',
             action: 'examprep',
-            badge: '2,000+ Total',
+            badge: 'Exam Prep',
           },
           {
             id: 'card-linear-sequence',
@@ -586,8 +551,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
       onOpenExamPrep();
     } else if (card.action === 'analytics') {
       if (onSelectTab) onSelectTab('analytics');
-    } else if (card.action === 'leaderboard') {
-      if (onSelectTab) onSelectTab('leaderboard');
     }
   };
 
@@ -678,6 +641,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         }}
         onOpenPremium={onOpenPremium}
         onOpenAuth={onOpenAuth}
+        onSignOut={onSignOut}
         onOpenRateApp={onOpenRateApp}
         onOpenMoreApps={onOpenMoreApps}
         bookmarkCount={bookmarkCount}
@@ -752,13 +716,10 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 soundService.playClick();
                 setIsDrawerOpen(true);
               }}
-              className="flex items-center gap-1.5 p-1 sm:p-1.5 pl-2 pr-2.5 rounded-full bg-white/20 hover:bg-white/30 active:scale-95 text-white backdrop-blur-md transition-all shadow-xs cursor-pointer"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/25 hover:bg-white/35 active:scale-95 text-white backdrop-blur-md transition-all shadow-sm border border-white/35 cursor-pointer flex items-center justify-center"
               title="Toggle Profile, Settings & Menu"
             >
-              <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-bold text-[#113876]">
-                {profile.avatar || <User className="w-3.5 h-3.5 text-[#113876]" />}
-              </div>
-              <Menu className="w-4 h-4 stroke-[2.5] text-white" />
+              <Menu className="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-[2.7] text-white" />
             </button>
           </div>
         </div>
@@ -766,10 +727,10 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         {/* User Greeting */}
         <div className="space-y-0.5 sm:space-y-1 pt-1">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#15469e] tracking-tight">
-            Hi {profile.name || 'Lala'}
+            Hi {profile.name || (profile.isGuest ? 'Guest Runner' : 'Math Athlete')}
           </h1>
           <p className="text-sm sm:text-base md:text-lg font-semibold text-[#184d9f]/90">
-            Welcome back to Mind calculation • 1,000+ Daily Unique AI Quests & Drills
+            Welcome back to Mind calculation • Daily Unique AI Quests & Drills
           </p>
         </div>
 

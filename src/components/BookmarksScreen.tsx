@@ -34,7 +34,7 @@ export const BookmarksScreen: React.FC<BookmarksScreenProps> = ({
             <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] bg-sky-500/20 text-sky-400 border border-sky-500/30">
               REVISION VAULT
             </span>
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">{bookmarkedQuestions.length} Questions Saved</span>
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Saved Problems</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black italic uppercase tracking-tight text-white">
             Saved & Challenging Problems

@@ -228,6 +228,23 @@ export const TOPIC_CONCEPT_GUIDES: Record<string, TopicConceptGuide> = {
     categoryId: 'number-system',
     topicName: 'Number System',
     overview: 'The bedrock of quantitative aptitude. Exam problems test rapid identification of remainders, unit digit cyclicity, divisibility rules (primes and composite numbers), factor counts, and trailing zero calculations.',
+    fundamentalConcepts: [
+      {
+        title: 'Classification of Numbers & Prime Distribution',
+        explanation: 'Real numbers split into Rational (p/q, terminating or recurring decimals) and Irrational (non-terminating non-repeating like √2, π). Primes are integers > 1 with exactly two distinct positive divisors. 2 is the ONLY even prime. All primes > 3 can be expressed as (6k ± 1), though not all (6k ± 1) numbers are prime.',
+        examTakeaway: 'Always test divisibility of prime candidates by primes up to √N. For testing if 197 is prime, test 2, 3, 5, 7, 11, 13 (since 14² = 196 > 197).'
+      },
+      {
+        title: 'Divisibility Arithmetic & Composite Divisors',
+        explanation: 'For composite divisors like 72, factor into co-prime pairs: N must be divisible by both 8 and 9. For 88, test 8 and 11. Divisibility by 8 checks the last 3 digits; divisibility by 11 checks (Sum of Odd position digits - Sum of Even position digits) mod 11 = 0.',
+        examTakeaway: 'In missing-digit problems like 758x4y divisible by 72, first find y using the last 3 digits (8x4y -> test 4y mod 8), then calculate x using sum of digits mod 9.'
+      },
+      {
+        title: 'Remainders & Modulo Arithmetic (Euler-Totient & Wilson)',
+        explanation: 'Remainder of (A × B)/D equals (Rem(A/D) × Rem(B/D)) mod D. For large exponents, find the Euler Totient φ(n). If gcd(a, n) = 1, then a^φ(n) ≡ 1 (mod n). Fermat’s Little Theorem is a special case: a^(p-1) ≡ 1 (mod p) for prime p.',
+        examTakeaway: 'Negative remainders reduce calculation steps: 37 mod 19 is -1. Thus, (37^40) mod 19 = (-1)^40 = 1.'
+      }
+    ],
     keyFormulas: [
       {
         name: 'Unit Digit Cyclicity Theorem',
@@ -274,13 +291,26 @@ export const TOPIC_CONCEPT_GUIDES: Record<string, TopicConceptGuide> = {
     examTrends: {
       prelimsWeightage: '2 to 3 Questions (Unit digits, basic divisibility, trailing zeros)',
       mainsWeightage: '3 to 4 Questions (Chinese Remainder Theorem, complex factorials, algebraic roots)',
-      recommendedTimePerQuestion: '25-40 seconds in Prelims, 60-80 seconds in Mains'
+      recommendedTimePerQuestion: '25-40 seconds in Prelims, 60-80 seconds in Mains',
+      targetExams: 'SSC CGL Tier 1/2 • SBI PO • CAT • RRB NTPC'
     }
   },
   'simplification-bodmas': {
     categoryId: 'simplification-bodmas',
     topicName: 'Simplification, Approximation & BODMAS',
     overview: 'Speed and accuracy under tight time constraints. Focus on the strict operator order: Vinculum (Bar) -> Brackets -> Of (Multiplication) -> Division -> Multiplication -> Addition -> Subtraction.',
+    fundamentalConcepts: [
+      {
+        title: 'VBODMAS Operator Precedence Hierarchy',
+        explanation: 'Expressions must be evaluated strictly left-to-right following operator rank: V (Vinculum / Bar) > B (Brackets: (), {}, []) > O (Of / Orders) > D (Division) > M (Multiplication) > A (Addition) > S (Subtraction). "Of" acts as locked multiplication that must be solved before division.',
+        examTakeaway: '60 ÷ 5 of 3 is 60 ÷ 15 = 4, NOT (60 ÷ 5) × 3 = 36.'
+      },
+      {
+        title: 'Approximation Decision Thresholds',
+        explanation: 'In banking exams, when options are spaced apart by ≥ 3%, round decimals to convenient fractions: 33.33% = 1/3, 14.28% = 1/7, 12.5% = 1/8, 16.66% = 1/6, 37.5% = 3/8, 62.5% = 5/8.',
+        examTakeaway: 'Convert complicated decimals into percentage fractions for instant mental cancellations.'
+      }
+    ],
     keyFormulas: [
       {
         name: 'VBODMAS Strict Precedence',

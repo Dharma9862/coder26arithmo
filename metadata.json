@@ -1,6 +1,6 @@
 {
   "name": "Arithmo",
-  "description": "Fast-paced mental math, Vedic calculation techniques, quantitative aptitude arena, and global ranking dashboard",
+  "description": "Fast-paced mental math, Vedic calculation techniques, and quantitative aptitude arena",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

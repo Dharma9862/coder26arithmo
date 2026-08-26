@@ -7,7 +7,6 @@ import { LiveGameScreen } from './components/LiveGameScreen';
 import { GameResultScreen } from './components/GameResultScreen';
 import { ExamPrepScreen } from './components/ExamPrepScreen';
 import { AnalyticsScreen } from './components/AnalyticsScreen';
-import { LeaderboardScreen } from './components/LeaderboardScreen';
 import { BookmarksScreen } from './components/BookmarksScreen';
 import { SideDrawerMenu } from './components/SideDrawerMenu';
 import { AdminUploadModal } from './components/AdminUploadModal';
@@ -265,6 +264,11 @@ export default function App() {
     StorageService.saveProfile(updated);
   };
 
+  const handleSignOut = () => {
+    const guestProfile = StorageService.signOut();
+    setProfile(guestProfile);
+  };
+
   const handleResetProgress = () => {
     localStorage.clear();
     setProfile(StorageService.getProfile());
@@ -324,6 +328,7 @@ export default function App() {
             onOpenPremium={() => setIsPremiumModalOpen(true)}
             onOpenProfile={() => setIsProfileModalOpen(true)}
             onOpenAuth={() => handleOpenAuthModal('signin')}
+            onSignOut={handleSignOut}
             onRequireAuth={(reason) => handleOpenAuthModal('signin', reason)}
             onOpenRateApp={() => setIsRateAppModalOpen(true)}
             onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
@@ -349,22 +354,6 @@ export default function App() {
             profile={profile}
             sessions={sessions}
             onStartSuggestedSprint={(op) => handleStartGame(op, 'intermediate', 60)}
-          />
-        );
-
-      case 'leaderboard':
-        return (
-          <LeaderboardScreen
-            profile={profile}
-            getLeaderboard={StorageService.getLeaderboard}
-            onOpenAuth={() => handleOpenAuthModal('signup')}
-            onChallengeRival={(rival) => {
-              const op = (rival.bestOperation?.toLowerCase().includes('addition') ? 'addition' :
-                          rival.bestOperation?.toLowerCase().includes('subtraction') ? 'subtraction' :
-                          rival.bestOperation?.toLowerCase().includes('division') ? 'division' :
-                          rival.bestOperation?.toLowerCase().includes('vedic') ? 'vedic' : 'multiplication') as MathOperation;
-              handleStartGame(op, 'intermediate', 60);
-            }}
           />
         );
 
@@ -423,6 +412,7 @@ export default function App() {
           onOpenProfile={() => setIsProfileModalOpen(true)}
           onOpenPremium={() => setIsPremiumModalOpen(true)}
           onOpenAuth={() => handleOpenAuthModal('signin')}
+          onSignOut={handleSignOut}
           onOpenRateApp={() => setIsRateAppModalOpen(true)}
           onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}
           onTriggerAdmin={() => setIsAdminAuthModalOpen(true)}
@@ -477,6 +467,7 @@ export default function App() {
           onClose={() => setIsProfileModalOpen(false)}
           onUpdateProfile={handleUpdateProfile}
           onResetProgress={handleResetProgress}
+          onSignOut={handleSignOut}
           onOpenAuth={() => handleOpenAuthModal('signin')}
           onOpenRateApp={() => setIsRateAppModalOpen(true)}
           onOpenMoreApps={() => setIsMoreAppsModalOpen(true)}

@@ -16,7 +16,6 @@ import {
   Trophy,
   ShieldCheck,
   RotateCcw,
-  Smartphone,
   Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -83,6 +82,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [targetGoal, setTargetGoal] = useState<string>('math_athlete');
 
   // Phone OTP
+  const [phoneUserName, setPhoneUserName] = useState<string>('');
   const [selectedCountryCode, setSelectedCountryCode] = useState<string>('+91');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [otpStep, setOtpStep] = useState<'phone_input' | 'otp_verify'>('phone_input');
@@ -268,6 +268,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     setErrorMessage('');
 
+    if (!phoneUserName.trim()) {
+      setErrorMessage('Please enter your full name');
+      return;
+    }
+
     const cleanNumber = phoneNumber.replace(/\D/g, '');
     if (!cleanNumber || cleanNumber.length < 7 || cleanNumber.length > 15) {
       setErrorMessage('Please enter a valid mobile phone number');
@@ -324,16 +329,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     const fullPhone = `${selectedCountryCode} ${phoneNumber.trim()}`;
-    const autoName = `User ${phoneNumber.slice(-4) || 'Athlete'}`;
+    const verifiedName = phoneUserName.trim() || `Athlete ${phoneNumber.slice(-4)}`;
 
     triggerSuccessCelebration(
       'Mobile Number Verified!',
-      `Signed in with ${fullPhone}. Speed Sprints and Exam Prep are now active!`,
+      `Welcome to Arithmo, ${verifiedName}! Speed Sprints and Exam Prep are active.`,
       {
-        name: autoName,
+        name: verifiedName,
         email: `${phoneNumber.replace(/\D/g, '')}@mobile.arithmo.app`,
         phone: fullPhone,
-        avatar: '📱',
+        avatar: selectedAvatar || '⚡',
         authProvider: 'otp',
         isPhoneVerified: true,
         streakDays: 1,
@@ -435,7 +440,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5" />
               <span>Mobile OTP</span>
             </button>
           </div>
@@ -665,16 +669,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                       <div>
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
-                          Full Name
+                          Full Name (Real Name)
                         </label>
-                        <input
-                          id="signup-name-input"
-                          type="text"
-                          value={signUpName}
-                          onChange={(e) => setSignUpName(e.target.value)}
-                          placeholder="Alex Rivera"
-                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
-                        />
+                        <div className="relative">
+                          <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            id="signup-name-input"
+                            type="text"
+                            value={signUpName}
+                            onChange={(e) => setSignUpName(e.target.value)}
+                            placeholder="Your Real Name (e.g. Rahul Sharma)"
+                            className="w-full pl-10 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
+                          />
+                        </div>
                       </div>
 
                       <div>
@@ -758,7 +765,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <form onSubmit={handleSendMobileOtp} className="space-y-3">
                       <div className="text-center space-y-1">
                         <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-md">
-                          <Smartphone className="w-5 h-5" />
+                          <Phone className="w-5 h-5" />
                         </div>
                         <h4 className="text-sm font-black text-white">Mobile SMS OTP Verification</h4>
                         <p className="text-xs text-slate-400">
@@ -766,33 +773,52 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         </p>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Country & Phone Number
-                        </label>
-                        <div className="flex gap-2">
-                          <select
-                            value={selectedCountryCode}
-                            onChange={(e) => setSelectedCountryCode(e.target.value)}
-                            className="w-28 px-2 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-bold shrink-0"
-                          >
-                            {COUNTRY_CODES.map((c) => (
-                              <option key={c.code + c.country} value={c.code}>
-                                {c.flag} {c.code}
-                              </option>
-                            ))}
-                          </select>
-
-                          <div className="relative flex-1">
-                            <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            Your Real Full Name
+                          </label>
+                          <div className="relative">
+                            <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                             <input
-                              id="phone-number-input"
-                              type="tel"
-                              value={phoneNumber}
-                              onChange={(e) => setPhoneNumber(e.target.value)}
-                              placeholder="98765 43210"
-                              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
+                              id="phone-user-name-input"
+                              type="text"
+                              value={phoneUserName}
+                              onChange={(e) => setPhoneUserName(e.target.value)}
+                              placeholder="Your Real Name (e.g. Rahul Sharma)"
+                              className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
                             />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+                            Country & Mobile Phone Number
+                          </label>
+                          <div className="flex gap-2">
+                            <select
+                              value={selectedCountryCode}
+                              onChange={(e) => setSelectedCountryCode(e.target.value)}
+                              className="w-28 px-2 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-bold shrink-0"
+                            >
+                              {COUNTRY_CODES.map((c) => (
+                                <option key={c.code + c.country} value={c.code}>
+                                  {c.flag} {c.code}
+                                </option>
+                              ))}
+                            </select>
+
+                            <div className="relative flex-1">
+                              <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                              <input
+                                id="phone-number-input"
+                                type="tel"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="98765 43210"
+                                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-white text-xs focus:outline-none focus:border-sky-500 font-medium"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -802,7 +828,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         type="submit"
                         className="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2 mt-2"
                       >
-                        <Smartphone className="w-4 h-4" />
+                        <Phone className="w-4 h-4" />
                         <span>Send 6-Digit OTP Code</span>
                       </button>
                     </form>

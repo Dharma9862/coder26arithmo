@@ -18,7 +18,6 @@ import {
   Mail,
   KeyRound,
   Info,
-  Smartphone,
   Cpu,
   Layers,
   History,
@@ -42,6 +41,7 @@ interface ProfileModalProps {
   achievements: Achievement[];
   onUpdateProfile: (updated: Partial<UserProfile>) => void;
   onResetProgress: () => void;
+  onSignOut?: () => void;
   onOpenRateApp?: () => void;
   onOpenMoreApps?: () => void;
   onOpenAuth?: () => void;
@@ -111,6 +111,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   achievements,
   onUpdateProfile,
   onResetProgress,
+  onSignOut,
   onOpenRateApp,
   onOpenMoreApps,
   onOpenAuth,
@@ -126,6 +127,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [hapticsEnabled, setHapticsEnabled] = useState<boolean>(profile.hapticsEnabled ?? true);
   const [isTestingVoice, setIsTestingVoice] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
 
   // Auth form state
   const [emailInput, setEmailInput] = useState<string>('');
@@ -194,7 +196,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       name: emailInput.split('@')[0],
       isGuest: false,
     });
-    setAuthMsg('Successfully connected to Supabase Auth cloud account!');
+    setAuthMsg('Successfully connected to account!');
     setTimeout(() => setAuthMsg(''), 2500);
   };
 
@@ -209,14 +211,21 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     setTimeout(() => setAuthMsg(''), 2500);
   };
 
-  const handleExportData = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(profile, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "NumberSprint_Data_Backup.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+  const handleSignOutClick = () => {
+    soundService.triggerHaptic('medium');
+    soundService.playClick();
+    if (onSignOut) {
+      onSignOut();
+    } else {
+      onUpdateProfile({
+        name: 'Guest Runner',
+        email: '',
+        isGuest: true,
+        isPremium: false,
+      });
+    }
+    setShowSignOutConfirm(false);
+    onClose();
   };
 
   return (
@@ -501,13 +510,29 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
               {/* Action Buttons */}
               <div className="pt-4 flex items-center justify-between border-t border-slate-700/60">
-                <button
-                  onClick={handleExportData}
-                  className="px-4 py-2.5 rounded-2xl bg-slate-900 text-slate-300 hover:text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 border border-slate-700/60"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export Data</span>
-                </button>
+                {!profile.isGuest ? (
+                  <button
+                    id="profile-sign-out-btn"
+                    onClick={() => setShowSignOutConfirm(true)}
+                    className="px-4 py-2.5 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 text-xs font-black uppercase tracking-wider flex items-center gap-2 border border-rose-500/30 transition-colors"
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Sign Out</span>
+                  </button>
+                ) : (
+                  <button
+                    id="profile-guest-signin-btn"
+                    onClick={() => {
+                      soundService.playClick();
+                      onClose();
+                      onOpenAuth?.();
+                    }}
+                    className="px-4 py-2.5 rounded-2xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 hover:text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 border border-sky-500/30 transition-colors"
+                  >
+                    <User className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Sign In</span>
+                  </button>
+                )}
 
                 <button
                   id="save-profile-changes-btn"
@@ -518,6 +543,34 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   <span>{savedSuccess ? 'Saved!' : 'Save Preferences'}</span>
                 </button>
               </div>
+
+              {/* Sign out confirmation banner if active */}
+              {showSignOutConfirm && (
+                <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 space-y-2.5 animate-fadeIn">
+                  <div className="flex items-center gap-2 text-rose-300">
+                    <LogOut className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span className="text-xs font-black uppercase tracking-wider">Confirm Sign Out?</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-normal">
+                    You are signed in as <strong className="text-white">{profile.email || profile.name}</strong>. Signing out will switch to a guest profile on this device.
+                  </p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      id="confirm-sign-out-btn"
+                      onClick={handleSignOutClick}
+                      className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black uppercase tracking-wider transition-colors shadow-xs"
+                    >
+                      Yes, Sign Out
+                    </button>
+                    <button
+                      onClick={() => setShowSignOutConfirm(false)}
+                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Rate App & More Apps Action Bar */}
               <div className="grid grid-cols-2 gap-2 pt-1">
@@ -834,6 +887,19 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   Save / Link Account
                 </button>
               </form>
+
+              {!profile.isGuest && (
+                <div className="pt-2">
+                  <button
+                    id="cloud-sync-sign-out-btn"
+                    onClick={handleSignOutClick}
+                    className="w-full py-3 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-200 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 text-rose-400" />
+                    <span>Sign Out of Current Account</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

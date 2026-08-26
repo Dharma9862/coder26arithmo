@@ -9,7 +9,6 @@ import {
   Database, 
   Server, 
   Layers,
-  Smartphone,
   ShieldCheck,
   Download
 } from 'lucide-react';

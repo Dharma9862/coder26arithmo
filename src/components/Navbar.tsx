@@ -97,13 +97,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               if (onToggleMenu) onToggleMenu();
               else onOpenProfile();
             }}
-            className="flex items-center gap-1.5 p-1 sm:p-1.5 pl-2 pr-2.5 rounded-xl bg-[#1E293B] hover:bg-slate-700 border border-slate-700 active:scale-95 transition-all text-white"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#1E293B] hover:bg-slate-700 border border-slate-700/80 active:scale-95 transition-all text-white flex items-center justify-center shadow-sm cursor-pointer"
             title="Toggle Profile, Settings & Menu"
           >
-            <div className="w-6 h-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-xs">
-              {profile.avatar || <User className="w-3.5 h-3.5 text-sky-400" />}
-            </div>
-            <Menu className="w-4 h-4 text-slate-300 stroke-[2.2]" />
+            <Menu className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-slate-200 stroke-[2.4]" />
           </button>
         </div>
 

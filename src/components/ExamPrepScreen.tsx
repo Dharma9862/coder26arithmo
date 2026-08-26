@@ -26,6 +26,7 @@ import { AptitudeCategory, AptitudeQuestion, ExamLevel } from '../types';
 import { TOPIC_CONCEPT_GUIDES } from '../data/aptitudeTopics';
 import { soundService } from '../services/soundService';
 import { AIDailyService } from '../services/aiDailyService';
+import { TopicConceptGuideView } from './TopicConceptGuideView';
 
 interface ExamPrepScreenProps {
   categories: AptitudeCategory[];
@@ -45,6 +46,7 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   onRequireAuth,
 }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [activeTopicTab, setActiveTopicTab] = useState<'concept' | 'practice'>('concept');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [difficultyFilter, setDifficultyFilter] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
   const [examLevelFilter, setExamLevelFilter] = useState<'All' | 'Prelims' | 'Mains'>('All');
@@ -131,15 +133,20 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
     onToggleBookmark(questionId);
   };
 
-  const handleStartCategoryPractice = (catId: string) => {
+  const handleSelectCategory = (catId: string, initialTab: 'concept' | 'practice' = 'concept') => {
     if (isGuest) {
       soundService.playWrong();
-      onRequireAuth?.("Sign in or create an account to practice topic questions.");
+      onRequireAuth?.("Sign in or create an account to access topic theory and practice questions.");
       return;
     }
     setSelectedCategoryId(catId);
+    setActiveTopicTab(initialTab);
     setSelectedSubtopic('All');
     setActiveQuestionIndex(0);
+  };
+
+  const handleStartCategoryPractice = (catId: string) => {
+    handleSelectCategory(catId, 'practice');
   };
 
   const handleResetCurrentCategory = () => {
@@ -204,10 +211,10 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                 EXAM PREP
               </span>
               <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                Prelims: {prelimsCount} Qs
+                Prelims Tier
               </span>
               <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                Mains: {mainsCount} Qs
+                Mains Tier
               </span>
             </div>
 
@@ -348,7 +355,7 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
         )}
       </div>
 
-      {/* Main Content: Category Grid OR Active Question Practice */}
+      {/* Main Content: Category Grid OR Active Topic (Concept Guide / Practice) */}
       {!selectedCategoryId && !searchQuery ? (
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
@@ -383,16 +390,16 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
                           <h3 
-                            onClick={() => handleStartCategoryPractice(cat.id)}
+                            onClick={() => handleSelectCategory(cat.id, 'concept')}
                             className="font-black text-xs sm:text-sm uppercase tracking-tight text-white truncate cursor-pointer hover:text-sky-400 transition-colors"
                           >
                             {cat.name}
                           </h3>
-                          <span className="px-1.5 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-black text-sky-400 font-mono-math shrink-0">
-                            {catQuestions.length} Qs
-                          </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 line-clamp-1 font-medium mt-0.5">
+                        <p 
+                          onClick={() => handleSelectCategory(cat.id, 'concept')}
+                          className="text-[11px] text-slate-400 line-clamp-1 font-medium mt-0.5 cursor-pointer hover:text-slate-300"
+                        >
                           {cat.description}
                         </p>
                       </div>
@@ -400,22 +407,18 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                   </div>
 
                   <div className="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                    {hasGuide ? (
-                      <button
-                        onClick={() => setActiveConceptGuideId(cat.id)}
-                        className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-[10px]"
-                      >
-                        <BookOpen className="w-3 h-3" /> Formula Guide
-                      </button>
-                    ) : (
-                      <span className="text-slate-500">{cat.subtopics?.[0] || 'Core Drills'}</span>
-                    )}
+                    <button
+                      onClick={() => handleSelectCategory(cat.id, 'concept')}
+                      className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20"
+                    >
+                      <BookOpen className="w-3 h-3" /> Study Concept
+                    </button>
 
                     <button
-                      onClick={() => handleStartCategoryPractice(cat.id)}
-                      className="px-2.5 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-black flex items-center gap-1 text-[10px] transition-all active:scale-95"
+                      onClick={() => handleSelectCategory(cat.id, 'practice')}
+                      className="px-2.5 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-black flex items-center gap-1 text-[10px] transition-all active:scale-95 shadow-sm"
                     >
-                      {answeredCount > 0 ? `${answeredCount}/${catQuestions.length} Done` : 'Practice'}
+                      <span>Practice ({catQuestions.length} Qs)</span>
                       <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
@@ -424,10 +427,60 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
             })}
           </div>
         </div>
+      ) : selectedCategoryId && !searchQuery && activeTopicTab === 'concept' && activeCategory && TOPIC_CONCEPT_GUIDES[selectedCategoryId] ? (
+        /* In-Depth Topic Concept Masterclass View */
+        <div className="space-y-3">
+          {/* Topic Switcher Bar */}
+          <div className="bg-[#1E293B] border border-slate-700/60 p-1.5 rounded-2xl flex items-center gap-1 shadow-sm">
+            <button
+              onClick={() => setActiveTopicTab('concept')}
+              className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-sm transition-all"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>1. Concept & Exam Theory</span>
+            </button>
+            <button
+              onClick={() => setActiveTopicTab('practice')}
+              className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
+            >
+              <Zap className="w-3.5 h-3.5 text-sky-400" />
+              <span>2. Practice Questions ({filteredQuestions.length})</span>
+            </button>
+          </div>
+
+          {/* Full In-Depth Masterclass Component */}
+          <TopicConceptGuideView
+            guide={TOPIC_CONCEPT_GUIDES[selectedCategoryId]}
+            category={activeCategory}
+            totalQuestions={filteredQuestions.length}
+            onStartPractice={() => setActiveTopicTab('practice')}
+            onBackToAllTopics={() => setSelectedCategoryId(null)}
+          />
+        </div>
       ) : (
         /* Practice Session View - MOBILE OPTIMIZED */
         <div className="space-y-3">
           
+          {/* If inside a selected topic, show the 2-Tab Switcher at the top of practice mode */}
+          {selectedCategoryId && !searchQuery && activeCategory && (
+            <div className="bg-[#1E293B] border border-slate-700/60 p-1.5 rounded-2xl flex items-center gap-1 shadow-sm">
+              <button
+                onClick={() => setActiveTopicTab('concept')}
+                className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                <span>1. Concept & Exam Theory</span>
+              </button>
+              <button
+                onClick={() => setActiveTopicTab('practice')}
+                className="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 bg-sky-500 text-slate-950 shadow-sm transition-all"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>2. Practice Questions ({filteredQuestions.length})</span>
+              </button>
+            </div>
+          )}
+
           {filteredQuestions.length > 0 && activeQuestion ? (
             <div className="space-y-3">
               
@@ -436,7 +489,7 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                     <span className="px-2 py-0.5 rounded-lg bg-sky-500/10 text-sky-400 text-[11px] font-black font-mono-math border border-sky-500/25 shrink-0">
-                      Q {activeQuestionIndex + 1}/{filteredQuestions.length}
+                      Question {activeQuestionIndex + 1} of {filteredQuestions.length}
                     </span>
                     
                     <span className="text-[11px] font-black uppercase tracking-wider text-slate-200 truncate max-w-[130px]">
@@ -453,6 +506,18 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0">
+                    {/* View Concept Button */}
+                    {selectedCategoryId && TOPIC_CONCEPT_GUIDES[selectedCategoryId] && (
+                      <button
+                        onClick={() => setActiveTopicTab('concept')}
+                        className="px-2 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold hover:bg-amber-500/20 transition-colors flex items-center gap-1"
+                        title="Review Concept Guide"
+                      >
+                        <BookOpen className="w-3 h-3" />
+                        <span className="hidden sm:inline">Concept</span>
+                      </button>
+                    )}
+
                     {/* Reset button */}
                     {selectedCategoryId && (
                       <button
