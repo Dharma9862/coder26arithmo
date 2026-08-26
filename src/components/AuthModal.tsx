@@ -21,7 +21,6 @@ import {
   ExternalLink,
   AlertTriangle,
   Database,
-  Sliders,
   Server
 } from 'lucide-react';
 import { soundService } from '../services/soundService';
@@ -56,12 +55,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   
-  // Supabase Settings panel state
-  const [showSupabaseSettings, setShowSupabaseSettings] = useState<boolean>(false);
-  const [supabaseUrlInput, setSupabaseUrlInput] = useState<string>('');
-  const [supabaseKeyInput, setSupabaseKeyInput] = useState<string>('');
-  const [configSuccess, setConfigSuccess] = useState<string>('');
-
   // UI states
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -69,8 +62,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showOfflineFallback, setShowOfflineFallback] = useState<boolean>(false);
   const [resendTimer, setResendTimer] = useState<number>(30);
   const [canResend, setCanResend] = useState<boolean>(false);
-
-  const isSupabaseLive = SupabaseService.isConfigured();
 
   useEffect(() => {
     if (isOpen) {
@@ -80,12 +71,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setShowOfflineFallback(false);
       setIsLoading(false);
       setOtpDigits(['', '', '', '', '', '']);
-      setShowSupabaseSettings(false);
-      setConfigSuccess('');
-
-      const cfg = SupabaseService.getConfig();
-      setSupabaseUrlInput(cfg.url);
-      setSupabaseKeyInput(cfg.anonKey);
     }
   }, [isOpen, initialMode]);
 
@@ -107,17 +92,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   }, [mode, resendTimer]);
 
   if (!isOpen) return null;
-
-  const handleSaveSupabaseConfig = (e: React.FormEvent) => {
-    e.preventDefault();
-    soundService.playClick();
-    SupabaseService.setCustomConfig(supabaseUrlInput, supabaseKeyInput);
-    setConfigSuccess('Supabase configuration updated successfully!');
-    setTimeout(() => {
-      setConfigSuccess('');
-      setShowSupabaseSettings(false);
-    }, 1500);
-  };
 
   const handleOtpChange = (index: number, val: string) => {
     if (!/^\d*$/.test(val)) return;
@@ -387,7 +361,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </h2>
                 <span className="text-[10px] uppercase font-extrabold tracking-widest px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 flex items-center gap-1 shadow-xs">
                   <Database className="w-3 h-3" />
-                  <span>Supabase Auth</span>
+                  <span>Cloud Sync</span>
                 </span>
               </div>
               <p className="text-xs text-teal-100 font-medium mt-0.5">
@@ -462,86 +436,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <span>{successMessage}</span>
             </div>
           )}
-
-          {/* Supabase Connection Status / Configuration Accordion */}
-          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className={`w-2.5 h-2.5 rounded-full ${isSupabaseLive ? 'bg-emerald-400 animate-pulse' : 'bg-emerald-400'}`} />
-                <span className="text-[11px] font-bold text-slate-200">
-                  {isSupabaseLive ? 'Supabase Connected' : 'Supabase Auth Ready (Local + Cloud)'}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  soundService.playClick();
-                  setShowSupabaseSettings(!showSupabaseSettings);
-                }}
-                className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 uppercase tracking-wider flex items-center gap-1 transition-colors"
-              >
-                <Sliders className="w-3 h-3" />
-                <span>{showSupabaseSettings ? 'Hide Config' : 'Supabase Config'}</span>
-              </button>
-            </div>
-
-            {showSupabaseSettings && (
-              <form onSubmit={handleSaveSupabaseConfig} className="pt-2 border-t border-slate-800 space-y-2.5 animate-in fade-in duration-200">
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  Optional: Connect your own Supabase project URL & Anon Key from your Supabase Dashboard (<span className="text-emerald-300 font-mono">app.supabase.com</span>):
-                </p>
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
-                    Supabase Project URL
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://xyzcompany.supabase.co"
-                    value={supabaseUrlInput}
-                    onChange={(e) => setSupabaseUrlInput(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono focus:outline-none focus:border-emerald-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
-                    Supabase Anon Public Key
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="eyJhbGciOiJIUzI1NiIsIn..."
-                    value={supabaseKeyInput}
-                    onChange={(e) => setSupabaseKeyInput(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono focus:outline-none focus:border-emerald-400"
-                  />
-                </div>
-
-                {configSuccess && (
-                  <p className="text-[10px] text-emerald-400 font-bold">{configSuccess}</p>
-                )}
-
-                <div className="flex gap-2 pt-1">
-                  <button
-                    type="submit"
-                    className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-colors shadow-sm"
-                  >
-                    Save Supabase Keys
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSupabaseUrlInput('');
-                      setSupabaseKeyInput('');
-                      SupabaseService.setCustomConfig('', '');
-                      setShowSupabaseSettings(false);
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs uppercase tracking-wider transition-colors"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
 
           {/* Quick 1-Click Action Row */}
           {mode !== 'otp' && (
@@ -780,7 +674,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* Privacy & Safety Note */}
           <div className="pt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Encrypted Athlete Data • Zero Ads • Supabase Cloud Sync</span>
+            <span>Encrypted Athlete Data • Zero Ads • Cloud Sync</span>
           </div>
 
         </div>
