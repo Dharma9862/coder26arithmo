@@ -28,28 +28,38 @@ function getGeminiClient(): GoogleGenAI | null {
   return geminiClient;
 }
 
-// Resilient Gemini content generator with multi-model fallback
+// Resilient Gemini content generator with multi-model fallback & transient retry
 async function generateGeminiContentWithFallback(
   ai: GoogleGenAI,
   contents: string,
   responseMimeType?: string
 ): Promise<string | null> {
-  const candidateModels = ['gemini-3.7-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+  // Use gemini-3.1-flash-lite and gemini-3.7-flash with robust fallback
+  const candidateModels = ['gemini-3.1-flash-lite', 'gemini-3.7-flash', 'gemini-flash-latest'];
   
   for (const model of candidateModels) {
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents,
-        config: responseMimeType ? { responseMimeType } : undefined,
-      });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents,
+          config: responseMimeType ? { responseMimeType } : undefined,
+        });
 
-      const text = response.text?.trim();
-      if (text) {
-        return text;
+        const text = response.text?.trim();
+        if (text) {
+          return text;
+        }
+      } catch (error: any) {
+        const isTransient = error?.status === 503 || error?.code === 503 || error?.message?.includes('503') || error?.message?.includes('demand');
+        if (attempt === 0 && isTransient) {
+          // Brief pause before trying fallback model or retry
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          continue;
+        }
+        // Move to next candidate model smoothly
+        break;
       }
-    } catch (error: any) {
-      console.warn(`[Gemini API] Model ${model} unavailable (${error?.message || 'error'}), attempting fallback...`);
     }
   }
   return null;
