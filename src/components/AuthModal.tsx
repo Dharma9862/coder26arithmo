@@ -154,8 +154,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         soundService.playWrong();
         const code = err?.code || '';
         if (code === 'auth/operation-not-allowed') {
-          setErrorMessage('Email/Password provider is disabled in Firebase Console. Enable it in Firebase Console > Authentication > Sign-in method, or continue with Offline Athlete Profile.');
-          setShowOfflineFallback(true);
+          setErrorMessage('Email/Password provider is not yet enabled in Firebase Console. Click below to enable it or sign in with Google.');
         } else if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
           setErrorMessage('Invalid email or password. Please verify your credentials.');
         } else if (code === 'auth/invalid-email') {

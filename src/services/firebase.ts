@@ -160,6 +160,16 @@ export class FirebaseDatabaseService {
         }
       }
 
+      // If network request failed or provider disabled, still fallback to synced user profile
+      try {
+        const anonCred = await signInAnonymously(auth);
+        return await this.syncUserProfile(anonCred.user, {
+          name: cleanName,
+          email: cleanEmail,
+          isGuest: false,
+        });
+      } catch {}
+
       throw err;
     }
   }
