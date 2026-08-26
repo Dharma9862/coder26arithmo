@@ -223,6 +223,16 @@ class SoundService {
   }
 
   public triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'error' | 'success' = 'light') {
+    // Try Native Android Capacitor Haptics first
+    try {
+      import('./nativeMobileService').then(({ NativeMobileService }) => {
+        if (NativeMobileService.isNativePlatform()) {
+          NativeMobileService.triggerHaptic(type);
+        }
+      });
+    } catch {}
+
+    // Web Navigator Vibrate fallback
     if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
       try {
         switch (type) {

@@ -32,6 +32,8 @@ import { soundService } from './services/soundService';
 import { syncService, SyncMessage } from './services/syncService';
 import { FirebaseDatabaseService } from './services/firebase';
 
+import { NativeMobileService } from './services/nativeMobileService';
+
 export default function App() {
   // Navigation & Screen States
   const [currentTab, setCurrentTab] = useState<TabType>('sprint');
@@ -117,6 +119,24 @@ export default function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
+
+    // Initialize Native Android Shell Plugins
+    NativeMobileService.initNativeFeatures(() => {
+      // Return true if handled, false to allow system exit
+      if (isAdminAuthModalOpen) { setIsAdminAuthModalOpen(false); return true; }
+      if (isAdminModalOpen) { setIsAdminModalOpen(false); return true; }
+      if (isProfileModalOpen) { setIsProfileModalOpen(false); return true; }
+      if (isPremiumModalOpen) { setIsPremiumModalOpen(false); return true; }
+      if (isRateAppModalOpen) { setIsRateAppModalOpen(false); return true; }
+      if (isMoreAppsModalOpen) { setIsMoreAppsModalOpen(false); return true; }
+      if (isCodeViewerOpen) { setIsCodeViewerOpen(false); return true; }
+      if (isConfigModalOpen) { setIsConfigModalOpen(false); return true; }
+      if (activeGameParams) { setActiveGameParams(null); return true; }
+      if (latestResult) { setLatestResult(null); setCurrentTab('sprint'); return true; }
+      if (currentTab !== 'sprint') { setCurrentTab('sprint'); return true; }
+      return false; // Exit app if already on home sprint tab
+    });
+
     return () => window.removeEventListener('popstate', handlePopState);
   }, [
     isAdminAuthModalOpen,
