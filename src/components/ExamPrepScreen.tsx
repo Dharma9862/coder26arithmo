@@ -31,15 +31,19 @@ import { TopicConceptGuideView } from './TopicConceptGuideView';
 interface ExamPrepScreenProps {
   categories: AptitudeCategory[];
   questions: AptitudeQuestion[];
+  isGuest?: boolean;
   onToggleBookmark: (questionId: string) => void;
   onQuestionSolved?: (questionId: string, isCorrect: boolean) => void;
+  onRequireAuth?: (reason?: string) => void;
 }
 
 export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   categories,
   questions,
+  isGuest = false,
   onToggleBookmark,
   onQuestionSolved,
+  onRequireAuth,
 }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [activeTopicTab, setActiveTopicTab] = useState<'concept' | 'practice'>('concept');
@@ -60,6 +64,12 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   const [isLoadingAiExplanation, setIsLoadingAiExplanation] = useState<Record<string, boolean>>({});
 
   const handleRequestAiExplanation = async (question: AptitudeQuestion) => {
+    if (isGuest) {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: Please create an account or sign in to access AI step-by-step solutions.');
+      }
+      return;
+    }
     if (isLoadingAiExplanation[question.id] || aiExplanations[question.id]) return;
     setIsLoadingAiExplanation(prev => ({ ...prev, [question.id]: true }));
     soundService.triggerHaptic('light');
@@ -96,6 +106,12 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   const activeQuestion = filteredQuestions[activeQuestionIndex] || filteredQuestions[0];
 
   const handleSelectOption = (optionIndex: number) => {
+    if (isGuest) {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: Please create an account or sign in to solve questions and record your score.');
+      }
+      return;
+    }
     if (!activeQuestion) return;
     if (userSelections[activeQuestion.id] !== undefined) return; // already answered
 
@@ -115,10 +131,22 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   };
 
   const handleBookmarkClick = (questionId: string) => {
+    if (isGuest) {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: Please create an account or sign in to bookmark questions.');
+      }
+      return;
+    }
     onToggleBookmark(questionId);
   };
 
   const handleSelectCategory = (catId: string, initialTab: 'concept' | 'practice' = 'concept') => {
+    if (isGuest && initialTab === 'practice') {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: Please create an account or sign in to practice exam questions.');
+      }
+      return;
+    }
     setSelectedCategoryId(catId);
     setActiveTopicTab(initialTab);
     setSelectedSubtopic('All');
@@ -126,6 +154,12 @@ export const ExamPrepScreen: React.FC<ExamPrepScreenProps> = ({
   };
 
   const handleStartCategoryPractice = (catId: string) => {
+    if (isGuest) {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: Please create an account or sign in to practice exam questions.');
+      }
+      return;
+    }
     handleSelectCategory(catId, 'practice');
   };
 

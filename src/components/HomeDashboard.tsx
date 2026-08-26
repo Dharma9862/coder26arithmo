@@ -22,7 +22,8 @@ import {
   X as MulIcon,
   HelpCircle,
   RotateCw,
-  Award
+  Award,
+  Lock
 } from 'lucide-react';
 import { DailyChallenge, MathOperation, UserProfile } from '../types';
 import { soundService } from '../services/soundService';
@@ -86,6 +87,14 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const handleRefreshAiTasks = async () => {
     soundService.triggerHaptic('medium');
     soundService.playClick();
+    if (profile.isGuest) {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: Please create an account or sign in to generate AI daily quests.');
+      } else if (onOpenAuth) {
+        onOpenAuth('signup');
+      }
+      return;
+    }
     setIsLoadingAiTasks(true);
     const today = new Date().toISOString().split('T')[0];
     const tasks = await AIDailyService.fetchOrGenerateTasks(today, true);
@@ -535,6 +544,15 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
     soundService.triggerHaptic('medium');
     soundService.playClick();
 
+    if (profile.isGuest) {
+      if (onRequireAuth) {
+        onRequireAuth('Sign up or Log in required: You must create an account or sign in before performing calculations and speed sprints.');
+      } else if (onOpenAuth) {
+        onOpenAuth('signup');
+      }
+      return;
+    }
+
     if (card.action === 'sprint' && card.operation) {
       onLaunchSprint(card.operation);
     } else if (card.action === 'examprep') {
@@ -828,18 +846,22 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 key={card.id}
                 id={`card-${card.id}`}
                 onClick={() => handleCardClick(card)}
-                className="w-full bg-[#1d5ce5] hover:bg-[#1853d6] text-white p-4.5 sm:p-6 rounded-[22px] shadow-lg shadow-blue-500/20 flex items-center justify-between transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.99] cursor-pointer group"
+                className="w-full bg-[#1d5ce5] hover:bg-[#1853d6] text-white p-4.5 sm:p-6 rounded-[22px] shadow-lg shadow-blue-500/20 flex items-center justify-between transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.99] cursor-pointer group relative overflow-hidden"
               >
                 <div className="space-y-1 pr-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-base sm:text-lg md:text-xl font-bold text-white tracking-tight">
                       {card.title}
                     </h3>
-                    {card.badge && (
+                    {profile.isGuest ? (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-400/25 border border-amber-300/40 text-amber-200 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                        <Lock className="w-2.5 h-2.5" /> Sign in to Play
+                      </span>
+                    ) : card.badge ? (
                       <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider">
                         {card.badge}
                       </span>
-                    )}
+                    ) : null}
                   </div>
                   <p className="text-xs sm:text-sm text-blue-100/90 font-medium">
                     {card.subtitle}
@@ -938,6 +960,14 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                         onClick={() => {
                           soundService.triggerHaptic('medium');
                           soundService.playClick();
+                          if (profile.isGuest) {
+                            if (onRequireAuth) {
+                              onRequireAuth('Sign up or Log in required: You must create an account or sign in before starting daily quests and earning XP.');
+                            } else if (onOpenAuth) {
+                              onOpenAuth('signup');
+                            }
+                            return;
+                          }
                           if (task.category === 'Exam Prelims' || task.category === 'Exam Mains') {
                             onOpenExamPrep();
                           } else {
@@ -945,12 +975,23 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                           }
                         }}
                         className={`w-full py-1.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                          task.isCompleted
+                          profile.isGuest
+                            ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-1.5'
+                            : task.isCompleted
                             ? 'bg-emerald-500 text-slate-950'
                             : 'bg-sky-500 hover:bg-sky-400 text-slate-950'
                         }`}
                       >
-                        {task.isCompleted ? '✓ Completed' : 'Start Task'}
+                        {profile.isGuest ? (
+                          <>
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Sign In to Start</span>
+                          </>
+                        ) : task.isCompleted ? (
+                          '✓ Completed'
+                        ) : (
+                          'Start Task'
+                        )}
                       </button>
                     </div>
                   </div>

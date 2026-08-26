@@ -216,11 +216,19 @@ export default function App() {
   };
 
   const handleLaunchSprint = (op: MathOperation) => {
+    if (profile.isGuest) {
+      handleOpenAuthModal('signup', 'Sign up or Log in required: You must create an account or sign in before performing activities.');
+      return;
+    }
     setSelectedInitialOp(op);
     setIsConfigModalOpen(true);
   };
 
   const handleStartGame = (op: MathOperation, diff: DifficultyLevel, dur: GameDuration) => {
+    if (profile.isGuest) {
+      handleOpenAuthModal('signup', 'Sign up or Log in required: You must create an account or sign in before performing calculation activities.');
+      return;
+    }
     setIsConfigModalOpen(false);
     setLatestResult(null);
     setActiveGameParams({ operation: op, difficulty: diff, duration: dur });
@@ -396,8 +404,18 @@ export default function App() {
         return (
           <BookmarksScreen
             bookmarkedQuestions={bookmarkedQuestions}
-            onToggleBookmark={handleToggleBookmark}
+            onToggleBookmark={(id) => {
+              if (profile.isGuest) {
+                handleOpenAuthModal('signup', 'Sign up or Log in required: You must create an account or sign in to bookmark questions.');
+                return;
+              }
+              handleToggleBookmark(id);
+            }}
             onOpenPractice={(catId) => {
+              if (profile.isGuest) {
+                handleOpenAuthModal('signup', 'Sign up or Log in required: You must create an account or sign in before practicing bookmarked problems.');
+                return;
+              }
               setCurrentTab('examprep');
             }}
           />
