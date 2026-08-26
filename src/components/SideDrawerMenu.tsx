@@ -412,49 +412,6 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
             <span>Profile & Settings</span>
           </button>
 
-          {profile.isGuest ? (
-            <div className="space-y-1.5 w-full">
-              <button
-                id="drawer-sign-up-btn"
-                onClick={() => {
-                  soundService.playClick();
-                  onClose();
-                  onOpenAuth?.('signup');
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-400 hover:from-sky-400 hover:to-sky-300 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-sky-500/20 active:scale-95 cursor-pointer"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Sign Up (Free Athlete Account)</span>
-              </button>
-              <button
-                id="drawer-sign-in-btn"
-                onClick={() => {
-                  soundService.playClick();
-                  onClose();
-                  onOpenAuth?.('signin');
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-bold transition-all active:scale-95 cursor-pointer"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In to Existing Account</span>
-              </button>
-            </div>
-          ) : (
-            <button
-              id="drawer-sign-out-btn"
-              onClick={() => {
-                soundService.triggerHaptic('medium');
-                soundService.playClick();
-                onClose();
-                onSignOut?.();
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out ({profile.name})</span>
-            </button>
-          )}
-
           <div 
             onClick={handleSecretTap}
             className="pt-2 text-center text-[10px] text-slate-400 font-mono-math cursor-pointer select-none"
